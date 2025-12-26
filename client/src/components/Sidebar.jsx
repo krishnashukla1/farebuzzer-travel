@@ -1,0 +1,336 @@
+
+
+// import { NavLink } from "react-router-dom";
+// import {
+//   LayoutDashboard,
+//   BookOpen,
+//   MessageSquare,
+//   Users,
+//   FileText,
+//   BarChart3,
+//   Settings,
+//   Plane
+// } from "lucide-react";
+
+// const Sidebar = () => {
+//   return (
+//     <div className="w-64 bg-gradient-to-b from-slate-900 to-slate-950 text-white flex flex-col shadow-2xl relative overflow-hidden">
+//       {/* Subtle background pattern */}
+//       <div className="absolute inset-0 opacity-5">
+//         <div className="absolute inset-0" style={{
+//           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4H14v2h20v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6z' fill='%23ffffff'/%3E%3C/g%3E%3C/svg%3E")`,
+//         }}></div>
+//       </div>
+
+//       <div className="relative z-10">
+//         {/* Logo Section */}
+//         <div className="h-16 flex items-center justify-center bg-teal-600/20 border-b border-teal-500/30">
+//           <div className="flex items-center gap-3">
+//             <div className="p-2 bg-teal-600 rounded-lg shadow-lg">
+//               <Plane size={24} className="text-white" />
+//             </div>
+//             <h1 className="text-xl font-bold tracking-tight">
+//               FareBuzzer CRM
+//             </h1>
+//           </div>
+//         </div>
+
+//         {/* Navigation Menu */}
+//         <nav className="flex-1 p-4 space-y-1">
+//           <NavLink
+//             to="/dashboard"
+//             className={({ isActive }) =>
+//               `flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group
+//               ${isActive 
+//                 ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" 
+//                 : "text-slate-300 hover:bg-teal-600/20 hover:text-white hover:shadow-md"
+//               }`
+//             }
+//           >
+//             <LayoutDashboard size={20} className="group-hover:scale-110 transition-transform" />
+//             <span>Dashboard</span>
+//           </NavLink>
+
+//           <NavLink
+//             to="/bookings"
+//             className={({ isActive }) =>
+//               `flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group
+//               ${isActive 
+//                 ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" 
+//                 : "text-slate-300 hover:bg-teal-600/20 hover:text-white hover:shadow-md"
+//               }`
+//             }
+//           >
+//             <BookOpen size={20} className="group-hover:scale-110 transition-transform" />
+//             <span>Bookings</span>
+//           </NavLink>
+
+//           <NavLink
+//             to="/enquiries"
+//             className={({ isActive }) =>
+//               `flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group
+//               ${isActive 
+//                 ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" 
+//                 : "text-slate-300 hover:bg-teal-600/20 hover:text-white hover:shadow-md"
+//               }`
+//             }
+//           >
+//             <MessageSquare size={20} className="group-hover:scale-110 transition-transform" />
+//             <span>Enquiries</span>
+//           </NavLink>
+
+//           <NavLink
+//             to="/users"
+//             className={({ isActive }) =>
+//               `flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group
+//               ${isActive 
+//                 ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" 
+//                 : "text-slate-300 hover:bg-teal-600/20 hover:text-white hover:shadow-md"
+//               }`
+//             }
+//           >
+//             <Users size={20} className="group-hover:scale-110 transition-transform" />
+//             <span>Users</span>
+//           </NavLink>
+
+//           <NavLink
+//             to="/reports"
+//             className={({ isActive }) =>
+//               `flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group
+//               ${isActive 
+//                 ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" 
+//                 : "text-slate-300 hover:bg-teal-600/20 hover:text-white hover:shadow-md"
+//               }`
+//             }
+//           >
+//             <BarChart3 size={20} className="group-hover:scale-110 transition-transform" />
+//             <span>Reports</span>
+//           </NavLink>
+
+//           <NavLink
+//             to="/settings"
+//             className={({ isActive }) =>
+//               `flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group
+//               ${isActive 
+//                 ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" 
+//                 : "text-slate-300 hover:bg-teal-600/20 hover:text-white hover:shadow-md"
+//               }`
+//             }
+//           >
+//             <Settings size={20} className="group-hover:scale-110 transition-transform" />
+//             <span>Settings</span>
+//           </NavLink>
+//         </nav>
+
+//         {/* Footer */}
+//         <div className="p-4 border-t border-slate-800">
+//           <p className="text-xs text-slate-400 text-center leading-relaxed">
+//             © {new Date().getFullYear()} <span className="text-teal-400 font-medium">FareBuzzer Travel</span>
+//             <br />
+//             <span className="text-slate-500">Managing journeys, creating memories</span>
+//           </p>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Sidebar;
+
+
+//=================with user admin===========
+import { NavLink } from "react-router-dom";
+import {
+  LayoutDashboard,
+  BookOpen,
+  MessageSquare,
+  Users,
+  BarChart3,
+  Settings,
+  Plane, Wallet
+} from "lucide-react";
+
+const Sidebar = () => {
+  const role = localStorage.getItem("role"); // ✅ GET ROLE
+
+  const linkClass = ({ isActive }) =>
+    `flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group
+    ${isActive
+      ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30"
+      : "text-slate-300 hover:bg-teal-600/20 hover:text-white hover:shadow-md"
+    }`;
+
+  return (
+    <div className="w-64 bg-gradient-to-b from-slate-900 to-slate-950 text-white flex flex-col shadow-2xl relative overflow-hidden">
+      {/* Background pattern */}
+      <div className="absolute inset-0 opacity-5" />
+
+      <div className="relative z-10">
+        {/* Logo */}
+        <div className="h-16 flex items-center justify-center bg-teal-600/20 border-b border-teal-500/30">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-teal-600 rounded-lg shadow-lg">
+              <Plane size={24} className="text-white" />
+            </div>
+            <h1 className="text-xl font-bold">FareBuzzer CRM</h1>
+          </div>
+        </div>
+
+        {/* Menu */}
+        <nav className="flex-1 p-4 space-y-1">
+          <NavLink to="/dashboard" className={linkClass}>
+            <LayoutDashboard size={20} />
+            <span>Dashboard</span>
+          </NavLink>
+
+          <NavLink to="/bookings" className={linkClass}>
+            <BookOpen size={20} />
+            <span>All Bookings</span>
+          </NavLink>
+
+          <NavLink to="/add-booking" className={linkClass}>
+            <BookOpen size={20} />
+            <span>Create Booking</span>
+          </NavLink>
+
+          <NavLink to="/enquiries" className={linkClass}>
+            <MessageSquare size={20} />
+            <span>All Enquiries</span>
+          </NavLink>
+
+          <NavLink to="/add-enquiry" className={linkClass}>
+            <MessageSquare size={20} />
+            <span>Create Enquiry</span>
+          </NavLink>
+
+          <NavLink to="/send-email" className={linkClass}>
+            <Wallet size={20} />
+            <span>Send E-mail</span>
+          </NavLink>
+
+          {/* 🔐 ADMIN ONLY */}
+          {role === "admin" && (
+            <>
+              <NavLink to="/users" className={linkClass}>
+                <Users size={20} />
+                <span>Users</span>
+              </NavLink>
+
+              <NavLink to="/reports" className={linkClass}>
+                <BarChart3 size={20} />
+                <span>Reports</span>
+              </NavLink>
+
+              <NavLink to="/settings" className={linkClass}>
+                <Settings size={20} />
+                <span>Settings</span>
+              </NavLink>
+
+
+              <NavLink to="/accounting-dashboard" className={linkClass}>
+                <Wallet size={20} />
+                <span>Accounting</span>
+              </NavLink>
+
+
+            
+              <NavLink to="/inbox-email" className={linkClass}>
+                <Wallet size={20} />
+                <span>Inbox E-mail</span>
+              </NavLink>
+
+            </>
+          )}
+        </nav>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-slate-800">
+          <p className="text-xs text-slate-400 text-center">
+            © {new Date().getFullYear()}{" "}
+            <span className="text-teal-400 font-medium">
+              FareBuzzer Travel
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// const Sidebar = () => {
+//   const role = localStorage.getItem("role")?.toLowerCase(); // 🔥 FIX
+
+//   const isAdmin = role === "admin";
+
+//   const linkClass = ({ isActive }) =>
+//     `flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300
+//      ${
+//        isActive
+//          ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30"
+//          : "text-slate-300 hover:bg-teal-600/20 hover:text-white"
+//      }`;
+
+//   return (
+//     <div className="w-64 bg-gradient-to-b from-slate-900 to-slate-950 text-white flex flex-col">
+
+//       {/* LOGO */}
+//       <div className="h-16 flex items-center justify-center border-b border-slate-800">
+//         <h1 className="text-xl font-bold">FareBuzzer CRM</h1>
+//       </div>
+
+//       {/* MENU */}
+//       <nav className="flex-1 p-4 space-y-1">
+
+//         {/* COMMON (ADMIN + USER) */}
+//         <NavLink to="/dashboard" className={linkClass}>
+//           <LayoutDashboard size={20} /> Dashboard
+//         </NavLink>
+
+//         <NavLink to="/bookings" className={linkClass}>
+//           <BookOpen size={20} /> All Bookings
+//         </NavLink>
+
+//         <NavLink to="/add-booking" className={linkClass}>
+//           <BookOpen size={20} /> Create Booking
+//         </NavLink>
+
+//         <NavLink to="/enquiries" className={linkClass}>
+//           <MessageSquare size={20} /> All Enquiries
+//         </NavLink>
+
+//         <NavLink to="/add-enquiry" className={linkClass}>
+//           <MessageSquare size={20} /> Create Enquiry
+//         </NavLink>
+
+//         {/* 🔐 ADMIN ONLY */}
+//         {isAdmin && (
+//           <>
+//             <div className="mt-4 text-xs text-slate-400 uppercase tracking-wide">
+//               Admin Panel
+//             </div>
+
+//             <NavLink to="/users" className={linkClass}>
+//               <Users size={20} /> Users
+//             </NavLink>
+
+//             <NavLink to="/reports" className={linkClass}>
+//               <BarChart3 size={20} /> Reports
+//             </NavLink>
+
+//             <NavLink to="/settings" className={linkClass}>
+//               <Settings size={20} /> Settings
+//             </NavLink>
+
+//             <NavLink to="/accounting-dashboard" className={linkClass}>
+//               <Settings size={20} /> Accounting
+//             </NavLink>
+//           </>
+//         )}
+//       </nav>
+//     </div>
+//   );
+// };
+
+
+
+export default Sidebar;

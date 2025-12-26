@@ -62,6 +62,30 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 
+
+export const verifyToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // 🔥 THIS IS THE FIX
+    req.userId = decoded.id;   // MUST MATCH LOGIN TOKEN PAYLOAD
+
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
+};
+
+
+
 // 🔹 Admin: get all users
 export const getAllUsers = async (req, res) => {
   try {

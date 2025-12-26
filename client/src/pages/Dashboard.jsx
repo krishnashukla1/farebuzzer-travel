@@ -31,26 +31,55 @@ const Dashboard = () => {
     }
   };
 
+  // const fetchDashboardData = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const params = {};
+
+  //     if (fromDate) {
+  //       params.from = convertISTDateToUTC(fromDate).toISOString();
+  //     }
+  //     if (toDate) {
+  //       params.to = convertISTDateToUTC(toDate, true).toISOString();
+  //     }
+
+  //     const res = await API.get("/dashboard", { params });
+  //     setStats(res.data);
+  //   } catch (err) {
+  //     console.error("Failed to load dashboard data", err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      const params = {};
+  try {
+    setLoading(true);
 
-      if (fromDate) {
-        params.from = convertISTDateToUTC(fromDate).toISOString();
-      }
-      if (toDate) {
-        params.to = convertISTDateToUTC(toDate, true).toISOString();
-      }
-
-      const res = await API.get("/dashboard", { params });
-      setStats(res.data);
-    } catch (err) {
-      console.error("Failed to load dashboard data", err);
-    } finally {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No token found");
       setLoading(false);
+      return;
     }
-  };
+
+    const params = {};
+    if (fromDate) params.from = convertISTDateToUTC(fromDate).toISOString();
+    if (toDate) params.to = convertISTDateToUTC(toDate, true).toISOString();
+
+    const res = await API.get("/dashboard", {
+      headers: { Authorization: `Bearer ${token}` },
+      params,
+    });
+
+    setStats(res.data);
+  } catch (err) {
+    console.error("Failed to load dashboard data", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     const fetchUser = async () => {

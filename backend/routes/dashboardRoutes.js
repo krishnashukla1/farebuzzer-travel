@@ -7,13 +7,25 @@
 // export default router;
 
 
+// import express from "express";
+// import { getDashboardStats } from "../controllers/dashboardController.js";
+// import { verifyToken } from "../controllers/userController.js";
+
+// const router = express.Router();
+
+// router.get("/", verifyToken, getDashboardStats);
+
+
+// export default router;
+
+
 import express from "express";
 import { getDashboardStats } from "../controllers/dashboardController.js";
-import { verifyToken } from "../controllers/userController.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", verifyToken, getDashboardStats);
-
+router.get("/", authMiddleware, getDashboardStats);
 
 export default router;
+

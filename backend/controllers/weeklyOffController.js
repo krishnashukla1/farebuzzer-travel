@@ -1,7 +1,14 @@
 import WeeklyOff from "../models/WeeklyOff.js";
+import User from "../models/User.js"
 
 export const adminAddWeeklyOff = async (req, res) => {
   try {
+
+    const user = await User.findById(userId);
+if (!user || user.role === "admin") {
+  return res.status(400).json({ message: "Invalid employee" });
+}
+
     const { userId, date, reason } = req.body;
 
     if (!userId || !date) {
@@ -34,7 +41,7 @@ export const adminUpdateWeeklyOff = async (req, res) => {
     const updated = await WeeklyOff.findByIdAndUpdate(
       req.params.id,
       { date, reason, userId },
-      { new: true }
+      { new: true, runValidators: true }
     ).populate("userId", "name email");
 
     if (!updated) {
@@ -43,6 +50,11 @@ export const adminUpdateWeeklyOff = async (req, res) => {
 
     res.json({ message: "Weekly off updated", updated });
   } catch (err) {
+    if (err.code === 11000) {
+      return res.status(409).json({
+        message: "Weekly off already exists for this user on this date"
+      });
+    }
     res.status(500).json({ message: err.message });
   }
 };

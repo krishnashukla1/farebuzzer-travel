@@ -634,7 +634,7 @@ export default function Inbox() {
                 <button
                   onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
                   disabled={currentPage === 1}
-                  className="flex items-center gap-1 px-5 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-colors"
+                  className="cursor-pointer flex items-center gap-1 px-5 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-colors"
                 >
                   <ChevronLeft size={16} />
                   Previous
@@ -649,7 +649,7 @@ export default function Inbox() {
                 <button
                   onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className="flex items-center gap-1 px-5 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-colors"
+                  className="cursor-pointer flex items-center gap-1 px-5 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-colors"
                 >
                   Next
                   <ChevronRight size={16} />

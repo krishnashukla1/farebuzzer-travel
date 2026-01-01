@@ -239,6 +239,11 @@ const Sidebar = () => {
                 <span>Inbox E-mail</span>
               </NavLink>
 
+               <NavLink to="/weekly-off" className={linkClass}>
+                <Wallet size={20} />
+                <span>Weekly-Off</span>
+              </NavLink>
+
             </>
           )}
         </nav>

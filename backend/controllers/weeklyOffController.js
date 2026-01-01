@@ -27,6 +27,25 @@ export const adminAddWeeklyOff = async (req, res) => {
   }
 };
 
+export const adminUpdateWeeklyOff = async (req, res) => {
+  try {
+    const { date, reason, userId } = req.body;
+
+    const updated = await WeeklyOff.findByIdAndUpdate(
+      req.params.id,
+      { date, reason, userId },
+      { new: true }
+    ).populate("userId", "name email");
+
+    if (!updated) {
+      return res.status(404).json({ message: "Weekly off not found" });
+    }
+
+    res.json({ message: "Weekly off updated", updated });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 
 export const getMyWeeklyOff = async (req, res) => {
@@ -45,5 +64,19 @@ export const getAllWeeklyOff = async (req, res) => {
     res.json(data);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch weekly off" });
+  }
+};
+
+export const adminDeleteWeeklyOff = async (req, res) => {
+  try {
+    const deleted = await WeeklyOff.findByIdAndDelete(req.params.id);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Weekly off not found" });
+    }
+
+    res.json({ message: "Weekly off deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };

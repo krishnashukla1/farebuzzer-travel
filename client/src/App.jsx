@@ -97,6 +97,8 @@ import SendEmail from './pages/SendEmail'
 import InboxEmail from "./pages/InboxEmail";
 
 
+import WeeklyOff from './components3/WeeklyOff'
+
 const App = () => {
   const token = localStorage.getItem("token");
 
@@ -131,6 +133,7 @@ const App = () => {
                       <Route path="/enquiries" element={<Enquiries />} />
                       <Route path="/add-enquiry" element={<AddEnquiry />} />
                       <Route path="/send-email" element={<SendEmail />} />
+<Route path="/weekly-off" element={<WeeklyOff />} />
 
 
 

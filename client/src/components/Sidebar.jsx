@@ -139,128 +139,132 @@
 
 
 //=================with user admin===========
-import { NavLink } from "react-router-dom";
-import {
-  LayoutDashboard,
-  BookOpen,
-  MessageSquare,
-  Users,
-  BarChart3,
-  Settings,
-  Plane, Wallet
-} from "lucide-react";
 
-const Sidebar = () => {
-  const role = localStorage.getItem("role"); // ✅ GET ROLE
+// import { NavLink } from "react-router-dom";
+// import {
+//   LayoutDashboard,
+//   BookOpen,
+//   MessageSquare,
+//   Users,
+//   BarChart3,
+//   Settings,
+//   Plane, Wallet
+// } from "lucide-react";
 
-  const linkClass = ({ isActive }) =>
-    `flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group
-    ${isActive
-      ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30"
-      : "text-slate-300 hover:bg-teal-600/20 hover:text-white hover:shadow-md"
-    }`;
+// const Sidebar = () => {
+//   const role = localStorage.getItem("role"); // ✅ GET ROLE
 
-  return (
-    <div className="w-64 bg-gradient-to-b from-slate-900 to-slate-950 text-white flex flex-col shadow-2xl relative overflow-hidden">
-      {/* Background pattern */}
-      <div className="absolute inset-0 opacity-5" />
+//   const linkClass = ({ isActive }) =>
+//     `flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group
+//     ${isActive
+//       ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30"
+//       : "text-slate-300 hover:bg-teal-600/20 hover:text-white hover:shadow-md"
+//     }`;
 
-      <div className="relative z-10">
-        {/* Logo */}
-        <div className="h-16 flex items-center justify-center bg-teal-600/20 border-b border-teal-500/30">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-teal-600 rounded-lg shadow-lg">
-              <Plane size={24} className="text-white" />
-            </div>
-            <h1 className="text-xl font-bold">FareBuzzer CRM</h1>
-          </div>
-        </div>
+//   return (
+//     <div className="w-64 bg-gradient-to-b from-slate-900 to-slate-950 text-white flex flex-col shadow-2xl relative overflow-hidden">
+//       {/* Background pattern */}
+//       <div className="absolute inset-0 opacity-5" />
 
-        {/* Menu */}
-        <nav className="flex-1 p-4 space-y-1">
-          <NavLink to="/dashboard" className={linkClass}>
-            <LayoutDashboard size={20} />
-            <span>Dashboard</span>
-          </NavLink>
+//       <div className="relative z-10">
+//         {/* Logo */}
+//         <div className="h-16 flex items-center justify-center bg-teal-600/20 border-b border-teal-500/30">
+//           <div className="flex items-center gap-3">
+//             <div className="p-2 bg-teal-600 rounded-lg shadow-lg">
+//               <Plane size={24} className="text-white" />
+//             </div>
+//             <h1 className="text-xl font-bold">FareBuzzer CRM</h1>
+//           </div>
+//         </div>
 
-          <NavLink to="/bookings" className={linkClass}>
-            <BookOpen size={20} />
-            <span>All Bookings</span>
-          </NavLink>
+//         {/* Menu */}
+//         <nav className="flex-1 p-4 space-y-1">
+//           <NavLink to="/dashboard" className={linkClass}>
+//             <LayoutDashboard size={20} />
+//             <span>Dashboard</span>
+//           </NavLink>
 
-          <NavLink to="/add-booking" className={linkClass}>
-            <BookOpen size={20} />
-            <span>Create Booking</span>
-          </NavLink>
+//           <NavLink to="/bookings" className={linkClass}>
+//             <BookOpen size={20} />
+//             <span>All Bookings</span>
+//           </NavLink>
 
-          <NavLink to="/enquiries" className={linkClass}>
-            <MessageSquare size={20} />
-            <span>All Enquiries</span>
-          </NavLink>
+//           <NavLink to="/add-booking" className={linkClass}>
+//             <BookOpen size={20} />
+//             <span>Create Booking</span>
+//           </NavLink>
 
-          <NavLink to="/add-enquiry" className={linkClass}>
-            <MessageSquare size={20} />
-            <span>Create Enquiry</span>
-          </NavLink>
+//           <NavLink to="/enquiries" className={linkClass}>
+//             <MessageSquare size={20} />
+//             <span>All Enquiries</span>
+//           </NavLink>
 
-          <NavLink to="/send-email" className={linkClass}>
-            <Wallet size={20} />
-            <span>Send E-mail</span>
-          </NavLink>
+//           <NavLink to="/add-enquiry" className={linkClass}>
+//             <MessageSquare size={20} />
+//             <span>Create Enquiry</span>
+//           </NavLink>
 
-          {/* 🔐 ADMIN ONLY */}
-          {role === "admin" && (
-            <>
-              <NavLink to="/users" className={linkClass}>
-                <Users size={20} />
-                <span>Users</span>
-              </NavLink>
+//           <NavLink to="/send-email" className={linkClass}>
+//             <Wallet size={20} />
+//             <span>Send E-mail</span>
+//           </NavLink>
 
-              <NavLink to="/reports" className={linkClass}>
-                <BarChart3 size={20} />
-                <span>Reports</span>
-              </NavLink>
+//           {/* 🔐 ADMIN ONLY */}
+//           {role === "admin" && (
+//             <>
+//               <NavLink to="/users" className={linkClass}>
+//                 <Users size={20} />
+//                 <span>Users</span>
+//               </NavLink>
 
-              <NavLink to="/settings" className={linkClass}>
-                <Settings size={20} />
-                <span>Settings</span>
-              </NavLink>
+//               <NavLink to="/reports" className={linkClass}>
+//                 <BarChart3 size={20} />
+//                 <span>Reports</span>
+//               </NavLink>
+
+//               <NavLink to="/settings" className={linkClass}>
+//                 <Settings size={20} />
+//                 <span>Settings</span>
+//               </NavLink>
 
 
-              <NavLink to="/accounting-dashboard" className={linkClass}>
-                <Wallet size={20} />
-                <span>Accounting</span>
-              </NavLink>
+//               <NavLink to="/accounting-dashboard" className={linkClass}>
+//                 <Wallet size={20} />
+//                 <span>Accounting</span>
+//               </NavLink>
 
 
             
-              <NavLink to="/inbox-email" className={linkClass}>
-                <Wallet size={20} />
-                <span>Inbox E-mail</span>
-              </NavLink>
+//               <NavLink to="/inbox-email" className={linkClass}>
+//                 <Wallet size={20} />
+//                 <span>Inbox E-mail</span>
+//               </NavLink>
 
-               <NavLink to="/weekly-off" className={linkClass}>
-                <Wallet size={20} />
-                <span>Weekly-Off</span>
-              </NavLink>
+//                <NavLink to="/weekly-off" className={linkClass}>
+//                 <Wallet size={20} />
+//                 <span>Weekly-Off</span>
+//               </NavLink>
 
-            </>
-          )}
-        </nav>
+//             </>
+//           )}
+//         </nav>
 
-        {/* Footer */}
-        <div className="p-4 border-t border-slate-800">
-          <p className="text-xs text-slate-400 text-center">
-            © {new Date().getFullYear()}{" "}
-            <span className="text-teal-400 font-medium">
-              FareBuzzer Travel
-            </span>
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-};
+//         {/* Footer */}
+//         <div className="p-4 border-t border-slate-800">
+//           <p className="text-xs text-slate-400 text-center">
+//             © {new Date().getFullYear()}{" "}
+//             <span className="text-teal-400 font-medium">
+//               FareBuzzer Travel
+//             </span>
+//           </p>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+// export default Sidebar;
+
+//-----------------
 
 // const Sidebar = () => {
 //   const role = localStorage.getItem("role")?.toLowerCase(); // 🔥 FIX
@@ -336,6 +340,135 @@ const Sidebar = () => {
 //   );
 // };
 
+//=============01 jan=============
 
+import { NavLink } from "react-router-dom";
+import {
+  LayoutDashboard,
+  BookOpen,
+  MessageSquare,
+  Users,
+  BarChart3,
+  Settings,
+  Plane,
+  Wallet,
+  Mail,
+  CalendarX,
+} from "lucide-react";
+
+const Sidebar = () => {
+  const role = localStorage.getItem("role");
+
+  const linkClass = ({ isActive }) =>
+    `flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group
+    ${isActive
+      ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30"
+      : "text-slate-300 hover:bg-teal-600/20 hover:text-white hover:shadow-md"
+    }`;
+
+  return (
+    <div className="w-64 bg-gradient-to-b from-slate-900 to-slate-950 text-white flex flex-col shadow-2xl relative overflow-hidden">
+      {/* Background pattern (optional subtle noise) */}
+      <div className="absolute inset-0 opacity-5 pointer-events-none" />
+
+      <div className="relative z-10 flex flex-col h-full">
+        {/* Logo */}
+        <div className="h-16 flex items-center justify-center bg-teal-600/20 border-b border-teal-500/30">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-teal-600 rounded-lg shadow-lg">
+              <Plane size={24} className="text-white" />
+            </div>
+            <h1 className="text-xl font-bold tracking-tight">FareBuzzer CRM</h1>
+          </div>
+        </div>
+
+        {/* Menu */}
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          {/* Core Features - same for everyone */}
+          <NavLink to="/dashboard" className={linkClass}>
+            <LayoutDashboard size={20} />
+            <span>Dashboard</span>
+          </NavLink>
+
+          <NavLink to="/bookings" className={linkClass}>
+            <BookOpen size={20} />
+            <span>All Bookings</span>
+          </NavLink>
+
+          <NavLink to="/add-booking" className={linkClass}>
+            <BookOpen size={20} />
+            <span>Create Booking</span>
+          </NavLink>
+
+          <NavLink to="/enquiries" className={linkClass}>
+            <MessageSquare size={20} />
+            <span>All Enquiries</span>
+          </NavLink>
+
+          <NavLink to="/add-enquiry" className={linkClass}>
+            <MessageSquare size={20} />
+            <span>Create Enquiry</span>
+          </NavLink>
+
+          {/* Email features */}
+          <NavLink to="/send-email" className={linkClass}>
+            <Mail size={20} />
+            <span>Send Email</span>
+          </NavLink>
+
+          {/* ==================== ADMIN ONLY ==================== */}
+          {role === "admin" && (
+            <>
+              <div className="h-px bg-slate-700 my-4 opacity-60" />
+
+              <div className="text-xs font-semibold text-teal-400 px-4 mb-2 uppercase tracking-wider">
+                Admin Tools
+              </div>
+
+              <NavLink to="/users" className={linkClass}>
+                <Users size={20} />
+                <span>Users</span>
+              </NavLink>
+
+              <NavLink to="/reports" className={linkClass}>
+                <BarChart3 size={20} />
+                <span>Reports</span>
+              </NavLink>
+
+              <NavLink to="/accounting-dashboard" className={linkClass}>
+                <Wallet size={20} />
+                <span>Accounting</span>
+              </NavLink>
+
+              <NavLink to="/inbox-email" className={linkClass}>
+                <Mail size={20} />
+                <span>Inbox Email</span>
+              </NavLink>
+
+              <NavLink to="/weekly-off" className={linkClass}>
+                <CalendarX size={20} />
+                <span>Weekly Off</span>
+              </NavLink>
+
+              <NavLink to="/settings" className={linkClass}>
+                <Settings size={20} />
+                <span>Settings</span>
+              </NavLink>
+            </>
+          )}
+        </nav>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-slate-800 mt-auto">
+          <p className="text-xs text-slate-400 text-center">
+            © {new Date().getFullYear()}{" "}
+            <span className="text-teal-400 font-medium">FareBuzzer Travel</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default Sidebar;
+

@@ -3,37 +3,67 @@ import User from "../models/User.js"
 
 export const adminAddWeeklyOff = async (req, res) => {
   try {
-
-    const user = await User.findById(userId);
-if (!user || user.role === "admin") {
-  return res.status(400).json({ message: "Invalid employee" });
-}
-
+    // 1. First get data from request body
     const { userId, date, reason } = req.body;
 
+    // 2. Required field validation
     if (!userId || !date) {
-      return res.status(400).json({ message: "userId and date are required" });
+      return res.status(400).json({ 
+        success: false,
+        message: "userId and date are required" 
+      });
     }
 
+    // 3. Validate that the employee exists and is not an admin
+    const employee = await User.findById(userId);
+
+    if (!employee) {
+      return res.status(404).json({ 
+        success: false,
+        message: "Employee not found" 
+      });
+    }
+
+    if (employee.role === "admin") {
+      return res.status(403).json({ 
+        success: false,
+        message: "Cannot assign weekly off to an admin user" 
+      });
+    }
+
+    // 4. Create the weekly off entry
     const off = await WeeklyOff.create({
       userId,
-      date,
-      reason
+      date: new Date(date),           // Make sure it's stored as proper Date
+      reason: reason || null,         // Optional field
+      // Optional: createdBy: req.user._id   // if you want to track who added it
     });
 
     res.status(201).json({
+      success: true,
       message: "Weekly off added successfully",
-      off
+      data: off
     });
 
   } catch (error) {
+    console.error("Error creating weekly off:", error);
+
     if (error.code === 11000) {
-      return res.status(409).json({ message: "Weekly off already exists for this date" });
+      // Duplicate key error (e.g. unique index on userId + date)
+      return res.status(409).json({ 
+        success: false,
+        message: "Weekly off already exists for this employee on this date" 
+      });
     }
-    res.status(500).json({ message: error.message });
+
+    // General server error
+    res.status(500).json({ 
+      success: false,
+      message: "Server error while adding weekly off",
+      error: error.message 
+    });
   }
 };
-
 export const adminUpdateWeeklyOff = async (req, res) => {
   try {
     const { date, reason, userId } = req.body;

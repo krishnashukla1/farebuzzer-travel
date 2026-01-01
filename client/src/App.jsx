@@ -133,7 +133,7 @@ const App = () => {
                       <Route path="/enquiries" element={<Enquiries />} />
                       <Route path="/add-enquiry" element={<AddEnquiry />} />
                       <Route path="/send-email" element={<SendEmail />} />
-<Route path="/weekly-off" element={<WeeklyOff />} />
+                      {/* <Route path="/weekly-off" element={<WeeklyOff />} /> */}
 
 
 
@@ -179,6 +179,11 @@ const App = () => {
                           </ProtectedRoute>
                         }
                       />
+                      <Route path="/weekly-off" element={
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                          <WeeklyOff />
+                        </ProtectedRoute>
+                      } />
 
                       {/* <Route path="send-email" element={<SendEmail />} /> */}
 
@@ -192,7 +197,11 @@ const App = () => {
                         }
                       />
 
-                      
+
+
+
+
+
 
 
 

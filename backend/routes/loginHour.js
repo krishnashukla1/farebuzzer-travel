@@ -18,6 +18,8 @@
 
 //====================================
 
+
+
 import express from "express";
 import authMiddleware from "../middleware/authMiddleware.js";
 import adminMiddleware from "../middleware/adminMiddleware.js";
@@ -30,7 +32,8 @@ import {
   reviewBreakRequest,
   getPendingBreakRequests,
   getTodayStats,
-  getAllLoginHours
+  getAllLoginHours,
+  getMyLoginHours
 } from "../controllers/loginHourController.js";
 
 const router = express.Router();
@@ -41,40 +44,27 @@ const router = express.Router();
 router.post("/login", authMiddleware, login);
 router.post("/logout", authMiddleware, logout);
 
-// Break actions
+// Break actions (both routes for flexibility)
 router.post("/break/start", authMiddleware, startBreak);
 router.post("/break/end", authMiddleware, endBreak);
-
-// Request break approval (after limit)
 router.post("/break/request", authMiddleware, requestBreak);
 
-// Get today's login + break stats (self)
+// Get today's stats
 router.get("/today", authMiddleware, getTodayStats);
+
+// Get my login hours
+router.get("/my-hours", authMiddleware, getMyLoginHours);
 
 /* ================= ADMIN / SUPERVISOR ================= */
 
 // Review break (approve / reject)
-router.post(
-  "/break/review",
-  authMiddleware,
-  adminMiddleware,
-  reviewBreakRequest
-);
+router.post("/break/review", authMiddleware, adminMiddleware, reviewBreakRequest);
 
 // Pending break requests
-router.get(
-  "/break/pending",
-  authMiddleware,
-  adminMiddleware,
-  getPendingBreakRequests
-);
+router.get("/break/pending", authMiddleware, adminMiddleware, getPendingBreakRequests);
 
 // All login hour records
-router.get(
-  "/",
-  authMiddleware,
-  adminMiddleware,
-  getAllLoginHours
-);
+router.get("/", authMiddleware, adminMiddleware, getAllLoginHours);
 
 export default router;
+

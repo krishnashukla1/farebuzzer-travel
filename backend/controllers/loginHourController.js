@@ -42,9 +42,7 @@
 // };
 
 //====================================================
-
 import LoginHour from "../models/loginHoursSchema.js";
-import Attendance from "../models/Attendance.js";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
 import timezone from "dayjs/plugin/timezone.js";
@@ -52,239 +50,513 @@ import timezone from "dayjs/plugin/timezone.js";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-
 /* ================= CONSTANTS ================= */
-
 const BREAK_LIMITS = {
-  HALF_DAY: 70 * 60 * 1000, // 1h 10m
-  ABSENT: 90 * 60 * 1000   // 1h 30m
+  HALF_DAY: 70, // 1 hour 10 minutes in minutes
+  ABSENT: 90    // 1 hour 30 minutes in minutes
 };
 
 const SHIFT_START_HOUR = 15; // 3 PM IST
 const MAX_FREE_BREAKS = 3;
+const FREE_BREAK_DURATION = 15; // 15 minutes for free breaks
 
 /* ================= HELPERS ================= */
-
 function getISTNow() {
   return dayjs().tz("Asia/Kolkata");
 }
 
 function getShiftDate() {
   const istNow = getISTNow();
-  let shiftDate = istNow;
-
+  
+  // If current time is before 3 PM, it belongs to previous day's shift
   if (istNow.hour() < SHIFT_START_HOUR) {
-    shiftDate = istNow.subtract(1, "day");
+    return istNow.subtract(1, 'day').format("YYYY-MM-DD");
   }
-
-  return shiftDate.format("YYYY-MM-DD");
+  
+  return istNow.format("YYYY-MM-DD");
 }
 
-function calculateTotalBreakTime(breaks = []) {
+function calculateTotalBreakMinutes(breaks = []) {
   return breaks.reduce((total, b) => {
-    if (!b.start) return total;
+    if (!b.start || b.status !== "approved") return total;
+    
     const start = new Date(b.start);
     const end = b.end ? new Date(b.end) : new Date();
-    return total + (end - start);
+    
+    // Make sure end is after start
+    if (end <= start) return total;
+    
+    const duration = (end - start) / (1000 * 60); // Convert to minutes
+    return total + Math.max(0, duration);
   }, 0);
 }
 
-async function updateAttendanceByBreak(employeeId, date) {
-  const record = await LoginHour.findOne({ employeeId, date });
-  if (!record) return;
+function calculateWorkedHours(loginTime, logoutTime, totalBreakMinutes) {
+  if (!loginTime) return 0;
+  
+  const login = new Date(loginTime);
+  const logout = logoutTime ? new Date(logoutTime) : new Date();
+  
+  // Ensure logout is after login
+  if (logout <= login) return 0;
+  
+  const totalMs = logout - login;
+  const breakMs = totalBreakMinutes * 60 * 1000;
+  const workedMs = totalMs - breakMs;
+  
+  return workedMs > 0 ? workedMs / (1000 * 60 * 60) : 0; // Convert to hours
+}
 
-  const totalBreakMs = calculateTotalBreakTime(record.breaks);
-  let status = null;
+function calculateAttendanceStatus(totalBreakMinutes) {
+  if (totalBreakMinutes >= BREAK_LIMITS.ABSENT) return "absent";
+  if (totalBreakMinutes >= BREAK_LIMITS.HALF_DAY) return "half-day";
+  return "present";
+}
 
-  if (totalBreakMs >= BREAK_LIMITS.ABSENT) status = "Absent";
-  else if (totalBreakMs >= BREAK_LIMITS.HALF_DAY) status = "Half Day";
-
-  if (status) {
-    await Attendance.findOneAndUpdate(
-      { employeeId, date },
-      { status },
-      { upsert: true }
-    );
+function formatDuration(minutes) {
+  if (!minutes || minutes <= 0) return "0 min";
+  
+  const hours = Math.floor(minutes / 60);
+  const mins = Math.floor(minutes % 60);
+  
+  if (hours > 0) {
+    return `${hours}h ${mins}m`;
   }
+  return `${mins}m`;
 }
 
 /* ================= LOGIN / LOGOUT ================= */
-
 export const login = async (req, res) => {
   try {
-    const employeeId = req.user._id;
+    const userId = req.user._id;
     const date = getShiftDate();
 
-    const record = await LoginHour.findOneAndUpdate(
-      { employeeId, date },
-      { $setOnInsert: { loginTime: new Date(), breaks: [] } },
-      { upsert: true, new: true }
-    );
+    // Check if already logged in today
+    const existingRecord = await LoginHour.findOne({ 
+      userId, 
+      date,
+      logoutTime: { $exists: false }
+    });
 
-    res.json({ message: "Login recorded", record });
+    if (existingRecord) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Already logged in for today",
+        record: existingRecord 
+      });
+    }
+
+    // Check if there's a completed record for today
+    const completedRecord = await LoginHour.findOne({ 
+      userId, 
+      date,
+      logoutTime: { $exists: true }
+    });
+
+    if (completedRecord) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Already completed today's shift. Cannot login again.",
+        record: completedRecord 
+      });
+    }
+
+    const record = new LoginHour({
+      userId,
+      date,
+      loginTime: new Date(),
+      breaks: [],
+      status: "present"
+    });
+
+    await record.save();
+
+    res.json({ 
+      success: true,
+      message: "Login recorded successfully", 
+      record: {
+        _id: record._id,
+        userId: record.userId,
+        date: record.date,
+        loginTime: record.loginTime,
+        breaks: record.breaks,
+        status: record.status
+      }
+    });
   } catch (err) {
-    res.status(500).json({ message: "Login failed" });
+    console.error("Login error:", err);
+    
+    // Handle duplicate key error
+    if (err.code === 11000) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Already logged in for today", 
+        error: "Duplicate entry"
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false,
+      message: "Login failed", 
+      error: err.message 
+    });
   }
 };
 
 export const logout = async (req, res) => {
   try {
-    const employeeId = req.user._id;
+    const userId = req.user._id;
     const date = getShiftDate();
 
-    const record = await LoginHour.findOneAndUpdate(
-      { employeeId, date },
-      { logoutTime: new Date() },
-      { new: true }
-    );
-
+    const record = await LoginHour.findOne({ userId, date });
     if (!record) {
-      return res.status(404).json({ message: "No login record found" });
+      return res.status(404).json({ 
+        success: false,
+        message: "No login record found for today" 
+      });
     }
 
-    res.json({ message: "Logout recorded", record });
+    if (record.logoutTime) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Already logged out for today" 
+      });
+    }
+
+    // End any active break
+    const activeBreak = record.breaks.find(b => !b.end && b.status === "approved");
+    if (activeBreak) {
+      activeBreak.end = new Date();
+      console.log(`Auto-ended break for user ${userId}`);
+    }
+
+    // Calculate totals
+    const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
+    const totalWorkedHours = calculateWorkedHours(
+      record.loginTime, 
+      new Date(), 
+      totalBreakMinutes
+    );
+    const status = calculateAttendanceStatus(totalBreakMinutes);
+
+    record.logoutTime = new Date();
+    record.totalBreakHours = totalBreakMinutes / 60;
+    record.totalWorkedHours = totalWorkedHours;
+    record.status = status;
+
+    await record.save();
+
+    res.json({ 
+      success: true,
+      message: "Logout recorded successfully", 
+      record: {
+        _id: record._id,
+        userId: record.userId,
+        date: record.date,
+        loginTime: record.loginTime,
+        logoutTime: record.logoutTime,
+        totalWorkedHours: record.totalWorkedHours,
+        totalBreakHours: record.totalBreakHours,
+        status: record.status,
+        breaks: record.breaks
+      },
+      summary: {
+        workedHours: totalWorkedHours.toFixed(2),
+        breakHours: (totalBreakMinutes / 60).toFixed(2),
+        status: status
+      }
+    });
   } catch (err) {
-    res.status(500).json({ message: "Logout failed" });
+    console.error("Logout error:", err);
+    res.status(500).json({ 
+      success: false,
+      message: "Logout failed", 
+      error: err.message 
+    });
   }
 };
 
-/* ================= BREAK REQUEST ================= */
-
+/* ================= BREAK MANAGEMENT ================= */
 export const requestBreak = async (req, res) => {
   try {
-    const employeeId = req.user._id;
+    const userId = req.user._id;
     const date = getShiftDate();
 
-    const record = await LoginHour.findOne({ employeeId, date });
+    const record = await LoginHour.findOne({ userId, date });
     if (!record) {
-      return res.status(404).json({ message: "No active shift found" });
+      return res.status(404).json({ 
+        success: false,
+        message: "No active shift found. Please login first." 
+      });
     }
 
-    // already on break
+    if (record.logoutTime) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Cannot take break after logout" 
+      });
+    }
+
+    // Check if already on break
     const activeBreak = record.breaks.find(b => !b.end && b.status === "approved");
     if (activeBreak) {
-      return res.status(400).json({ message: "Already on break" });
+      return res.status(400).json({ 
+        success: false,
+        message: "You are already on a break. End current break first." 
+      });
     }
 
-    // pending request exists
-    const pending = record.breaks.find(b => b.status === "pending");
-    if (pending) {
-      return res.status(400).json({ message: "Pending break request exists" });
+    // Check if pending request exists
+    const pendingBreak = record.breaks.find(b => b.status === "pending");
+    if (pendingBreak) {
+      return res.status(400).json({ 
+        success: false,
+        message: "You already have a pending break request" 
+      });
     }
 
-    const approvedCount = record.breaks.filter(b => b.status === "approved").length;
-
-    // AUTO APPROVE FIRST 3
-    if (approvedCount < MAX_FREE_BREAKS) {
-      record.breaks.push({
+    // Count approved breaks
+    const approvedBreaks = record.breaks.filter(b => b.status === "approved");
+    
+    // AUTO APPROVE FIRST 3 BREAKS
+    if (approvedBreaks.length < MAX_FREE_BREAKS) {
+      const breakRecord = {
         start: new Date(),
         status: "approved",
         approvedAt: new Date(),
-        approvedBy: null
-      });
+        requestedAt: new Date()
+      };
 
+      record.breaks.push(breakRecord);
       await record.save();
 
       return res.json({
         success: true,
         autoApproved: true,
-        message: `Break started (${approvedCount + 1}/${MAX_FREE_BREAKS})`
+        message: `Break started automatically (${approvedBreaks.length + 1}/${MAX_FREE_BREAKS} free breaks)`,
+        break: breakRecord
       });
     }
 
-    // NEED APPROVAL
-    record.breaks.push({
-      status: "pending",
-      requestedAt: new Date()
-    });
+    // NEED SUPERVISOR APPROVAL FOR ADDITIONAL BREAKS
+    const breakRecord = {
+      requestedAt: new Date(),
+      status: "pending"
+    };
 
+    record.breaks.push(breakRecord);
     await record.save();
 
     res.json({
       success: true,
       pending: true,
-      message: "Break request sent to supervisor"
+      message: "Break request sent to supervisor for approval",
+      breakId: breakRecord._id
     });
 
   } catch (err) {
-    res.status(500).json({ message: "Break request failed" });
+    console.error("Break request error:", err);
+    res.status(500).json({ 
+      success: false,
+      message: "Break request failed", 
+      error: err.message 
+    });
   }
 };
 
-/* ================= BREAK START / END ================= */
-
+// Add this function since it's imported in routes
 export const startBreak = async (req, res) => {
-  return res.status(400).json({
-    message: "Use break request system"
-  });
+  try {
+    const userId = req.user._id;
+    const date = getShiftDate();
+
+    const record = await LoginHour.findOne({ userId, date });
+    if (!record) {
+      return res.status(404).json({ 
+        success: false,
+        message: "No active shift found. Please login first." 
+      });
+    }
+
+    // Check if already on break
+    const activeBreak = record.breaks.find(b => !b.end && b.status === "approved");
+    if (activeBreak) {
+      return res.status(400).json({ 
+        success: false,
+        message: "You are already on a break" 
+      });
+    }
+
+    // Auto approve if within free breaks limit
+    const approvedBreaks = record.breaks.filter(b => b.status === "approved");
+    
+    if (approvedBreaks.length < MAX_FREE_BREAKS) {
+      const breakRecord = {
+        start: new Date(),
+        status: "approved",
+        requestedAt: new Date(),
+        approvedAt: new Date()
+      };
+
+      record.breaks.push(breakRecord);
+      await record.save();
+
+      return res.json({
+        success: true,
+        message: `Break started (${approvedBreaks.length + 1}/${MAX_FREE_BREAKS} free breaks)`,
+        break: breakRecord
+      });
+    }
+
+    // If exceeded free breaks, require approval
+    return res.status(400).json({
+      success: false,
+      message: "Free break limit exceeded. Please request break approval."
+    });
+
+  } catch (err) {
+    console.error("Start break error:", err);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to start break", 
+      error: err.message 
+    });
+  }
 };
 
 export const endBreak = async (req, res) => {
   try {
-    const employeeId = req.user._id;
+    const userId = req.user._id;
     const date = getShiftDate();
 
-    const record = await LoginHour.findOne({ employeeId, date });
+    const record = await LoginHour.findOne({ userId, date });
     if (!record) {
-      return res.status(404).json({ message: "No attendance record" });
+      return res.status(404).json({ 
+        success: false,
+        message: "No attendance record found" 
+      });
     }
 
     const activeBreak = record.breaks.find(b => !b.end && b.status === "approved");
     if (!activeBreak) {
-      return res.status(400).json({ message: "No active break" });
+      return res.status(400).json({ 
+        success: false,
+        message: "No active break found" 
+      });
     }
 
     activeBreak.end = new Date();
-    await record.save();
+    
+    // Calculate break duration
+    const breakDuration = (new Date(activeBreak.end) - new Date(activeBreak.start)) / (1000 * 60);
+    
+    // Auto-end if free break exceeds 15 minutes
+    if (breakDuration > FREE_BREAK_DURATION) {
+      activeBreak.autoEnded = true;
+    }
 
-    await updateAttendanceByBreak(employeeId, date);
+    // Update totals immediately
+    const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
+    record.totalBreakHours = totalBreakMinutes / 60;
+    
+    // If already logged out, update worked hours
+    if (record.logoutTime) {
+      record.totalWorkedHours = calculateWorkedHours(
+        record.loginTime, 
+        record.logoutTime, 
+        totalBreakMinutes
+      );
+      record.status = calculateAttendanceStatus(totalBreakMinutes);
+    }
+
+    await record.save();
 
     res.json({
       success: true,
-      message: "Break ended",
-      break: activeBreak
+      message: "Break ended successfully",
+      break: activeBreak,
+      duration: `${breakDuration.toFixed(1)} minutes`,
+      totalBreakMinutes: totalBreakMinutes
     });
 
   } catch (err) {
-    res.status(500).json({ message: "End break failed" });
+    console.error("End break error:", err);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to end break", 
+      error: err.message 
+    });
   }
 };
 
-/* ================= SUPERVISOR ================= */
-
+/* ================= SUPERVISOR FUNCTIONS ================= */
 export const reviewBreakRequest = async (req, res) => {
   try {
-    const { employeeId, breakIndex, action, rejectReason } = req.body;
+    const { userId, breakId, action, rejectReason } = req.body;
     const supervisorId = req.user._id;
-    const date = getShiftDate();
 
-    const record = await LoginHour.findOne({ employeeId, date });
-    if (!record || !record.breaks[breakIndex]) {
-      return res.status(404).json({ message: "Break request not found" });
+    if (!["approve", "reject"].includes(action)) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Invalid action. Use 'approve' or 'reject'" 
+      });
     }
 
-    const br = record.breaks[breakIndex];
-    if (br.status !== "pending") {
-      return res.status(400).json({ message: "Already processed" });
+    const date = getShiftDate();
+    const record = await LoginHour.findOne({ userId, date });
+    
+    if (!record) {
+      return res.status(404).json({ 
+        success: false,
+        message: "User record not found" 
+      });
+    }
+
+    const breakIndex = record.breaks.findIndex(b => 
+      b._id.toString() === breakId
+    );
+
+    if (breakIndex === -1) {
+      return res.status(404).json({ 
+        success: false,
+        message: "Break request not found" 
+      });
+    }
+
+    const breakRecord = record.breaks[breakIndex];
+
+    if (breakRecord.status !== "pending") {
+      return res.status(400).json({ 
+        success: false,
+        message: "Break request already processed" 
+      });
     }
 
     if (action === "approve") {
-      br.status = "approved";
-      br.start = new Date();
-      br.approvedBy = supervisorId;
-      br.approvedAt = new Date();
-    } else if (action === "reject") {
-      br.status = "rejected";
-      br.rejectReason = rejectReason || "No reason provided";
+      breakRecord.status = "approved";
+      breakRecord.start = breakRecord.start || new Date();
+      breakRecord.approvedBy = supervisorId;
+      breakRecord.approvedAt = new Date();
     } else {
-      return res.status(400).json({ message: "Invalid action" });
+      breakRecord.status = "rejected";
+      breakRecord.rejectReason = rejectReason || "No reason provided";
     }
 
     await record.save();
 
-    res.json({ success: true, break: br });
+    res.json({
+      success: true,
+      message: `Break request ${action}d successfully`,
+      break: breakRecord
+    });
+
   } catch (err) {
-    res.status(500).json({ message: "Review failed" });
+    console.error("Review break error:", err);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to review break request", 
+      error: err.message 
+    });
   }
 };
 
@@ -292,59 +564,232 @@ export const getPendingBreakRequests = async (req, res) => {
   try {
     const date = getShiftDate();
 
-    const data = await LoginHour.find({
+    const records = await LoginHour.find({
       date,
       "breaks.status": "pending"
     })
-      .populate("employeeId", "name email")
-      .select("employeeId date breaks");
+      .populate("userId", "name email employeeId")
+      .select("userId date loginTime breaks");
 
-    res.json(data);
+    // Format response
+    const pendingRequests = records.flatMap(record => 
+      record.breaks
+        .filter(b => b.status === "pending")
+        .map(breakRecord => ({
+          userId: record.userId._id,
+          userName: record.userId.name,
+          userEmail: record.userId.email,
+          employeeId: record.userId.employeeId,
+          date: record.date,
+          loginTime: record.loginTime,
+          breakId: breakRecord._id,
+          requestedAt: breakRecord.requestedAt,
+          status: breakRecord.status
+        }))
+    );
+
+    res.json({
+      success: true,
+      count: pendingRequests.length,
+      requests: pendingRequests
+    });
+
   } catch (err) {
-    res.status(500).json({ message: "Failed to fetch pending breaks" });
+    console.error("Fetch pending breaks error:", err);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to fetch pending break requests", 
+      error: err.message 
+    });
   }
 };
 
-/* ================= STATS ================= */
-
+/* ================= STATISTICS ================= */
 export const getTodayStats = async (req, res) => {
   try {
-    const employeeId = req.user._id;
+    const userId = req.user._id;
     const date = getShiftDate();
 
-    const record = await LoginHour.findOne({ employeeId, date });
+    const record = await LoginHour.findOne({ userId, date });
+    
     if (!record) {
       return res.json({
-        workedHoursToday: 0,
-        totalBreakTimeToday: "00:00:00",
-        isOnBreak: false
+        success: true,
+        isLoggedIn: false,
+        message: "No record found for today",
+        data: {
+          workedHours: 0,
+          breakHours: 0,
+          breakCount: 0,
+          status: "pending"
+        }
       });
     }
 
-    const login = new Date(record.loginTime);
-    const logout = record.logoutTime ? new Date(record.logoutTime) : new Date();
+    const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
+    const totalWorkedHours = calculateWorkedHours(
+      record.loginTime,
+      record.logoutTime || new Date(),
+      totalBreakMinutes
+    );
 
-    const totalBreakMs = calculateTotalBreakTime(record.breaks);
-    const workedMs = logout - login - totalBreakMs;
+    const activeBreak = record.breaks.find(b => !b.end && b.status === "approved");
+    
+    const formattedBreaks = record.breaks.map(b => ({
+      id: b._id,
+      start: b.start,
+      end: b.end,
+      status: b.status,
+      duration: b.start && b.end ? 
+        formatDuration((new Date(b.end) - new Date(b.start)) / (1000 * 60)) : 
+        "Ongoing"
+    }));
 
     res.json({
-      workedHoursToday: +(workedMs / 36e5).toFixed(2),
-      totalBreakTimeToday: Math.floor(totalBreakMs / 60000) + " min",
-      isOnBreak: record.breaks.some(b => !b.end && b.status === "approved")
+      success: true,
+      isLoggedIn: !record.logoutTime,
+      data: {
+        loginTime: record.loginTime,
+        logoutTime: record.logoutTime,
+        workedHours: totalWorkedHours.toFixed(2),
+        breakHours: (totalBreakMinutes / 60).toFixed(2),
+        breakCount: record.breaks.filter(b => b.status === "approved").length,
+        pendingBreaks: record.breaks.filter(b => b.status === "pending").length,
+        freeBreaksUsed: record.breaks.filter(b => b.status === "approved").length,
+        freeBreaksLeft: Math.max(0, MAX_FREE_BREAKS - record.breaks.filter(b => b.status === "approved").length),
+        isOnBreak: !!activeBreak,
+        currentBreak: activeBreak,
+        allBreaks: formattedBreaks,
+        status: record.status || calculateAttendanceStatus(totalBreakMinutes)
+      }
     });
+
   } catch (err) {
-    res.status(500).json({ message: "Stats failed" });
+    console.error("Get stats error:", err);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to fetch today's statistics", 
+      error: err.message 
+    });
   }
 };
 
 export const getAllLoginHours = async (req, res) => {
   try {
-    const data = await LoginHour.find()
-      .populate("employeeId", "name email")
-      .sort({ date: -1, loginTime: -1 });
+    const { startDate, endDate, userId } = req.query;
+    
+    let filter = {};
+    
+    if (startDate && endDate) {
+      filter.date = { $gte: startDate, $lte: endDate };
+    } else {
+      // Default to last 30 days if no date range provided
+      const thirtyDaysAgo = getISTNow().subtract(30, 'day').format("YYYY-MM-DD");
+      const today = getISTNow().format("YYYY-MM-DD");
+      filter.date = { $gte: thirtyDaysAgo, $lte: today };
+    }
+    
+    if (userId) {
+      filter.userId = userId;
+    }
 
-    res.json(data);
+    const records = await LoginHour.find(filter)
+      .populate("userId", "name email employeeId department")
+      .sort({ date: -1, loginTime: -1 })
+      .lean();
+
+    // Format response
+    const formattedRecords = records.map(record => {
+      const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
+      const totalWorkedHours = calculateWorkedHours(
+        record.loginTime,
+        record.logoutTime || new Date(),
+        totalBreakMinutes
+      );
+
+      return {
+        _id: record._id,
+        user: record.userId,
+        date: record.date,
+        loginTime: record.loginTime,
+        logoutTime: record.logoutTime,
+        workedHours: totalWorkedHours.toFixed(2),
+        breakHours: (totalBreakMinutes / 60).toFixed(2),
+        breakCount: record.breaks.filter(b => b.status === "approved").length,
+        status: record.status || calculateAttendanceStatus(totalBreakMinutes),
+        createdAt: record.createdAt
+      };
+    });
+
+    res.json({
+      success: true,
+      count: formattedRecords.length,
+      records: formattedRecords
+    });
+
   } catch (err) {
-    res.status(500).json({ message: "Failed to fetch login hours" });
+    console.error("Get all login hours error:", err);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to fetch login hours", 
+      error: err.message 
+    });
+  }
+};
+
+// Add any other missing exports that might be in your routes
+export const getMyLoginHours = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { startDate, endDate } = req.query;
+    
+    let filter = { userId };
+    
+    if (startDate && endDate) {
+      filter.date = { $gte: startDate, $lte: endDate };
+    } else {
+      // Default to last 7 days
+      const sevenDaysAgo = getISTNow().subtract(7, 'day').format("YYYY-MM-DD");
+      const today = getISTNow().format("YYYY-MM-DD");
+      filter.date = { $gte: sevenDaysAgo, $lte: today };
+    }
+
+    const records = await LoginHour.find(filter)
+      .sort({ date: -1, loginTime: -1 })
+      .lean();
+
+    const formattedRecords = records.map(record => {
+      const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
+      const totalWorkedHours = calculateWorkedHours(
+        record.loginTime,
+        record.logoutTime || new Date(),
+        totalBreakMinutes
+      );
+
+      return {
+        _id: record._id,
+        date: record.date,
+        loginTime: record.loginTime,
+        logoutTime: record.logoutTime,
+        workedHours: totalWorkedHours.toFixed(2),
+        breakHours: (totalBreakMinutes / 60).toFixed(2),
+        breakCount: record.breaks.filter(b => b.status === "approved").length,
+        status: record.status || calculateAttendanceStatus(totalBreakMinutes)
+      };
+    });
+
+    res.json({
+      success: true,
+      count: formattedRecords.length,
+      records: formattedRecords
+    });
+
+  } catch (err) {
+    console.error("Get my login hours error:", err);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to fetch login hours", 
+      error: err.message 
+    });
   }
 };

@@ -54,7 +54,7 @@ const breakSchema = new mongoose.Schema(
     },
     approvedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User" // admin / supervisor
+      ref: "User"
     },
     approvedAt: {
       type: Date
@@ -67,7 +67,7 @@ const breakSchema = new mongoose.Schema(
       default: false
     }
   },
-  { _id: false }
+  { _id: true }
 );
 
 /* ================= LOGIN HOUR SCHEMA ================= */
@@ -83,12 +83,26 @@ const loginHourSchema = new mongoose.Schema(
       required: true
     },
     loginTime: {
-      type: Date
+      type: Date,
+      required: true
     },
     logoutTime: {
       type: Date
     },
-    breaks: [breakSchema]
+    breaks: [breakSchema],
+    totalWorkedHours: {
+      type: Number, // in hours
+      default: 0
+    },
+    totalBreakHours: {
+      type: Number, // in hours
+      default: 0
+    },
+    status: {
+      type: String,
+      enum: ["present", "half-day", "absent", "pending"],
+      default: "present"
+    }
   },
   { timestamps: true }
 );
@@ -97,4 +111,3 @@ const loginHourSchema = new mongoose.Schema(
 loginHourSchema.index({ userId: 1, date: 1 }, { unique: true });
 
 export default mongoose.model("LoginHour", loginHourSchema);
-

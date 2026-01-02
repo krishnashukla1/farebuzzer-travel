@@ -234,7 +234,7 @@
 //               </NavLink>
 
 
-            
+
 //               <NavLink to="/inbox-email" className={linkClass}>
 //                 <Wallet size={20} />
 //                 <span>Inbox E-mail</span>
@@ -353,8 +353,10 @@ import {
   Plane,
   Wallet,
   Mail,
-  CalendarX,
+  CalendarX,CalendarDays
 } from "lucide-react";
+
+
 
 const Sidebar = () => {
   const role = localStorage.getItem("role");
@@ -416,6 +418,18 @@ const Sidebar = () => {
             <span>Send Email</span>
           </NavLink>
 
+
+
+          <NavLink to="/apply-leave" className={linkClass}>
+            <CalendarDays size={20} />
+            <span>Apply Leave</span>
+          </NavLink>
+
+          <NavLink to="/my-leaves" className={linkClass}>
+            <CalendarDays size={20} />
+            <span>My Leaves</span>
+          </NavLink>
+
           {/* ==================== ADMIN ONLY ==================== */}
           {role === "admin" && (
             <>
@@ -449,6 +463,12 @@ const Sidebar = () => {
                 <CalendarX size={20} />
                 <span>Weekly Off</span>
               </NavLink>
+
+              <NavLink to="/leave-approval" className={linkClass}>
+                <CalendarX size={20} />
+                <span>Leave Approval</span>
+              </NavLink>
+
 
               <NavLink to="/settings" className={linkClass}>
                 <Settings size={20} />

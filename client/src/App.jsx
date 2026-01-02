@@ -98,6 +98,10 @@ import InboxEmail from "./pages/InboxEmail";
 
 
 import WeeklyOff from './components3/WeeklyOff'
+import ApplyLeave from "./components3/ApplyLeave";
+import MyLeaves from "./components3/MyLeaves";
+import LeaveApproval from "./components3/LeaveApproval";
+
 
 const App = () => {
   const token = localStorage.getItem("token");
@@ -134,6 +138,8 @@ const App = () => {
                       <Route path="/add-enquiry" element={<AddEnquiry />} />
                       <Route path="/send-email" element={<SendEmail />} />
                       {/* <Route path="/weekly-off" element={<WeeklyOff />} /> */}
+                      <Route path="/apply-leave" element={<ApplyLeave />} />
+                      <Route path="/my-leaves" element={<MyLeaves />} />
 
 
 
@@ -184,6 +190,15 @@ const App = () => {
                           <WeeklyOff />
                         </ProtectedRoute>
                       } />
+                      <Route
+                        path="/leave-approval"
+                        element={
+                          <ProtectedRoute allowedRoles={["admin"]}>
+                            <LeaveApproval />
+                          </ProtectedRoute>
+                        }
+                      />
+
 
                       {/* <Route path="send-email" element={<SendEmail />} /> */}
 

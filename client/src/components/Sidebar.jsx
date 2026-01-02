@@ -353,9 +353,10 @@ import {
   Plane,
   Wallet,
   Mail,
-  CalendarX, CalendarDays, Clock
+  CalendarX, CalendarDays,Clock
 } from "lucide-react";
 
+import { FiCoffee } from "react-icons/fi";
 
 
 const Sidebar = () => {
@@ -437,10 +438,21 @@ const Sidebar = () => {
             <CalendarDays size={20} />
             My Attendance
           </NavLink>
-          <NavLink to="/login-status" className={linkClass}>
+
+
+          <NavLink to="/break-request" className={linkClass}>
+<FiCoffee size={20}/>
+<span>Break Request</span>
+</NavLink>
+
+          <NavLink to="/my-login-hours" className={linkClass}>
             <Clock size={20} />
-            <span>Login Hours</span>
+            <span>My Login Hours</span>
           </NavLink>
+
+          
+
+
 
 
           {/* ==================== ADMIN ONLY ==================== */}
@@ -486,14 +498,15 @@ const Sidebar = () => {
                 <span>All-Attendance</span>
               </NavLink>
 
-           
 
 
 
-    <NavLink to="/admin-login-status" className={linkClass}>
-      <Clock size={20} />
-      <span>Login Status</span>
-    </NavLink>
+
+              <NavLink to="/all-login-hours" className={linkClass}>
+                <Clock size={20} />
+                <span>All Login Hours</span>
+              </NavLink>
+
               <NavLink to="/settings" className={linkClass}>
                 <Settings size={20} />
                 <span>Settings</span>

@@ -104,7 +104,10 @@ import LeaveApproval from "./components3/LeaveApproval";
 import MarkAttendance from "./components3/MarkAttendance";
 import MyAttendance from "./components3/MyAttendance";
 import AttendanceAdmin from "./components3/AttendanceAdmin";
-import LoginHours from './components3/LoginHours'
+
+
+import MyLoginStatus from "./components3/MyLoginStatus";
+import AdminLoginStatus from "./components3/AdminLoginStatus";
 
 const App = () => {
   const token = localStorage.getItem("token");
@@ -145,7 +148,9 @@ const App = () => {
                       <Route path="/my-leaves" element={<MyLeaves />} />
                       <Route path="/mark-attendance" element={<MarkAttendance />} />
                       <Route path="/my-attendance" element={<MyAttendance />} />
-                      <Route path="/login-hours" element={<LoginHours />} />
+                      <Route path="/login-status" element={<MyLoginStatus />} />
+
+                   
 
 
 
@@ -213,6 +218,16 @@ const App = () => {
                           </ProtectedRoute>
                         }
                       />
+
+
+<Route
+  path="/admin-login-status"
+  element={
+    <ProtectedRoute allowedRoles={["admin"]}>
+      <AdminLoginStatus />
+    </ProtectedRoute>
+  }
+/>
 
 
 

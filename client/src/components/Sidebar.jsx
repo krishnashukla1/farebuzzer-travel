@@ -437,7 +437,7 @@ const Sidebar = () => {
             <CalendarDays size={20} />
             My Attendance
           </NavLink>
-          <NavLink to="/login-hours" className={linkClass}>
+          <NavLink to="/login-status" className={linkClass}>
             <Clock size={20} />
             <span>Login Hours</span>
           </NavLink>
@@ -486,7 +486,14 @@ const Sidebar = () => {
                 <span>All-Attendance</span>
               </NavLink>
 
+           
 
+
+
+    <NavLink to="/admin-login-status" className={linkClass}>
+      <Clock size={20} />
+      <span>Login Status</span>
+    </NavLink>
               <NavLink to="/settings" className={linkClass}>
                 <Settings size={20} />
                 <span>Settings</span>

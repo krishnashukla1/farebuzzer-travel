@@ -353,7 +353,7 @@ import {
   Plane,
   Wallet,
   Mail,
-  CalendarX,CalendarDays
+  CalendarX, CalendarDays, Clock
 } from "lucide-react";
 
 
@@ -418,8 +418,6 @@ const Sidebar = () => {
             <span>Send Email</span>
           </NavLink>
 
-
-
           <NavLink to="/apply-leave" className={linkClass}>
             <CalendarDays size={20} />
             <span>Apply Leave</span>
@@ -429,6 +427,21 @@ const Sidebar = () => {
             <CalendarDays size={20} />
             <span>My Leaves</span>
           </NavLink>
+
+          <NavLink to="/mark-attendance" className={linkClass}>
+            <Clock size={20} />
+            Mark Attendance
+          </NavLink>
+
+          <NavLink to="/my-attendance" className={linkClass}>
+            <CalendarDays size={20} />
+            My Attendance
+          </NavLink>
+          <NavLink to="/login-hours" className={linkClass}>
+            <Clock size={20} />
+            <span>Login Hours</span>
+          </NavLink>
+
 
           {/* ==================== ADMIN ONLY ==================== */}
           {role === "admin" && (
@@ -467,6 +480,10 @@ const Sidebar = () => {
               <NavLink to="/leave-approval" className={linkClass}>
                 <CalendarX size={20} />
                 <span>Leave Approval</span>
+              </NavLink>
+              <NavLink to="/all-attendance" className={linkClass}>
+                <CalendarX size={20} />
+                <span>All-Attendance</span>
               </NavLink>
 
 

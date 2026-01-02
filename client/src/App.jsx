@@ -101,7 +101,10 @@ import WeeklyOff from './components3/WeeklyOff'
 import ApplyLeave from "./components3/ApplyLeave";
 import MyLeaves from "./components3/MyLeaves";
 import LeaveApproval from "./components3/LeaveApproval";
-
+import MarkAttendance from "./components3/MarkAttendance";
+import MyAttendance from "./components3/MyAttendance";
+import AttendanceAdmin from "./components3/AttendanceAdmin";
+import LoginHours from './components3/LoginHours'
 
 const App = () => {
   const token = localStorage.getItem("token");
@@ -140,6 +143,10 @@ const App = () => {
                       {/* <Route path="/weekly-off" element={<WeeklyOff />} /> */}
                       <Route path="/apply-leave" element={<ApplyLeave />} />
                       <Route path="/my-leaves" element={<MyLeaves />} />
+                      <Route path="/mark-attendance" element={<MarkAttendance />} />
+                      <Route path="/my-attendance" element={<MyAttendance />} />
+                      <Route path="/login-hours" element={<LoginHours />} />
+
 
 
 
@@ -198,6 +205,15 @@ const App = () => {
                           </ProtectedRoute>
                         }
                       />
+                      <Route
+                        path="/all-attendance"
+                        element={
+                          <ProtectedRoute allowedRoles={["admin"]}>
+                            <AttendanceAdmin />
+                          </ProtectedRoute>
+                        }
+                      />
+
 
 
                       {/* <Route path="send-email" element={<SendEmail />} /> */}

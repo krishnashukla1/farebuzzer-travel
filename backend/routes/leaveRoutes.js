@@ -6,7 +6,7 @@ import {
   applyLeave,
   getMyLeaves,
   getAllLeaves,
-  approveLeave,
+  approveLeave,updateLeaveStatus
 } from "../controllers/leaveController.js";
 
 const router = express.Router();
@@ -18,5 +18,7 @@ router.get("/me", authMiddleware, getMyLeaves);
 /* Admin */
 router.get("/", authMiddleware, adminMiddleware, getAllLeaves);
 router.put("/:id/approve", authMiddleware, adminMiddleware, approveLeave);
+router.put("/:id/status",authMiddleware,adminMiddleware,updateLeaveStatus);
+
 
 export default router;

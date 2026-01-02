@@ -35,3 +35,19 @@ export const approveLeave = async (req, res) => {
 
   res.json({ message: "Leave approved" });
 };
+
+export const updateLeaveStatus = async (req, res) => {
+  const { status } = req.body;
+
+  if (!["Pending", "Approved", "Rejected"].includes(status)) {
+    return res.status(400).json({ message: "Invalid status" });
+  }
+
+  const leave = await Leave.findByIdAndUpdate(
+    req.params.id,
+    { status },
+    { new: true }
+  );
+
+  res.json({ message: "Leave status updated", leave });
+};

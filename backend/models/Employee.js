@@ -62,4 +62,8 @@
 //   userId: 1,
 // });
 
+<<<<<<< HEAD
 // export default mongoose.model("Employee", employeeSchema);
+=======
+// export default mongoose.model("Employee", employeeSchema);
+>>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc

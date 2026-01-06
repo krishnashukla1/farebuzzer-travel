@@ -45,11 +45,18 @@ export default function ProjectPage() {
 
   // Hardcoded fallback rates (used when live rates fail)
   const FALLBACK_RATES_TO_INR = {
-    USD: 88.5,
-    AED: 24.1,
-    CAD: 63.8,
-    AUD: 58.4,
+    // USD: 88.5,
+    // AED: 24.1,
+    // CAD: 63.8,
+    // AUD: 58.4,
+    // INR: 1,
+
+    USD: 89.8,
+    AED: 24.5,
+    CAD: 65.3,
+    AUD: 60.3,
     INR: 1,
+
   };
 
   // Helper: Get best available rate (live > fallback)
@@ -72,35 +79,73 @@ export default function ProjectPage() {
 
   // Fetch live exchange rates
   useEffect(() => {
-    const fetchLiveRates = async () => {
+    // const fetchLiveRates = async () => {
+    //   try {
+    //     setRatesLoading(true);
+    //     setRatesError(false);
+    //     const res = await api.get("/finance/rates");
+
+    //     if (res.data.success && res.data.rates) {
+    //       setLiveRates({
+    //         INR: 1,
+    //         USD: res.data.rates.USD || 88.5,
+    //         AED: res.data.rates.AED || 24.1,
+    //         CAD: res.data.rates.CAD || 63.8,
+    //         AUD: res.data.rates.AUD || 58.4,
+    //       });
+    //     }
+    //   } catch (err) {
+    //     console.error("Live rates failed → using fallback", err);
+    //     setRatesError(true);
+    //     setLiveRates({
+    //       INR: 1,
+    //       USD: 88.5,
+    //       AED: 24.1,
+    //       CAD: 63.8,
+    //       AUD: 58.4,
+    //     });
+    //   } finally {
+    //     setRatesLoading(false);
+    //   }
+    // };
+
+
+
+
+    const fetchLiveRates = async (attempt = 1) => {
+      setRatesStatus("loading");
+      setRatesError(false);
+
       try {
-        setRatesLoading(true);
-        setRatesError(false);
-        const res = await api.get("/finance/rates");
+        const res = await api.get("/finance/rates", { timeout: 10000 });
 
         if (res.data.success && res.data.rates) {
+          const rates = res.data.rates;
+          // Convert from "1 INR = X FOREIGN" to "1 FOREIGN = Y INR"
           setLiveRates({
             INR: 1,
-            USD: res.data.rates.USD || 88.5,
-            AED: res.data.rates.AED || 24.1,
-            CAD: res.data.rates.CAD || 63.8,
-            AUD: res.data.rates.AUD || 58.4,
+            USD: rates.USD ? 1 / rates.USD : FALLBACK_RATES_TO_INR.USD,
+            AED: rates.AED ? 1 / rates.AED : FALLBACK_RATES_TO_INR.AED,
+            CAD: rates.CAD ? 1 / rates.CAD : FALLBACK_RATES_TO_INR.CAD,
+            AUD: rates.AUD ? 1 / rates.AUD : FALLBACK_RATES_TO_INR.AUD,
           });
+          setRatesStatus("success");
+        } else {
+          throw new Error("Invalid rates response");
         }
       } catch (err) {
-        console.error("Live rates failed → using fallback", err);
-        setRatesError(true);
-        setLiveRates({
-          INR: 1,
-          USD: 88.5,
-          AED: 24.1,
-          CAD: 63.8,
-          AUD: 58.4,
-        });
-      } finally {
-        setRatesLoading(false);
+        console.warn(`Rates fetch attempt ${attempt} failed:`, err.message);
+        if (attempt === 1) {
+          setTimeout(() => fetchLiveRates(2), 1500);
+        } else {
+          console.error("Live rates failed → using fallback");
+          setLiveRates({ ...FALLBACK_RATES_TO_INR });
+          setRatesStatus("error");
+          setRatesError(true);
+        }
       }
     };
+
 
     fetchLiveRates();
   }, []);
@@ -319,7 +364,7 @@ export default function ProjectPage() {
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 shadow-2xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
           <div className="flex items-center gap-6">
-            <button onClick={() => navigate("/accounting-dashboard")} className="px-6 py-3 bg-white/20 text-white font-semibold rounded-xl hover:bg-white/30 transition-all flex items-center gap-2">
+            <button onClick={() => navigate("/accounting-dashboard")} className="cursor-pointer px-6 py-3 bg-white/20 text-white font-semibold rounded-xl hover:bg-white/30 transition-all flex items-center gap-2">
               Back to Projects
             </button>
             <div className="text-white">
@@ -329,7 +374,7 @@ export default function ProjectPage() {
           </div>
           <div className="flex items-center gap-4">
             <RateBadge />
-            <button onClick={downloadReport} className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-bold rounded-xl shadow-2xl transition-all flex items-center gap-3">
+            <button onClick={downloadReport} className="cursor-pointer px-8 py-4 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-bold rounded-xl shadow-2xl transition-all flex items-center gap-3">
               Download Excel Report
             </button>
           </div>

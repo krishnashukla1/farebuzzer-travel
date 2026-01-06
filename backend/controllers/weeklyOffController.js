@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // import WeeklyOff from "../models/WeeklyOff.js";
 // import User from "../models/User.js";
 
@@ -177,6 +178,8 @@
 
 //--------------------------
 
+=======
+>>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc
 import WeeklyOff from "../models/WeeklyOff.js";
 import User from "../models/User.js"
 
@@ -300,4 +303,8 @@ export const adminDeleteWeeklyOff = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc

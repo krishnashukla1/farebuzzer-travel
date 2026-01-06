@@ -21,4 +21,8 @@ router.put("/:id/approve", authMiddleware, adminMiddleware, approveLeave);
 router.put("/:id/status",authMiddleware,adminMiddleware,updateLeaveStatus);
 
 
+<<<<<<< HEAD
 export default router;
+=======
+export default router;
+>>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc

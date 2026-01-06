@@ -66,4 +66,9 @@ router.get("/break/pending", authMiddleware, adminMiddleware, getPendingBreakReq
 // All login hour records
 router.get("/", authMiddleware, adminMiddleware, getAllLoginHours);
 
+<<<<<<< HEAD
 export default router;
+=======
+export default router;
+
+>>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc

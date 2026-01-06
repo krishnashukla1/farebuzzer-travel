@@ -110,4 +110,8 @@ const loginHourSchema = new mongoose.Schema(
 /* 🔥 One record per user per day */
 loginHourSchema.index({ userId: 1, date: 1 }, { unique: true });
 
+<<<<<<< HEAD
 export default mongoose.model("LoginHour", loginHourSchema);
+=======
+export default mongoose.model("LoginHour", loginHourSchema);
+>>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc

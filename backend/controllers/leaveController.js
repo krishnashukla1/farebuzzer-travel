@@ -50,4 +50,8 @@ export const updateLeaveStatus = async (req, res) => {
   );
 
   res.json({ message: "Leave status updated", leave });
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc

@@ -97,7 +97,10 @@ import SendEmail from './pages/SendEmail'
 import InboxEmail from "./pages/InboxEmail";
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc
 import WeeklyOff from './components3/WeeklyOff'
 import ApplyLeave from "./components3/ApplyLeave";
 import MyLeaves from "./components3/MyLeaves";
@@ -112,7 +115,10 @@ import AdminLoginStatus from "./components3/AdminLoginStatus";
 import AllLoginHours from './components3/AllLoginHours'
 import BreakRequest from "./components3/BreakRequest";
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc
 const App = () => {
   const token = localStorage.getItem("token");
 
@@ -147,6 +153,17 @@ const App = () => {
                       <Route path="/enquiries" element={<Enquiries />} />
                       <Route path="/add-enquiry" element={<AddEnquiry />} />
                       <Route path="/send-email" element={<SendEmail />} />
+                      {/* <Route path="/weekly-off" element={<WeeklyOff />} /> */}
+                      <Route path="/apply-leave" element={<ApplyLeave />} />
+                      <Route path="/my-leaves" element={<MyLeaves />} />
+                      <Route path="/mark-attendance" element={<MarkAttendance />} />
+                      <Route path="/my-attendance" element={<MyAttendance />} />
+                      <Route path="/break-request" element={<BreakRequest />} />
+
+                      <Route path="/my-login-hours" element={<MyLoginHours />} />
+
+                   
+
 
                       <Route path="/apply-leave" element={<ApplyLeave />} />
                       <Route path="/my-leaves" element={<MyLeaves />} />
@@ -199,6 +216,47 @@ const App = () => {
                           </ProtectedRoute>
                         }
                       />
+                      <Route path="/weekly-off" element={
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                          <WeeklyOff />
+                        </ProtectedRoute>
+                      } />
+                      <Route
+                        path="/leave-approval"
+                        element={
+                          <ProtectedRoute allowedRoles={["admin"]}>
+                            <LeaveApproval />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/all-attendance"
+                        element={
+                          <ProtectedRoute allowedRoles={["admin"]}>
+                            <AttendanceAdmin />
+                          </ProtectedRoute>
+                        }
+                      />
+
+
+<Route
+  path="/admin-login-status"
+  element={
+    <ProtectedRoute allowedRoles={["admin"]}>
+      <AdminLoginStatus />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/all-login-hours"
+  element={
+    <ProtectedRoute allowedRoles={["admin"]}>
+      <AllLoginHours />
+    </ProtectedRoute>
+  }
+/>
+
+
 
 
  <Route path="/weekly-off" element={
@@ -256,6 +314,13 @@ const App = () => {
                       />
 
 
+<<<<<<< HEAD
+=======
+
+
+
+
+>>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc
 
 
 

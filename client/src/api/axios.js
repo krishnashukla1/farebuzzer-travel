@@ -20,7 +20,7 @@
 // export default API;
 
 
-//======================================================================================
+//===================================correct===================================================
 
 // C:\Users\hp\Desktop\OFFICE8-FBT-NEW-PROJECT\client\src\api\axios.js
 
@@ -43,10 +43,17 @@
 //   return config;
 // });
 
+<<<<<<< HEAD
 // export default API;
 
 
 
+=======
+
+// //
+// export default API;
+
+>>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc
 //======================3 jan=========
 import axios from "axios";
 
@@ -79,6 +86,7 @@ API.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+<<<<<<< HEAD
 
 // Login hours API methods - add these to your API object
 API.loginHours = {
@@ -95,3 +103,22 @@ API.loginHours = {
 };
 
 export default API;
+=======
+
+// Login hours API methods - add these to your API object
+API.loginHours = {
+  login: () => API.post('/login-hours/login'),
+  logout: () => API.post('/login-hours/logout'),
+  startBreak: () => API.post('/login-hours/break/start'),
+  endBreak: () => API.post('/login-hours/break/end'),
+  requestBreak: () => API.post('/login-hours/break/request'),
+  getTodayStats: () => API.get('/login-hours/today'),
+  getMyLoginHours: (params) => API.get('/login-hours/my-hours', { params }),
+  reviewBreak: (data) => API.post('/login-hours/break/review', data),
+  getPendingBreaks: () => API.get('/login-hours/break/pending'),
+  getAllLoginHours: (params) => API.get('/login-hours', { params }),
+};
+
+export default API;
+
+>>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc

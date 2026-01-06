@@ -57,6 +57,14 @@ import userRoutes from "./routes/userRoutes.js";
 import financeRoutes from "./routes/financeRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import emailRoutes from "./routes/emailRoutes.js";
+// import attendanceRoutes from "./routes/attendanceRoutes.js";
+
+import attendanceRoutes from './routes/attendanceRoutes.js'
+import loginHourRoutes from './routes/loginHour.js'
+import weeklyOffRoutes from './routes/weeklyOffRoutes.js'
+import leaveRoutes from './routes/leaveRoutes.js'
+
+
 
 import attendanceRoutes from './routes/attendanceRoutes.js'
 import loginHourRoutes from './routes/loginHour.js'
@@ -91,6 +99,10 @@ app.use("/api/login-hours", loginHourRoutes);
 app.use("/api/weekly-off", weeklyOffRoutes);
 app.use("/api/leaves", leaveRoutes);
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc
 // ✅ Proper PORT handling
 const PORT = process.env.PORT 
 

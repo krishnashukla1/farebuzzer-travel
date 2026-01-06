@@ -27,4 +27,8 @@ export const getMyAttendance = async (req, res) => {
 export const getAllAttendance = async (req, res) => {
   const data = await Attendance.find().populate("userId", "name email");
   res.json(data);
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc

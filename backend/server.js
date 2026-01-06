@@ -58,6 +58,11 @@ import financeRoutes from "./routes/financeRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import emailRoutes from "./routes/emailRoutes.js";
 
+import attendanceRoutes from './routes/attendanceRoutes.js'
+import loginHourRoutes from './routes/loginHour.js'
+import weeklyOffRoutes from './routes/weeklyOffRoutes.js'
+import leaveRoutes from './routes/leaveRoutes.js'
+
 dotenv.config();
 
 // Connect DB
@@ -79,6 +84,12 @@ app.use("/api/users", userRoutes);
 app.use("/api/finance", financeRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/email", emailRoutes);
+
+
+app.use("/api/attendance", attendanceRoutes);
+app.use("/api/login-hours", loginHourRoutes);
+app.use("/api/weekly-off", weeklyOffRoutes);
+app.use("/api/leaves", leaveRoutes);
 
 // ✅ Proper PORT handling
 const PORT = process.env.PORT 

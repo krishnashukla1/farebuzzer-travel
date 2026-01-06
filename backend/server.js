@@ -66,10 +66,7 @@ import leaveRoutes from './routes/leaveRoutes.js'
 
 
 
-import attendanceRoutes from './routes/attendanceRoutes.js'
-import loginHourRoutes from './routes/loginHour.js'
-import weeklyOffRoutes from './routes/weeklyOffRoutes.js'
-import leaveRoutes from './routes/leaveRoutes.js'
+
 
 dotenv.config();
 

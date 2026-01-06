@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-=======
+
 // import React, { useEffect, useState } from "react";
 // import api from "../api/axios";
 
@@ -1133,7 +1132,7 @@
 //================FULLY CORRECT====================================
 
 
->>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc
+
 
 
 import React, { useEffect, useState } from "react";
@@ -1459,11 +1458,9 @@ const WeeklyOff = () => {
   );
 };
 
-<<<<<<< HEAD
-export default WeeklyOff;
-=======
+
 export default WeeklyOff;
 
 
 
->>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc
+

@@ -81,8 +81,5 @@ export default function AdminBreaks() {
       </table>
     </div>
   );
-<<<<<<< HEAD
+
 }
-=======
-}
->>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc

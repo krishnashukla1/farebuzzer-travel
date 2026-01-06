@@ -24,8 +24,6 @@ const attendanceSchema = new mongoose.Schema(
 // 🔥 One record per user per day
 attendanceSchema.index({ userId: 1, date: 1 }, { unique: true });
 
-<<<<<<< HEAD
+
 export default mongoose.model("Attendance", attendanceSchema);
-=======
-export default mongoose.model("Attendance", attendanceSchema);
->>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc
+

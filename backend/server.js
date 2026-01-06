@@ -99,10 +99,7 @@ app.use("/api/login-hours", loginHourRoutes);
 app.use("/api/weekly-off", weeklyOffRoutes);
 app.use("/api/leaves", leaveRoutes);
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc
 // ✅ Proper PORT handling
 const PORT = process.env.PORT 
 

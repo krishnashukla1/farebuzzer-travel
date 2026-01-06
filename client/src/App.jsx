@@ -97,10 +97,8 @@ import SendEmail from './pages/SendEmail'
 import InboxEmail from "./pages/InboxEmail";
 
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc
+
 import WeeklyOff from './components3/WeeklyOff'
 import ApplyLeave from "./components3/ApplyLeave";
 import MyLeaves from "./components3/MyLeaves";
@@ -115,10 +113,7 @@ import AdminLoginStatus from "./components3/AdminLoginStatus";
 import AllLoginHours from './components3/AllLoginHours'
 import BreakRequest from "./components3/BreakRequest";
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc
 const App = () => {
   const token = localStorage.getItem("token");
 
@@ -314,13 +309,7 @@ const App = () => {
                       />
 
 
-<<<<<<< HEAD
-=======
 
-
-
-
->>>>>>> 4ea931ddafa401165734ba191b79e903fffb7afc
 
 
 

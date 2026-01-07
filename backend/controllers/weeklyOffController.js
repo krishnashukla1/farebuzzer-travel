@@ -490,7 +490,7 @@ export const getMyWeeklyOff = async (req, res) => {
     const data = await WeeklyOff.find({
       userId: req.user._id,
     })
-      .populate("userId", "name email role")
+      .populate("userId", "name email role") // ✅ ADD THIS
       .sort({ date: 1 });
 
     res.status(200).json(data);
@@ -501,5 +501,6 @@ export const getMyWeeklyOff = async (req, res) => {
     });
   }
 };
+
 
 

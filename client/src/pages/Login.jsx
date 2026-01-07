@@ -212,25 +212,53 @@ const Login = () => {
   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
   const [markAttendance, setMarkAttendance] = useState(false);
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   setError("");
+
+  //   try {
+  //     const res = await API.post("/auth/login", { email, password });
+
+  //     localStorage.setItem("token", res.data.token);
+  //     localStorage.setItem("role", res.data.user.role);
+
+  //     // show attendance modal after login
+  //     setShowAttendanceModal(true);
+  //   } catch (err) {
+  //     setError(err.response?.data?.message || "Login failed");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-    try {
-      const res = await API.post("/auth/login", { email, password });
+  try {
+    const res = await API.post("/auth/login", { email, password });
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("role", res.data.user.role);
+    const { token, user } = res.data;
 
-      // show attendance modal after login
-      setShowAttendanceModal(true);
-    } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
-    } finally {
-      setLoading(false);
+    localStorage.setItem("token", token);
+    localStorage.setItem("role", user.role);
+
+    // 🔥 ADMIN → DIRECT DASHBOARD
+    if (user.role === "admin") {
+      window.location.href = "/dashboard";
+      return;
     }
-  };
+
+    // 🔥 EMPLOYEE / AGENT → SHOW ATTENDANCE MODAL
+    setShowAttendanceModal(true);
+  } catch (err) {
+    setError(err.response?.data?.message || "Login failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleAttendanceSubmit = async () => {
     try {

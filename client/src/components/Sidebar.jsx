@@ -938,6 +938,11 @@ const Sidebar = () => {
             <span>My Login Hours</span>
           </NavLink>
 
+            <NavLink to="/my-weekly-off" className={linkClass}>
+            <Clock size={20} />
+            <span>My Weekly Off</span>
+          </NavLink>
+
           {/* ADMIN ONLY */}
           {role === "admin" && (
             <>

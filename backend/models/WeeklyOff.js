@@ -7,10 +7,15 @@ const weeklyOffSchema = new mongoose.Schema(
       ref: "User",
       required: true
     },
+    // date: {
+    //   type: String, // YYYY-MM-DD
+    //   required: true
+    // },
     date: {
-      type: String, // YYYY-MM-DD
-      required: true
-    },
+  type: Date,
+  required: true
+},
+
     reason: String
   },
   { timestamps: true }

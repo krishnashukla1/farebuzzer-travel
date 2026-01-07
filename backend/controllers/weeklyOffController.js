@@ -304,6 +304,10 @@
 
 // };
 //-----------------
+
+
+
+
 import WeeklyOff from "../models/WeeklyOff.js";
 import User from "../models/User.js";
 
@@ -466,11 +470,28 @@ export const adminDeleteWeeklyOff = async (req, res) => {
 /* =====================================================
    ✅ EMPLOYEE: Get own weekly offs
 ===================================================== */
+// export const getMyWeeklyOff = async (req, res) => {
+//   try {
+//     const data = await WeeklyOff.find({
+//       userId: req.user._id,
+//     }).sort({ date: 1 });
+
+//     res.status(200).json(data);
+//   } catch (err) {
+//     res.status(500).json({
+//       message: "Failed to fetch your weekly offs",
+//       error: err.message,
+//     });
+//   }
+// };
+
 export const getMyWeeklyOff = async (req, res) => {
   try {
     const data = await WeeklyOff.find({
       userId: req.user._id,
-    }).sort({ date: 1 });
+    })
+      .populate("userId", "name email role")
+      .sort({ date: 1 });
 
     res.status(200).json(data);
   } catch (err) {
@@ -480,4 +501,5 @@ export const getMyWeeklyOff = async (req, res) => {
     });
   }
 };
+
 

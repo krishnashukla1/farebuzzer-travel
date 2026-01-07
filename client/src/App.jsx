@@ -113,6 +113,8 @@ import AdminLoginStatus from "./components3/AdminLoginStatus";
 import AllLoginHours from './components3/AllLoginHours'
 import BreakRequest from "./components3/BreakRequest";
 
+import MyWeeklyOff from "./components3/UserWeeklyOff"
+
 
 const App = () => {
   const token = localStorage.getItem("token");
@@ -156,17 +158,10 @@ const App = () => {
                       <Route path="/break-request" element={<BreakRequest />} />
 
                       <Route path="/my-login-hours" element={<MyLoginHours />} />
+                      <Route path="/my-weekly-off" element={<MyWeeklyOff />} />
 
-                   
+                 
 
-
-                      <Route path="/apply-leave" element={<ApplyLeave />} />
-                      <Route path="/my-leaves" element={<MyLeaves />} />
-                      <Route path="/mark-attendance" element={<MarkAttendance />} />
-                      <Route path="/my-attendance" element={<MyAttendance />} />
-                      <Route path="/break-request" element={<BreakRequest />} />
-
-                      <Route path="/my-login-hours" element={<MyLoginHours />} />
 
 
                       {/* ADMIN ONLY */}

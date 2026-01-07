@@ -1459,16 +1459,309 @@
 // };
 
 // export default WeeklyOff;
-//============================
+//===================correct=========
+
+
+// import React, { useEffect, useState } from "react";
+// import api from "../api/axios";
+// import { Trash2 } from "lucide-react";
+
+// const WeeklyOff = () => {
+//   const [weeklyOffs, setWeeklyOffs] = useState([]);
+//   const [users, setUsers] = useState([]);
+//   const [form, setForm] = useState({ userId: "", date: "" });
+//   const [loading, setLoading] = useState(false);
+
+//   useEffect(() => {
+//     fetchUsers();
+//     fetchWeeklyOffs();
+//   }, []);
+
+//   const fetchUsers = async () => {
+//     const res = await api.get("/users");
+//     setUsers(res.data.filter(u => u.role !== "admin"));
+//   };
+
+//   const fetchWeeklyOffs = async () => {
+//     const res = await api.get("/weekly-off/admin");
+//     setWeeklyOffs(res.data || []);
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     if (!form.userId || !form.date) return;
+
+//     try {
+//       setLoading(true);
+//       await api.post("/weekly-off/admin", form);
+//       setForm({ userId: "", date: "" });
+//       fetchWeeklyOffs();
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleDelete = async (id) => {
+//     if (!window.confirm("Delete this weekly off?")) return;
+//     await api.delete(`/weekly-off/admin/${id}`);
+//     fetchWeeklyOffs();
+//   };
+
+//   // 🔹 Group by employee
+//   const grouped = weeklyOffs.reduce((acc, off) => {
+//     const id = off.userId._id;
+//     if (!acc[id]) {
+//       acc[id] = {
+//         name: off.userId.name,
+//         email: off.userId.email,
+//         dates: [],
+//       };
+//     }
+//     acc[id].dates.push(off);
+//     return acc;
+//   }, {});
+
+//   return (
+//     <div className="max-w-4xl mx-auto p-6 space-y-6">
+//       <h1 className="text-2xl font-bold">Weekly Off Management</h1>
+
+//       {/* ADD FORM */}
+//       <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white p-4 rounded shadow">
+//         <select
+//           value={form.userId}
+//           onChange={(e) => setForm({ ...form, userId: e.target.value })}
+//           className="border p-2 rounded"
+//           required
+//         >
+//           <option value="">Select Employee</option>
+//           {users.map(u => (
+//             <option key={u._id} value={u._id}>{u.name}</option>
+//           ))}
+//         </select>
+
+//         <input
+//           type="date"
+//           value={form.date}
+//           onChange={(e) => setForm({ ...form, date: e.target.value })}
+//           className="border p-2 rounded"
+//           required
+//         />
+
+//         <button
+//           disabled={loading}
+//           className="bg-indigo-600 text-white px-4 py-2 rounded col-span-full"
+//         >
+//           {loading ? "Saving..." : "Add Weekly Off"}
+//         </button>
+//       </form>
+
+//       {/* LIST */}
+//       {Object.values(grouped).map((group, i) => (
+//         <div key={i} className="bg-white rounded shadow">
+//           <div className="p-4 border-b font-semibold">
+//             {group.name} <span className="text-sm text-gray-500">({group.email})</span>
+//           </div>
+
+//           <div className="p-4 flex flex-wrap gap-3">
+//             {group.dates.map(d => (
+//               <div key={d._id} className="flex items-center gap-2 bg-indigo-50 px-3 py-1 rounded-full">
+//                 {new Date(d.date).toLocaleDateString("en-IN", {
+//                   day: "numeric",
+//                   month: "short",
+//                   year: "numeric",
+//                   weekday: "short",
+//                 })}
+//                 <Trash2
+//                   className="w-4 h-4 text-red-600 cursor-pointer"
+//                   onClick={() => handleDelete(d._id)}
+//                 />
+//               </div>
+//             ))}
+//           </div>
+//         </div>
+//       ))}
+//     </div>
+//   );
+// };
+
+// export default WeeklyOff;
+
+//===============
+
+// import React, { useEffect, useState } from "react";
+// import api from "../api/axios";
+// import { Trash2 } from "lucide-react";
+
+// const WeeklyOff = () => {
+//   const [weeklyOffs, setWeeklyOffs] = useState([]);
+//   const [users, setUsers] = useState([]);
+//   const [form, setForm] = useState({ userId: "", date: "" });
+//   const [loading, setLoading] = useState(false);
+//   const [selectedMonth, setSelectedMonth] = useState(""); // yyyy-mm
+
+//   useEffect(() => {
+//     fetchUsers();
+//     fetchWeeklyOffs();
+//   }, []);
+
+//   const fetchUsers = async () => {
+//     const res = await api.get("/users");
+//     setUsers(res.data.filter(u => u.role !== "admin"));
+//   };
+
+//   const fetchWeeklyOffs = async () => {
+//     const res = await api.get("/weekly-off/admin");
+//     setWeeklyOffs(res.data || []);
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     if (!form.userId || !form.date) return;
+
+//     try {
+//       setLoading(true);
+//       await api.post("/weekly-off/admin", form);
+//       setForm({ userId: "", date: "" });
+//       fetchWeeklyOffs();
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleDelete = async (id) => {
+//     if (!window.confirm("Delete this weekly off?")) return;
+//     await api.delete(`/weekly-off/admin/${id}`);
+//     fetchWeeklyOffs();
+//   };
+
+//   // 🔹 Filter weekly offs by selected month or current month if none selected
+//   const filteredWeeklyOffs = weeklyOffs.filter(off => {
+//     const date = new Date(off.date);
+//     const monthStr = date.toISOString().slice(0, 7); // yyyy-mm
+//     if (selectedMonth) {
+//       return monthStr === selectedMonth;
+//     } else {
+//       const now = new Date();
+//       const currentMonthStr = now.toISOString().slice(0, 7);
+//       return monthStr === currentMonthStr;
+//     }
+//   });
+
+//   // 🔹 Group by employee
+//   const grouped = filteredWeeklyOffs.reduce((acc, off) => {
+//     const id = off.userId._id;
+//     if (!acc[id]) {
+//       acc[id] = {
+//         name: off.userId.name,
+//         email: off.userId.email,
+//         dates: [],
+//       };
+//     }
+//     acc[id].dates.push(off);
+//     return acc;
+//   }, {});
+
+//   return (
+//     <div className="max-w-4xl mx-auto p-6 space-y-6">
+//       <h1 className="text-2xl font-bold">Weekly Off Management</h1>
+
+//       {/* MONTH FILTER */}
+//       <div className="bg-white p-4 rounded shadow flex items-center gap-4">
+//         <label className="font-semibold">Filter by Month:</label>
+//         <input
+//           type="month"
+//           value={selectedMonth}
+//           onChange={(e) => setSelectedMonth(e.target.value)}
+//           className="border p-2 rounded"
+//         />
+//         {selectedMonth && (
+//           <button
+//             onClick={() => setSelectedMonth("")}
+//             className="bg-red-500 text-white px-3 py-1 rounded"
+//           >
+//             Clear
+//           </button>
+//         )}
+//       </div>
+
+//       {/* ADD FORM */}
+//       <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white p-4 rounded shadow">
+//         <select
+//           value={form.userId}
+//           onChange={(e) => setForm({ ...form, userId: e.target.value })}
+//           className="border p-2 rounded"
+//           required
+//         >
+//           <option value="">Select Employee</option>
+//           {users.map(u => (
+//             <option key={u._id} value={u._id}>{u.name}</option>
+//           ))}
+//         </select>
+
+//         <input
+//           type="date"
+//           value={form.date}
+//           onChange={(e) => setForm({ ...form, date: e.target.value })}
+//           className="border p-2 rounded"
+//           required
+//         />
+
+//         <button
+//           disabled={loading}
+//           className="bg-indigo-600 text-white px-4 py-2 rounded col-span-full"
+//         >
+//           {loading ? "Saving..." : "Add Weekly Off"}
+//         </button>
+//       </form>
+
+//       {/* LIST */}
+//       {Object.values(grouped).length === 0 ? (
+//         <div className="text-center text-gray-500">No weekly offs for this month.</div>
+//       ) : (
+//         Object.values(grouped).map((group, i) => (
+//           <div key={i} className="bg-white rounded shadow">
+//             <div className="p-4 border-b font-semibold">
+//               {group.name} <span className="text-sm text-gray-500">({group.email})</span>
+//             </div>
+
+//             <div className="p-4 flex flex-wrap gap-3">
+//               {group.dates.map(d => (
+//                 <div key={d._id} className="flex items-center gap-2 bg-indigo-50 px-3 py-1 rounded-full">
+//                   {new Date(d.date).toLocaleDateString("en-IN", {
+//                     day: "numeric",
+//                     month: "short",
+//                     year: "numeric",
+//                     weekday: "short",
+//                   })}
+//                   <Trash2
+//                     className="w-4 h-4 text-red-600 cursor-pointer"
+//                     onClick={() => handleDelete(d._id)}
+//                   />
+//                 </div>
+//               ))}
+//             </div>
+//           </div>
+//         ))
+//       )}
+//     </div>
+//   );
+// };
+
+// export default WeeklyOff;
+
 import React, { useEffect, useState } from "react";
 import api from "../api/axios";
 import { Trash2 } from "lucide-react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { format, isSameMonth } from "date-fns";
 
 const WeeklyOff = () => {
   const [weeklyOffs, setWeeklyOffs] = useState([]);
   const [users, setUsers] = useState([]);
   const [form, setForm] = useState({ userId: "", date: "" });
   const [loading, setLoading] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(new Date()); // current month by default
 
   useEffect(() => {
     fetchUsers();
@@ -1505,30 +1798,70 @@ const WeeklyOff = () => {
     fetchWeeklyOffs();
   };
 
+  // 🔹 Filter weekly offs by selected month
+  const filteredWeeklyOffs = weeklyOffs.filter(off => 
+    isSameMonth(new Date(off.date), selectedMonth)
+  );
+
   // 🔹 Group by employee
-  const grouped = weeklyOffs.reduce((acc, off) => {
-    const id = off.userId._id;
-    if (!acc[id]) {
-      acc[id] = {
-        name: off.userId.name,
-        email: off.userId.email,
-        dates: [],
-      };
-    }
-    acc[id].dates.push(off);
-    return acc;
-  }, {});
+//   const grouped = filteredWeeklyOffs.reduce((acc, off) => {
+//     const id = off.userId._id;
+//     if (!acc[id]) {
+//       acc[id] = {
+//         name: off.userId.name,
+//         email: off.userId.email,
+//         dates: [],
+//       };
+//     }
+//     acc[id].dates.push(off);
+//     return acc;
+//   }, {});
+
+// 🔹 Group by employee AND sort dates ascending
+const grouped = filteredWeeklyOffs.reduce((acc, off) => {
+  const id = off.userId._id;
+  if (!acc[id]) {
+    acc[id] = {
+      name: off.userId.name,
+      email: off.userId.email,
+      dates: [],
+    };
+  }
+  acc[id].dates.push(off);
+  // 🔹 Sort dates ascending after each insert
+  acc[id].dates.sort((a, b) => new Date(a.date) - new Date(b.date));
+  return acc;
+}, {});
+
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Weekly Off Management</h1>
+    <div className="max-w-5xl mx-auto p-6 space-y-6">
+      <h1 className="text-3xl font-bold text-indigo-700 mb-4">Weekly Off Management</h1>
+
+      {/* PROFESSIONAL MONTH FILTER */}
+      <div className="bg-white p-4 rounded-lg shadow flex items-center gap-4">
+        <label className="font-semibold text-gray-700">Select Month:</label>
+        <DatePicker
+          selected={selectedMonth}
+          onChange={(date) => setSelectedMonth(date)}
+          dateFormat="MMMM yyyy"
+          showMonthYearPicker
+          className="border p-2 rounded focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+        />
+        <button
+          onClick={() => setSelectedMonth(new Date())}
+          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
+        >
+          Reset
+        </button>
+      </div>
 
       {/* ADD FORM */}
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white p-4 rounded shadow">
+      <form className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white p-6 rounded-lg shadow" onSubmit={handleSubmit}>
         <select
           value={form.userId}
           onChange={(e) => setForm({ ...form, userId: e.target.value })}
-          className="border p-2 rounded"
+          className="border p-3 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
           required
         >
           <option value="">Select Employee</option>
@@ -1537,53 +1870,54 @@ const WeeklyOff = () => {
           ))}
         </select>
 
-        <input
-          type="date"
-          value={form.date}
-          onChange={(e) => setForm({ ...form, date: e.target.value })}
-          className="border p-2 rounded"
+        <DatePicker
+          selected={form.date ? new Date(form.date) : null}
+          onChange={(date) => setForm({ ...form, date: date.toISOString().slice(0, 10) })}
+          dateFormat="yyyy-MM-dd"
+          className="border p-3 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          placeholderText="Select Date"
           required
         />
 
         <button
           disabled={loading}
-          className="bg-indigo-600 text-white px-4 py-2 rounded col-span-full"
+          className="bg-indigo-600 text-white px-6 py-3 rounded-lg col-span-full hover:bg-indigo-700 transition"
         >
           {loading ? "Saving..." : "Add Weekly Off"}
         </button>
       </form>
 
       {/* LIST */}
-      {Object.values(grouped).map((group, i) => (
-        <div key={i} className="bg-white rounded shadow">
-          <div className="p-4 border-b font-semibold">
-            {group.name} <span className="text-sm text-gray-500">({group.email})</span>
+      {Object.values(grouped).length === 0 ? (
+        <div className="text-center text-gray-500 mt-4">No weekly offs for this month.</div>
+      ) : (
+        Object.values(grouped).map((group, i) => (
+          <div key={i} className="bg-white rounded-lg shadow mt-4">
+            <div className="p-4 border-b font-semibold text-gray-800">
+              {group.name} <span className="text-sm text-gray-500">({group.email})</span>
+            </div>
+            <div className="p-4 flex flex-wrap gap-3">
+              {group.dates.map(d => (
+                <div
+                  key={d._id}
+                  className="flex items-center gap-2 bg-indigo-50 px-3 py-1 rounded-full shadow-sm"
+                >
+                  {format(new Date(d.date), "EEE, dd MMM yyyy")}
+                  <Trash2
+                    className="w-4 h-4 text-red-600 cursor-pointer hover:text-red-800 transition"
+                    onClick={() => handleDelete(d._id)}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
-
-          <div className="p-4 flex flex-wrap gap-3">
-            {group.dates.map(d => (
-              <div key={d._id} className="flex items-center gap-2 bg-indigo-50 px-3 py-1 rounded-full">
-                {new Date(d.date).toLocaleDateString("en-IN", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                  weekday: "short",
-                })}
-                <Trash2
-                  className="w-4 h-4 text-red-600 cursor-pointer"
-                  onClick={() => handleDelete(d._id)}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
+        ))
+      )}
     </div>
   );
 };
 
 export default WeeklyOff;
-
 
 
 

@@ -750,3 +750,49 @@ export const getMyLoginHours = async (req, res) => {
     });
   }
 };
+
+
+export const getTodayLoginHoursAdmin = async (req, res) => {
+  try {
+    const date = getShiftDate();
+    const { userId } = req.query;
+
+    const filter = { date };
+    if (userId) filter.userId = userId;
+
+    const records = await LoginHour.find(filter)
+      .populate("userId", "name email employeeId role")
+      .sort({ loginTime: -1 })
+      .lean();
+
+    const formatted = records.map(r => {
+      const totalBreakMinutes = calculateTotalBreakMinutes(r.breaks);
+      const workedHours = calculateWorkedHours(
+        r.loginTime,
+        r.logoutTime, // ✅ IMPORTANT: DO NOT USE new Date()
+        totalBreakMinutes
+      );
+
+      return {
+        _id: r._id,
+        userId: r.userId,
+        loginTime: r.loginTime,
+        logoutTime: r.logoutTime,
+        workedHours: workedHours.toFixed(2),
+        breakHours: (totalBreakMinutes / 60).toFixed(2),
+        status: r.logoutTime ? "Logged Out" : "Logged In"
+      };
+    });
+
+    res.json({
+      success: true,
+      data: formatted
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch today login hours"
+    });
+  }
+};

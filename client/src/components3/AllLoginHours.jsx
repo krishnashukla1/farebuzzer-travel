@@ -945,48 +945,85 @@ const AllLoginHours = () => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const fetchTodayLoginHours = async () => {
-    try {
-      setLoading(true);
-      setRefreshing(true);
+  // const fetchTodayLoginHours = async () => {
+  //   try {
+  //     setLoading(true);
+  //     setRefreshing(true);
 
-      const response = await api.get('/login-hours/today', {
-        params: {
-          ...(selectedEmployee !== 'all' && { userId: selectedEmployee })
-        }
+  //     const response = await api.get('/login-hours/today', {
+        
+  //       params: {
+  //         ...(selectedEmployee !== 'all' && { userId: selectedEmployee })
+  //       }
+  //     });
+
+  //     let data = response.data.data || response.data.records || response.data || [];
+
+  //     if (!Array.isArray(data)) {
+  //       data = [data].filter(Boolean);
+  //     }
+
+  //     // Sort by login time - newest first
+  //     data.sort((a, b) => new Date(b.loginTime) - new Date(a.loginTime));
+
+  //     setRecords(data);
+
+  //     // Extract unique employees for filter
+  //     const empMap = new Map();
+  //     data.forEach(r => {
+  //       const user = r.userId || r.user || {};
+  //       if (user._id) {
+  //         empMap.set(user._id, user);
+  //       }
+  //     });
+  //     setEmployees(Array.from(empMap.values()));
+
+  //   } catch (err) {
+  //     console.error("Failed to load today's attendance:", err);
+  //     toast.error("Couldn't load today's attendance");
+  //     setRecords([]);
+  //     setEmployees([]);
+  //   } finally {
+  //     setLoading(false);
+  //     setRefreshing(false);
+  //   }
+  // };
+
+const fetchTodayLoginHours = async () => {
+  try {
+    setLoading(true);
+
+    let response;
+
+    if (role === "admin") {
+      // ✅ ADMIN → today/all
+      response = await api.get("/login-hours/today/all");
+
+      // admin gets list → take summary if needed
+      setTodayData({
+        isAdmin: true,
+        records: response.data.data || [],
       });
 
-      let data = response.data.data || response.data.records || response.data || [];
+    } else {
+      // ✅ EMPLOYEE → today
+      response = await api.get("/login-hours/today");
 
-      if (!Array.isArray(data)) {
-        data = [data].filter(Boolean);
-      }
-
-      // Sort by login time - newest first
-      data.sort((a, b) => new Date(b.loginTime) - new Date(a.loginTime));
-
-      setRecords(data);
-
-      // Extract unique employees for filter
-      const empMap = new Map();
-      data.forEach(r => {
-        const user = r.userId || r.user || {};
-        if (user._id) {
-          empMap.set(user._id, user);
-        }
-      });
-      setEmployees(Array.from(empMap.values()));
-
-    } catch (err) {
-      console.error("Failed to load today's attendance:", err);
-      toast.error("Couldn't load today's attendance");
-      setRecords([]);
-      setEmployees([]);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+      setTodayData(response.data.data || response.data);
     }
-  };
+
+  } catch (error) {
+    console.error("Error fetching today data:", error);
+    toast.error(
+      error.response?.data?.message || "Failed to load today's data"
+    );
+    setTodayData(null);
+  } finally {
+    setLoading(false);
+    setRefreshing(false);
+  }
+};
+
 
   useEffect(() => {
     fetchTodayLoginHours();

@@ -109,7 +109,7 @@ import AttendanceAdmin from "./components3/AttendanceAdmin";
 
 
 import MyLoginHours from "./components3/MyLoginHours";
-import AdminLoginStatus from "./components3/AdminLoginStatus";
+// import AdminLoginStatus from "./components3/AdminLoginStatus";
 import AllLoginHours from './components3/AllLoginHours'
 import BreakRequest from "./components3/BreakRequest";
 
@@ -229,14 +229,7 @@ const App = () => {
                       />
 
 
-<Route
-  path="/admin-login-status"
-  element={
-    <ProtectedRoute allowedRoles={["admin"]}>
-      <AdminLoginStatus />
-    </ProtectedRoute>
-  }
-/>
+
 <Route
   path="/all-login-hours"
   element={
@@ -272,14 +265,7 @@ const App = () => {
                       />
 
 
-<Route
-  path="/admin-login-status"
-  element={
-    <ProtectedRoute allowedRoles={["admin"]}>
-      <AdminLoginStatus />
-    </ProtectedRoute>
-  }
-/>
+
 <Route
   path="/all-login-hours"
   element={

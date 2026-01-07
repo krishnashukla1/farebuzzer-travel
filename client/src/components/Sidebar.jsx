@@ -991,6 +991,11 @@ const Sidebar = () => {
                 <span>All Login Hours</span>
               </NavLink>
 
+              {/* <NavLink to="/login-status" className={linkClass}>
+                <Clock size={20} />
+                <span>Login Status</span>
+              </NavLink> */}
+
               <NavLink to="/settings" className={linkClass}>
                 <Settings size={20} />
                 <span>Settings</span>

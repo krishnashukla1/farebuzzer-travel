@@ -195,7 +195,165 @@
 
 // export default Login;
 
-//===============
+//===============correct with mark attendance=============
+
+// import { useState } from "react";
+// import { Link } from "react-router-dom";
+// import API from "../api/axios";
+// import { Eye, EyeOff } from "lucide-react";
+
+// const Login = () => {
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [showPassword, setShowPassword] = useState(false);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState("");
+
+//   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
+//   const [markAttendance, setMarkAttendance] = useState(false);
+
+
+//   const handleSubmit = async (e) => {
+//   e.preventDefault();
+//   setLoading(true);
+//   setError("");
+
+//   try {
+//     const res = await API.post("/auth/login", { email, password });
+
+//     const { token, user } = res.data;
+
+//     localStorage.setItem("token", token);
+//     localStorage.setItem("role", user.role);
+
+//     // 🔥 ADMIN → DIRECT DASHBOARD
+//     if (user.role === "admin") {
+//       window.location.href = "/dashboard";
+//       return;
+//     }
+
+//     // 🔥 EMPLOYEE / AGENT → SHOW ATTENDANCE MODAL
+//     setShowAttendanceModal(true);
+//   } catch (err) {
+//     setError(err.response?.data?.message || "Login failed");
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+//   const handleAttendanceSubmit = async () => {
+//     try {
+//       if (markAttendance) {
+//         await API.post(
+//           "/attendance/mark",
+//           {},
+//           {
+//             headers: {
+//               Authorization: `Bearer ${localStorage.getItem("token")}`,
+//             },
+//           }
+//         );
+//       }
+
+//       window.location.href = "/dashboard";
+//     } catch (err) {
+//       alert("Attendance marking failed");
+//       window.location.href = "/dashboard";
+//     }
+//   };
+
+//   return (
+//     <>
+//       {/* LOGIN FORM */}
+//       <div className="min-h-screen flex items-center justify-center bg-gray-100">
+//         <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
+//           <h2 className="text-2xl font-bold text-center mb-6">
+//             FareBuzzer CRM Login
+//           </h2>
+
+//           {error && (
+//             <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-center">
+//               {error}
+//             </div>
+//           )}
+
+//           <form onSubmit={handleSubmit} className="space-y-4">
+//             <input
+//               type="email"
+//               placeholder="Email"
+//               className="w-full border p-3 rounded"
+//               value={email}
+//               onChange={(e) => setEmail(e.target.value)}
+//               required
+//             />
+
+//             <div className="relative">
+//               <input
+//                 type={showPassword ? "text" : "password"}
+//                 placeholder="Password"
+//                 className="w-full border p-3 rounded"
+//                 value={password}
+//                 onChange={(e) => setPassword(e.target.value)}
+//                 required
+//               />
+//               <button
+//                 type="button"
+//                 className="absolute right-3 top-3"
+//                 onClick={() => setShowPassword(!showPassword)}
+//               >
+//                 {showPassword ? <EyeOff /> : <Eye />}
+//               </button>
+//             </div>
+
+//             <button
+//               type="submit"
+//               disabled={loading}
+//               className="w-full bg-teal-600 text-white py-3 rounded hover:bg-teal-700"
+//             >
+//               {loading ? "Logging in..." : "Login"}
+//             </button>
+//           </form>
+
+//           <p className="text-center mt-4 text-sm">
+//             New user?{" "}
+//             <Link to="/signup" className="text-teal-600">
+//               Sign Up
+//             </Link>
+//           </p>
+//         </div>
+//       </div>
+
+//       {/* ATTENDANCE MODAL */}
+//       {showAttendanceModal && (
+//         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+//           <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-sm">
+//             <h3 className="text-lg font-bold mb-4">Mark Attendance</h3>
+
+//             <label className="flex items-center gap-2 mb-4">
+//               <input
+//                 type="checkbox"
+//                 checked={markAttendance}
+//                 onChange={(e) => setMarkAttendance(e.target.checked)}
+//               />
+//               Mark today’s attendance
+//             </label>
+
+//             <button
+//               onClick={handleAttendanceSubmit}
+//               className="w-full bg-teal-600 text-white py-2 rounded hover:bg-teal-700"
+//             >
+//               Continue
+//             </button>
+//           </div>
+//         </div>
+//       )}
+//     </>
+//   );
+// };
+
+// export default Login;
+
+//========================final==============
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -209,159 +367,258 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Attendance modal states (only for non-admin users)
   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
   const [markAttendance, setMarkAttendance] = useState(false);
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   setError("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
+    try {
+      const res = await API.post("/auth/login", { email, password });
+
+      const { token, user } = res.data;
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", user.role);
+
+      // Admin → go straight to dashboard
+      if (user.role === "admin") {
+        window.location.href = "/dashboard";
+        return;
+      }
+
+      // Employee/Agent → show attendance modal
+      setShowAttendanceModal(true);
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // const handleAttendanceSubmit = async () => {
   //   try {
-  //     const res = await API.post("/auth/login", { email, password });
-
-  //     localStorage.setItem("token", res.data.token);
-  //     localStorage.setItem("role", res.data.user.role);
-
-  //     // show attendance modal after login
-  //     setShowAttendanceModal(true);
+  //     if (markAttendance) {
+  //       await API.post(
+  //         "/attendance/mark",
+  //         {},
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //           },
+  //         }
+  //       );
+  //     }
+  //     window.location.href = "/dashboard";
   //   } catch (err) {
-  //     setError(err.response?.data?.message || "Login failed");
-  //   } finally {
-  //     setLoading(false);
+  //     alert("Attendance marking failed, but redirecting anyway...");
+  //     window.location.href = "/dashboard";
   //   }
   // };
 
-  const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError("");
-
+  const handleAttendanceSubmit = async () => {
   try {
-    const res = await API.post("/auth/login", { email, password });
+    if (markAttendance) {
+      await API.post(
+        "/attendance/mark",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+    }
 
-    const { token, user } = res.data;
+    // ✅ success → redirect
+    window.location.href = "/dashboard";
+  } catch (err) {
+    const message = err.response?.data?.message;
 
-    localStorage.setItem("token", token);
-    localStorage.setItem("role", user.role);
-
-    // 🔥 ADMIN → DIRECT DASHBOARD
-    if (user.role === "admin") {
+    // ✅ Attendance already marked → NOT an error
+    if (message === "Attendance already marked for today") {
       window.location.href = "/dashboard";
       return;
     }
 
-    // 🔥 EMPLOYEE / AGENT → SHOW ATTENDANCE MODAL
-    setShowAttendanceModal(true);
-  } catch (err) {
-    setError(err.response?.data?.message || "Login failed");
-  } finally {
-    setLoading(false);
+    // ❌ Real error only
+    alert("Something went wrong while marking attendance");
+    window.location.href = "/dashboard";
   }
 };
 
-  const handleAttendanceSubmit = async () => {
-    try {
-      if (markAttendance) {
-        await API.post(
-          "/attendance/mark",
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-      }
-
-      window.location.href = "/dashboard";
-    } catch (err) {
-      alert("Attendance marking failed");
-      window.location.href = "/dashboard";
-    }
-  };
-
   return (
     <>
-      {/* LOGIN FORM */}
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
-          <h2 className="text-2xl font-bold text-center mb-6">
-            FareBuzzer CRM Login
-          </h2>
+      {/* MAIN BACKGROUND + OVERLAY */}
+      <div
+        className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative"
+        style={{
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2073&q=80')",
+        }}
+      >
+        <div className="absolute inset-0 bg-black/45"></div>
 
-          {error && (
-            <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-center">
-              {error}
+        {/* LOGIN CARD */}
+        <div className="relative z-10 w-full max-w-lg px-5 sm:px-6">
+          <div className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-2xl p-8 md:p-10 border border-white/30">
+            {/* Logo + Title */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-24 h-24 bg-teal-600 rounded-full mb-5 overflow-hidden mx-auto border-4 border-white shadow-lg">
+                <img
+                  src="/fbt new logo.png" // ← change path if needed
+                  alt="FareBuzzer Logo"
+                  className="w-full h-full object-contain p-1"
+                />
+              </div>
+
+              <h2 className="text-3xl font-bold text-gray-800 tracking-tight">
+                FareBuzzer Travel CRM
+              </h2>
+              <p className="text-gray-600 mt-2 text-sm">
+                Welcome back! Let's manage your tours
+              </p>
             </div>
-          )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="email"
-              placeholder="Email"
-              className="w-full border p-3 rounded"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-center text-sm">
+                {error}
+              </div>
+            )}
 
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                className="w-full border p-3 rounded"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+            {/* FORM */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Email
+                </label>
+                <div className="relative">
+                  <input
+                    type="email"
+                    placeholder="your@email.com"
+                    className="w-full pl-11 pr-4 py-3.5 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <svg
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className="w-full pl-11 pr-11 py-3.5 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <svg
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 11c1.104 0 2-.896 2-2s-.896-2-2-2-2 .896-2 2 .896 2 2 2zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M7 7a5 5 0 1110 0v4H7V7z"
+                    />
+                  </svg>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="cursor-pointer absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-teal-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Submit Button */}
               <button
-                type="button"
-                className="absolute right-3 top-3"
-                onClick={() => setShowPassword(!showPassword)}
+                type="submit"
+                disabled={loading}
+                className="cursor-pointer w-full bg-teal-600 text-white py-3.5 rounded-xl font-semibold text-base shadow-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-70 disabled:hover:scale-100 disabled:cursor-not-allowed"
               >
-                {showPassword ? <EyeOff /> : <Eye />}
+                {loading ? "Logging in..." : "Sign In"}
               </button>
-            </div>
+            </form>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-teal-600 text-white py-3 rounded hover:bg-teal-700"
-            >
-              {loading ? "Logging in..." : "Login"}
-            </button>
-          </form>
+            {/* Links */}
+            <p className="text-center text-sm text-gray-600 mt-6">
+              Don't have an account?{" "}
+              <Link
+                to="/signup"
+                className="text-teal-600 font-medium hover:text-teal-800 transition-colors"
+              >
+                Sign Up
+              </Link>
+            </p>
 
-          <p className="text-center mt-4 text-sm">
-            New user?{" "}
-            <Link to="/signup" className="text-teal-600">
-              Sign Up
-            </Link>
-          </p>
+            <p className="text-center text-xs text-gray-500 mt-5">
+              © {new Date().getFullYear()} FareBuzzer Travel CRM
+            </p>
+          </div>
         </div>
       </div>
 
       {/* ATTENDANCE MODAL */}
       {showAttendanceModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-sm">
-            <h3 className="text-lg font-bold mb-4">Mark Attendance</h3>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4 border border-gray-100">
+            <h3 className="text-xl font-bold text-gray-800 mb-5 text-center">
+              Welcome back!
+            </h3>
 
-            <label className="flex items-center gap-2 mb-4">
+            <label className="flex items-center gap-3 mb-6 cursor-pointer">
               <input
                 type="checkbox"
                 checked={markAttendance}
                 onChange={(e) => setMarkAttendance(e.target.checked)}
+                className="cursor-pointer w-5 h-5 text-teal-600 rounded border-gray-300 focus:ring-teal-500"
               />
-              Mark today’s attendance
+              <span className="text-gray-700 font-medium">
+                Mark today's attendance
+              </span>
             </label>
 
             <button
               onClick={handleAttendanceSubmit}
-              className="w-full bg-teal-600 text-white py-2 rounded hover:bg-teal-700"
+              className="cursor-pointer w-full bg-teal-600 text-white py-3.5 rounded-xl font-semibold hover:bg-teal-700 transition-all duration-200 transform hover:scale-[1.02]"
             >
-              Continue
+              Continue to Dashboard
             </button>
           </div>
         </div>

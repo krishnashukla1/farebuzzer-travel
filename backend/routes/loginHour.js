@@ -1,22 +1,54 @@
+
 // import express from "express";
 // import authMiddleware from "../middleware/authMiddleware.js";
+// import adminMiddleware from "../middleware/adminMiddleware.js";
 // import {
 //   login,
 //   logout,
 //   startBreak,
-//   endBreak
+//   endBreak,
+//   requestBreak,
+//   reviewBreakRequest,
+//   getPendingBreakRequests,
+//   getTodayStats,
+//   getAllLoginHours,
+//   getMyLoginHours
 // } from "../controllers/loginHourController.js";
 
 // const router = express.Router();
 
+// /* ================= EMPLOYEE ACTIONS ================= */
+
+// // Login / Logout
 // router.post("/login", authMiddleware, login);
 // router.post("/logout", authMiddleware, logout);
+
+// // Break actions (both routes for flexibility)
 // router.post("/break/start", authMiddleware, startBreak);
 // router.post("/break/end", authMiddleware, endBreak);
+// router.post("/break/request", authMiddleware, requestBreak);
+
+// // Get today's stats
+// router.get("/today", authMiddleware, getTodayStats);
+
+// // Get my login hours
+// router.get("/my-hours", authMiddleware, getMyLoginHours);
+
+// /* ================= ADMIN / SUPERVISOR ================= */
+
+// // Review break (approve / reject)
+// router.post("/break/review", authMiddleware, adminMiddleware, reviewBreakRequest);
+
+// // Pending break requests
+// router.get("/break/pending", authMiddleware, adminMiddleware, getPendingBreakRequests);
+
+// // All login hour records
+// router.get("/", authMiddleware, adminMiddleware, getAllLoginHours);
 
 // export default router;
 
-//====================================
+
+
 
 
 
@@ -33,38 +65,39 @@ import {
   getPendingBreakRequests,
   getTodayStats,
   getAllLoginHours,
-  getMyLoginHours
+  getMyLoginHours,
+  getTodayLoginHoursAdmin
 } from "../controllers/loginHourController.js";
 
 const router = express.Router();
 
-/* ================= EMPLOYEE ACTIONS ================= */
+/* ================= EMPLOYEE ================= */
 
-// Login / Logout
+// Employee login / logout
 router.post("/login", authMiddleware, login);
 router.post("/logout", authMiddleware, logout);
 
-// Break actions (both routes for flexibility)
+// Breaks
 router.post("/break/start", authMiddleware, startBreak);
 router.post("/break/end", authMiddleware, endBreak);
 router.post("/break/request", authMiddleware, requestBreak);
 
-// Get today's stats
+// Employee today stats
 router.get("/today", authMiddleware, getTodayStats);
 
-// Get my login hours
+// Employee history
 router.get("/my-hours", authMiddleware, getMyLoginHours);
 
-/* ================= ADMIN / SUPERVISOR ================= */
+/* ================= ADMIN ================= */
 
-// Review break (approve / reject)
-router.post("/break/review", authMiddleware, adminMiddleware, reviewBreakRequest);
+// Admin today attendance list
+router.get("/today/all", authMiddleware, adminMiddleware, getTodayLoginHoursAdmin);
 
-// Pending break requests
-router.get("/break/pending", authMiddleware, adminMiddleware, getPendingBreakRequests);
-
-// All login hour records
+// Admin all history
 router.get("/", authMiddleware, adminMiddleware, getAllLoginHours);
 
-export default router;
+// Break approvals
+router.post("/break/review", authMiddleware, adminMiddleware, reviewBreakRequest);
+router.get("/break/pending", authMiddleware, adminMiddleware, getPendingBreakRequests);
 
+export default router;

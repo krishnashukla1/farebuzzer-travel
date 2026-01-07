@@ -101,9 +101,9 @@ export default function ApplyLeave() {
             >
               <option value="Paid">Paid Leave</option>
               <option value="Unpaid">Unpaid Leave</option>
-              <option value="Sick">Sick Leave</option>
+              {/* <option value="Sick">Sick Leave</option>
               <option value="Casual">Casual Leave</option>
-              <option value="Emergency">Emergency Leave</option>
+              <option value="Emergency">Emergency Leave</option> */}
             </select>
           </div>
 

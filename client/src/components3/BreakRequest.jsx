@@ -533,6 +533,16 @@ const BreakRequest = () => {
     return Math.max(0, 3 - approvedBreaks);
   };
 
+  const formatHoursToHrsMins = (hours) => {
+  if (!hours || isNaN(hours)) return "0 hrs 0 mins";
+
+  const totalMinutes = Math.round(Number(hours) * 60);
+  const hrs = Math.floor(totalMinutes / 60);
+  const mins = totalMinutes % 60;
+
+  return `${hrs} hrs ${mins} mins`;
+};
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -601,7 +611,8 @@ const BreakRequest = () => {
             <div>
               <p className="text-sm text-gray-600">Total Break Time</p>
               <p className="text-2xl font-bold text-gray-800 mt-2">
-                {stats?.breakHours || '0.00'} hrs
+                {/* {stats?.breakHours || '0.00'} hrs */}
+                  {formatHoursToHrsMins(stats?.breakHours)}
               </p>
             </div>
             <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">

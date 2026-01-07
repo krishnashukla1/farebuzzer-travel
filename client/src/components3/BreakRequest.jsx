@@ -686,7 +686,7 @@ const BreakRequest = () => {
               <button
                 onClick={handleEndBreak}
                 disabled={loading}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                className="cursor-pointer px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
               >
                 {loading ? 'Ending...' : 'End Break'}
               </button>
@@ -716,7 +716,7 @@ const BreakRequest = () => {
             <button
               onClick={handleRequestBreak}
               disabled={loading}
-              className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+              className="cursor-pointer w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
             >
               {loading ? 'Processing...' : 'Request Break'}
             </button>

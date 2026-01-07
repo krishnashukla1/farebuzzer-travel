@@ -65,9 +65,6 @@ import weeklyOffRoutes from './routes/weeklyOffRoutes.js'
 import leaveRoutes from './routes/leaveRoutes.js'
 
 
-
-
-
 dotenv.config();
 
 // Connect DB
@@ -76,7 +73,19 @@ connectDB();
 const app = express();
 
 // Middlewares
-app.use(cors());
+// app.use(cors());
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host",
+      "https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host"
+    ],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
 // Routes

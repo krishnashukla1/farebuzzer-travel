@@ -1,11 +1,78 @@
 
+//=========correct=====
+// import { LogOut, User } from "lucide-react";
+// import { useState, useEffect } from "react";
+// import API from "../api/axios"; // ✅ IMPORT API
+
+// const Navbar = () => {
+//   const [user, setUser] = useState(null);
+
+//   useEffect(() => {
+//     const fetchUser = async () => {
+//       try {
+//         const token = localStorage.getItem("token");
+//         if (!token) return;
+
+//         const res = await API.get("/users/me", {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//           },
+//         });
+
+//         setUser(res.data);
+//       } catch (err) {
+//         console.error("Failed to fetch user", err);
+//       }
+//     };
+
+//     fetchUser();
+//   }, []);
+
+//   const handleLogout = () => {
+//     localStorage.removeItem("token");
+//     window.location.href = "/login";
+//   };
+
+//   return (
+//     <div className="h-14 bg-white border-b flex items-center justify-between px-6 shadow-sm">
+//       {/* Left */}
+//       <h1 className="text-lg font-semibold text-gray-700">
+//         FareBuzzer Travel CRM
+//       </h1>
+
+//       {/* Right */}
+//       <div className="flex items-center gap-4">
+//         <div className="flex items-center gap-2 text-gray-600">
+//           <User size={18} />
+//           <span className="text-sm font-medium text-teal-600">
+//             {user?.name || "User"} {/* ✅ SAFE ACCESS */}
+//           </span>
+//         </div>
+
+//         <button
+//           onClick={handleLogout}
+//           className="cursor-pointer flex items-center gap-1 text-red-600 hover:text-red-700 text-sm"
+//         >
+//           <LogOut size={16} />
+//           Logout
+//         </button>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Navbar;
+
+//=========================
 
 import { LogOut, User } from "lucide-react";
 import { useState, useEffect } from "react";
-import API from "../api/axios"; // ✅ IMPORT API
+import API from "../api/axios";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -13,41 +80,53 @@ const Navbar = () => {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const res = await API.get("/users/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
+        const res = await API.get("/users/me");
         setUser(res.data);
       } catch (err) {
-        console.error("Failed to fetch user", err);
+        setUser(null);
       }
     };
 
     fetchUser();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
+  const handleLogout = async () => {
+    try {
+      await API.post("/login-hours/logout");
+    } catch (err) {
+      console.error("Logout API failed");
+    } finally {
+      // ✅ CLEAR AUTH COMPLETELY
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+
+      // 🔥 MOST IMPORTANT LINE
+      delete API.defaults.headers.common["Authorization"];
+
+      setUser(null);
+
+      // notify dashboard immediately
+      window.dispatchEvent(new Event("attendance-updated"));
+
+      navigate("/login", { replace: true });
+    }
   };
 
   return (
     <div className="h-14 bg-white border-b flex items-center justify-between px-6 shadow-sm">
-      {/* Left */}
       <h1 className="text-lg font-semibold text-gray-700">
         FareBuzzer Travel CRM
       </h1>
 
-      {/* Right */}
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2 text-gray-600">
-          <User size={18} />
-          <span className="text-sm font-medium text-teal-600">
-            {user?.name || "User"} {/* ✅ SAFE ACCESS */}
-          </span>
-        </div>
+        {user && (
+          <div className="flex items-center gap-2 text-gray-600">
+            <User size={18} />
+            <span className="text-sm font-medium text-teal-600">
+              {user.name}
+            </span>
+          </div>
+        )}
 
         <button
           onClick={handleLogout}

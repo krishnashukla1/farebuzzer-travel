@@ -97,7 +97,7 @@ export default function AttendanceAdmin() {
                   key={record._id}
                   className="hover:bg-gray-50 transition-colors duration-150"
                 >
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  {/* <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
                       {record.userId?.name || "—"}
                     </div>
@@ -105,6 +105,16 @@ export default function AttendanceAdmin() {
 
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                     {record.userId?.email || "—"}
+                  </td> */}
+
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">
+                      {record.user?.name || "—"}
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {record.user?.email || "—"}
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">

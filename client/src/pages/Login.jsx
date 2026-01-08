@@ -632,11 +632,1193 @@
 
 //==========8 jan=========
 
-import { useState, useEffect } from "react";
+// import { useState, useEffect } from "react";
+// import { Link, useNavigate } from "react-router-dom";
+// import API from "../api/axios";
+// import { Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
+// import toast from 'react-hot-toast'; // ← recommended (optional but very useful)
+
+// const Login = () => {
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [showPassword, setShowPassword] = useState(false);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState("");
+
+//   // Attendance modal states
+//   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
+//   const [markAttendance, setMarkAttendance] = useState(true); // default checked
+//   const [attendanceLoading, setAttendanceLoading] = useState(false);
+
+//   const navigate = useNavigate();
+
+  
+// const handleSubmit = async (e) => {
+//   e.preventDefault();
+//   setLoading(true);
+//   setError("");
+
+
+//   try {
+//   const res = await API.post("/auth/login", { email, password });
+//   const { token, user } = res.data;
+
+//   localStorage.setItem("token", token);
+//   localStorage.setItem("role", user.role);
+//   API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+//   // ── VERY IMPORTANT ── Automatically record login/attendance
+//   try {
+//     await API.post("/login-hours/login");  // This creates the LoginHour record
+//     toast.success("Login recorded successfully!");
+//   } catch (loginErr) {
+//     // If already logged in today → it's OK, don't show error
+//     if (!loginErr.response?.data?.message?.includes("Already logged in")) {
+//       toast.error("Could not record login time");
+//     }
+//   }
+
+//   // Then proceed with admin/employee logic...
+//   if (user.role === "admin") {
+//     navigate("/dashboard", { replace: true });
+//   } else {
+//     setShowAttendanceModal(true);
+//   }
+
+// }
+  
+  
+//   catch (err) {
+//     const message = err.response?.data?.message || "Login failed";
+//     setError(message);
+//     toast.error(message);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+// const handleAttendanceSubmit = async () => {
+//   setAttendanceLoading(true);
+
+//   try {
+//     if (markAttendance) {
+//       await API.post("/attendance/mark");
+//       toast.success("Attendance marked successfully!");
+//     } else {
+//       toast("Attendance skipped for today", {
+//         icon: "ℹ️",
+//       });
+//     }
+
+//     // 1. First close modal (important!)
+//     setShowAttendanceModal(false);
+
+//     // 2. Small delay to let modal animation finish + state update
+//     //    This solves 90% of "modal stays after redirect" problems
+//     setTimeout(() => {
+//       navigate("/dashboard", { replace: true });
+//     }, 300); // 300ms is usually enough
+
+//   } catch (err) {
+//     const msg = err.response?.data?.message;
+
+//     if (msg?.toLowerCase().includes("already marked")) {
+//       toast.success("Attendance already marked for today");
+//     } else {
+//       toast.error(msg || "Failed to process attendance");
+//     }
+
+//     // Even on error → still go to dashboard (most users expect it)
+//     setShowAttendanceModal(false);
+//     setTimeout(() => {
+//       navigate("/dashboard", { replace: true });
+//     }, 400);
+//   } finally {
+//     setAttendanceLoading(false);
+//   }
+// };
+
+// // Optional: Close modal when clicking outside or pressing Esc
+// useEffect(() => {
+//   if (!showAttendanceModal) return;
+
+//   const handleEsc = (e) => {
+//     if (e.key === "Escape") {
+//       handleAttendanceSubmit(); // or just close without marking
+//     }
+//   };
+
+//   window.addEventListener("keydown", handleEsc);
+//   return () => window.removeEventListener("keydown", handleEsc);
+// }, [showAttendanceModal]);
+
+
+//   // const handleAttendanceSubmit = async () => {
+//   //   setAttendanceLoading(true);
+
+//   //   try {
+//   //     if (markAttendance) {
+//   //       await API.post("/attendance/mark");
+//   //       toast.success("Attendance marked successfully!");
+//   //     } else {
+//   //       toast("Attendance skipped", {
+//   //         icon: "ℹ️",
+//   //         style: { background: "#fefcbf", color: "#92400e" }
+//   //       });
+//   //     }
+
+//   //     setShowAttendanceModal(false);
+//   //     navigate("/dashboard", { replace: true });
+
+//   //   } catch (err) {
+//   //     const message = err.response?.data?.message;
+
+//   //     // Most common & expected case → already marked today
+//   //     if (message?.includes("already marked")) {
+//   //       toast.success("Attendance already marked today");
+//   //       setShowAttendanceModal(false);
+//   //       navigate("/dashboard", { replace: true });
+//   //       return;
+//   //     }
+
+//   //     // Real error
+//   //     toast.error(message || "Failed to mark attendance");
+//   //     console.error("Attendance error:", err);
+//   //   } finally {
+//   //     setAttendanceLoading(false);
+//   //   }
+//   // };
+
+//   // Optional: Close modal with Escape key
+ 
+//   useEffect(() => {
+//     const handleEsc = (e) => {
+//       if (e.key === "Escape" && showAttendanceModal) {
+//         handleAttendanceSubmit(); // or just close without marking
+//       }
+//     };
+//     window.addEventListener("keydown", handleEsc);
+//     return () => window.removeEventListener("keydown", handleEsc);
+//   }, [showAttendanceModal]);
+
+//   return (
+//     <>
+//       {/* Background */}
+//       <div
+//         className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative"
+//         style={{
+//           backgroundImage:
+//             "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2073&q=80')",
+//         }}
+//       >
+//         <div className="absolute inset-0 bg-gradient-to-br from-black/60 to-black/40" />
+
+//         {/* Login Card */}
+//         <div className="relative z-10 w-full max-w-lg px-5 sm:px-6">
+//           <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-8 md:p-10 border border-white/40">
+//             {/* Logo & Title */}
+//             <div className="text-center mb-8">
+//               <div className="inline-flex items-center justify-center w-20 h-20 bg-teal-600 rounded-full mb-5 overflow-hidden mx-auto border-4 border-white shadow-lg">
+//                 <img
+//                   src="/fbt new logo.png"
+//                   alt="FareBuzzer Logo"
+//                   className="w-full h-full object-contain p-2"
+//                 />
+//               </div>
+//               <h2 className="text-3xl font-bold text-gray-800 tracking-tight">
+//                 FareBuzzer Travel CRM
+//               </h2>
+//               <p className="text-gray-600 mt-2 text-sm">
+//                 Sign in to manage your travel operations
+//               </p>
+//             </div>
+
+//             {/* Error */}
+//             {error && (
+//               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-center text-sm">
+//                 {error}
+//               </div>
+//             )}
+
+//             {/* Form */}
+//             <form onSubmit={handleSubmit} className="space-y-6">
+//               {/* Email */}
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
+//                   Email address
+//                 </label>
+//                 <div className="relative">
+//                   <input
+//                     type="email"
+//                     placeholder="your@email.com"
+//                     className="w-full pl-11 pr-4 py-3.5 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+//                     value={email}
+//                     onChange={(e) => setEmail(e.target.value)}
+//                     required
+//                     autoComplete="email"
+//                   />
+//                   <svg
+//                     className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+//                     fill="none"
+//                     stroke="currentColor"
+//                     viewBox="0 0 24 24"
+//                   >
+//                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+//                   </svg>
+//                 </div>
+//               </div>
+
+//               {/* Password */}
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
+//                   Password
+//                 </label>
+//                 <div className="relative">
+//                   <input
+//                     type={showPassword ? "text" : "password"}
+//                     placeholder="••••••••"
+//                     className="w-full pl-11 pr-11 py-3.5 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+//                     value={password}
+//                     onChange={(e) => setPassword(e.target.value)}
+//                     required
+//                     autoComplete="current-password"
+//                   />
+//                   <button
+//                     type="button"
+//                     onClick={() => setShowPassword(!showPassword)}
+//                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-teal-600"
+//                   >
+//                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+//                   </button>
+//                 </div>
+//               </div>
+
+//               {/* Submit */}
+//               <button
+//                 type="submit"
+//                 disabled={loading}
+//                 className={`w-full py-3.5 rounded-xl font-semibold text-white transition-all duration-200 flex items-center justify-center gap-2
+//                   ${loading 
+//                     ? "bg-teal-400 cursor-not-allowed" 
+//                     : "bg-teal-600 hover:bg-teal-700 shadow-lg hover:shadow-xl hover:scale-[1.02]"}`}
+//               >
+//                 {loading && <Loader2 className="animate-spin" size={20} />}
+//                 {loading ? "Signing in..." : "Sign In"}
+//               </button>
+//             </form>
+
+//             <div className="text-center mt-6 space-y-2">
+//               <p className="text-sm text-gray-600">
+//                 Don't have an account?{" "}
+//                 <Link to="/signup" className="text-teal-600 font-medium hover:text-teal-800">
+//                   Sign up
+//                 </Link>
+//               </p>
+//               <p className="text-xs text-gray-500">
+//                 © {new Date().getFullYear()} FareBuzzer Travel CRM
+//               </p>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Attendance Modal - only for non-admin users */}
+//       {showAttendanceModal && (
+//         <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50 backdrop-blur-sm">
+//           <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4 border border-gray-100">
+//             <div className="text-center mb-6">
+//               <CheckCircle className="mx-auto text-teal-600 mb-3" size={48} />
+//               <h3 className="text-2xl font-bold text-gray-800">
+//                 Welcome back!
+//               </h3>
+//               <p className="text-gray-600 mt-2">
+//                 Let's start your day properly
+//               </p>
+//             </div>
+
+//             <div className="space-y-6">
+//               <label className="flex items-center gap-3 cursor-pointer bg-gray-50 p-4 rounded-xl hover:bg-gray-100 transition-colors">
+//                 <input
+//                   type="checkbox"
+//                   checked={markAttendance}
+//                   onChange={(e) => setMarkAttendance(e.target.checked)}
+//                   className="w-5 h-5 text-teal-600 rounded border-gray-300 focus:ring-teal-500"
+//                 />
+//                 <div>
+//                   <span className="font-medium text-gray-800 block">
+//                     Mark attendance as Present
+//                   </span>
+//                   <span className="text-sm text-gray-500">
+//                     Required to access full features today
+//                   </span>
+//                 </div>
+//               </label>
+
+//               <button
+//                 onClick={handleAttendanceSubmit}
+//                 disabled={attendanceLoading}
+//                 className={`w-full py-3.5 rounded-xl font-semibold text-white flex items-center justify-center gap-2 transition-all
+//                   ${attendanceLoading 
+//                     ? "bg-teal-400 cursor-not-allowed" 
+//                     : "bg-teal-600 hover:bg-teal-700 shadow-lg hover:shadow-xl"}`}
+//               >
+//                 {attendanceLoading && <Loader2 className="animate-spin" size={20} />}
+//                 {attendanceLoading ? "Processing..." : "Continue to Dashboard"}
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </>
+//   );
+// };
+
+// export default Login;
+
+
+
+// Login.jsx - Complete Fixed Version
+// import { useState, useEffect } from "react";
+// import { Link, useNavigate } from "react-router-dom";
+// import API from "../api/axios";
+// import { Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
+// import toast from 'react-hot-toast';
+
+// const Login = () => {
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [showPassword, setShowPassword] = useState(false);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState("");
+
+//   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
+//   const [markAttendance, setMarkAttendance] = useState(true);
+//   const [attendanceLoading, setAttendanceLoading] = useState(false);
+
+//   const navigate = useNavigate();
+
+//   // Enhanced login handler with better error handling
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     if (!email || !password) {
+//       toast.error("Please enter both email and password");
+//       return;
+//     }
+
+//     setLoading(true);
+//     setError("");
+
+//     try {
+//       const res = await API.post("/auth/login", { email, password });
+//       const { token, user } = res.data;
+
+//       // Store authentication data
+//       localStorage.setItem("token", token);
+//       localStorage.setItem("role", user.role);
+//       localStorage.setItem("userId", user.id || user._id);
+//       localStorage.setItem("userEmail", user.email);
+//       localStorage.setItem("userName", user.name || user.username);
+      
+//       // Set default authorization header
+//       API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+//       // Record login time immediately
+//       try {
+//         await API.post("/login-hours/login");
+//         // Store login timestamp locally for immediate display
+//         const loginTimestamp = new Date().toISOString();
+//         localStorage.setItem("todayLoginTime", loginTimestamp);
+//         localStorage.setItem("isLoggedIn", "true");
+//         toast.success("Login successful!");
+//       } catch (loginErr) {
+//         // Check if it's "already logged in" error
+//         if (loginErr.response?.data?.message?.includes("Already logged in")) {
+//           // This is actually a success case - user is already logged in today
+//           toast.success("Welcome back! Already logged in today.");
+//           localStorage.setItem("isLoggedIn", "true");
+//         } else {
+//           console.warn("Login hour record failed:", loginErr.message);
+//           toast.error("Login recorded but hour tracking failed");
+//         }
+//       }
+
+//       // Route based on role
+//       if (user.role === "admin") {
+//         navigate("/dashboard", { replace: true });
+//       } else {
+//         setShowAttendanceModal(true);
+//       }
+
+//     } catch (err) {
+//       console.error("Login error:", err);
+//       const message = err.response?.data?.message || "Login failed. Please check credentials.";
+//       setError(message);
+//       toast.error(message);
+      
+//       // Clear any invalid stored data
+//       localStorage.removeItem("token");
+//       localStorage.removeItem("todayLoginTime");
+//       localStorage.removeItem("isLoggedIn");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   // Attendance modal handler
+//   const handleAttendanceSubmit = async () => {
+//     if (attendanceLoading) return;
+    
+//     setAttendanceLoading(true);
+
+//     try {
+//       if (markAttendance) {
+//         await API.post("/attendance/mark");
+//         toast.success("Attendance marked successfully!");
+//         localStorage.setItem("attendanceMarked", "true");
+//       } else {
+//         toast("Attendance skipped for today", {
+//           icon: "ℹ️",
+//         });
+//         localStorage.setItem("attendanceMarked", "false");
+//       }
+
+//       // Close modal first
+//       setShowAttendanceModal(false);
+      
+//       // Small delay for smoother transition
+//       setTimeout(() => {
+//         navigate("/dashboard", { replace: true });
+//       }, 200);
+
+//     } catch (err) {
+//       console.error("Attendance error:", err);
+//       const msg = err.response?.data?.message;
+      
+//       if (msg?.toLowerCase().includes("already marked")) {
+//         toast.success("Attendance already marked for today");
+//         localStorage.setItem("attendanceMarked", "true");
+//       } else {
+//         toast.error(msg || "Failed to process attendance");
+//       }
+      
+//       // Still proceed to dashboard
+//       setShowAttendanceModal(false);
+//       setTimeout(() => {
+//         navigate("/dashboard", { replace: true });
+//       }, 200);
+//     } finally {
+//       setAttendanceLoading(false);
+//     }
+//   };
+
+//   // Handle Escape key to close modal
+//   useEffect(() => {
+//     const handleEsc = (e) => {
+//       if (e.key === "Escape" && showAttendanceModal) {
+//         handleAttendanceSubmit();
+//       }
+//     };
+    
+//     window.addEventListener("keydown", handleEsc);
+//     return () => window.removeEventListener("keydown", handleEsc);
+//   }, [showAttendanceModal]);
+
+//   // Clear login state on component mount
+//   useEffect(() => {
+//     localStorage.removeItem("todayLoginTime");
+//     localStorage.removeItem("isLoggedIn");
+//     localStorage.removeItem("attendanceMarked");
+//   }, []);
+
+//   return (
+//     <>
+//       {/* Background */}
+//       <div
+//         className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative"
+//         style={{
+//           backgroundImage:
+//             "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2073&q=80')",
+//         }}
+//       >
+//         <div className="absolute inset-0 bg-gradient-to-br from-black/60 to-black/40" />
+
+//         {/* Login Card */}
+//         <div className="relative z-10 w-full max-w-lg px-5 sm:px-6">
+//           <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-8 md:p-10 border border-white/40">
+//             {/* Logo & Title */}
+//             <div className="text-center mb-8">
+//               <div className="inline-flex items-center justify-center w-20 h-20 bg-teal-600 rounded-full mb-5 overflow-hidden mx-auto border-4 border-white shadow-lg">
+//                 <img
+//                   src="/fbt new logo.png"
+//                   alt="FareBuzzer Logo"
+//                   className="w-full h-full object-contain p-2"
+//                 />
+//               </div>
+//               <h2 className="text-3xl font-bold text-gray-800 tracking-tight">
+//                 FareBuzzer Travel CRM
+//               </h2>
+//               <p className="text-gray-600 mt-2 text-sm">
+//                 Sign in to manage your travel operations
+//               </p>
+//             </div>
+
+//             {/* Error Display */}
+//             {error && (
+//               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-center text-sm">
+//                 {error}
+//               </div>
+//             )}
+
+//             {/* Form */}
+//             <form onSubmit={handleSubmit} className="space-y-6">
+//               {/* Email */}
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
+//                   Email address
+//                 </label>
+//                 <div className="relative">
+//                   <input
+//                     type="email"
+//                     placeholder="your@email.com"
+//                     className="w-full pl-11 pr-4 py-3.5 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+//                     value={email}
+//                     onChange={(e) => setEmail(e.target.value)}
+//                     required
+//                     autoComplete="email"
+//                   />
+//                   <svg
+//                     className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+//                     fill="none"
+//                     stroke="currentColor"
+//                     viewBox="0 0 24 24"
+//                   >
+//                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+//                   </svg>
+//                 </div>
+//               </div>
+
+//               {/* Password */}
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
+//                   Password
+//                 </label>
+//                 <div className="relative">
+//                   <input
+//                     type={showPassword ? "text" : "password"}
+//                     placeholder="••••••••"
+//                     className="w-full pl-11 pr-11 py-3.5 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+//                     value={password}
+//                     onChange={(e) => setPassword(e.target.value)}
+//                     required
+//                     autoComplete="current-password"
+//                   />
+//                   <svg
+//                     className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+//                     fill="none"
+//                     stroke="currentColor"
+//                     viewBox="0 0 24 24"
+//                   >
+//                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+//                   </svg>
+//                   <button
+//                     type="button"
+//                     onClick={() => setShowPassword(!showPassword)}
+//                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-teal-600"
+//                   >
+//                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+//                   </button>
+//                 </div>
+//               </div>
+
+//               {/* Submit Button */}
+//               <button
+//                 type="submit"
+//                 disabled={loading}
+//                 className={`w-full py-3.5 rounded-xl font-semibold text-white transition-all duration-200 flex items-center justify-center gap-2
+//                   ${loading 
+//                     ? "bg-teal-400 cursor-not-allowed" 
+//                     : "bg-teal-600 hover:bg-teal-700 shadow-lg hover:shadow-xl hover:scale-[1.02]"}`}
+//               >
+//                 {loading && <Loader2 className="animate-spin" size={20} />}
+//                 {loading ? "Signing in..." : "Sign In"}
+//               </button>
+//             </form>
+
+//             <div className="text-center mt-6 space-y-2">
+//               <p className="text-sm text-gray-600">
+//                 Don't have an account?{" "}
+//                 <Link to="/signup" className="text-teal-600 font-medium hover:text-teal-800">
+//                   Sign up
+//                 </Link>
+//               </p>
+//               <p className="text-xs text-gray-500">
+//                 © {new Date().getFullYear()} FareBuzzer Travel CRM
+//               </p>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Attendance Modal */}
+//       {showAttendanceModal && (
+//         <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+//           <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border border-gray-100 animate-scale-in">
+//             <div className="text-center mb-6">
+//               <CheckCircle className="mx-auto text-teal-600 mb-3" size={48} />
+//               <h3 className="text-2xl font-bold text-gray-800">
+//                 Welcome back!
+//               </h3>
+//               <p className="text-gray-600 mt-2">
+//                 Let's start your day properly
+//               </p>
+//             </div>
+
+//             <div className="space-y-6">
+//               <label className="flex items-start gap-3 cursor-pointer bg-gray-50 p-4 rounded-xl hover:bg-gray-100 transition-colors">
+//                 <input
+//                   type="checkbox"
+//                   checked={markAttendance}
+//                   onChange={(e) => setMarkAttendance(e.target.checked)}
+//                   className="w-5 h-5 text-teal-600 rounded border-gray-300 focus:ring-teal-500 mt-0.5"
+//                 />
+//                 <div>
+//                   <span className="font-medium text-gray-800 block">
+//                     Mark attendance as Present
+//                   </span>
+//                   <span className="text-sm text-gray-500">
+//                     Required to access full features today
+//                   </span>
+//                 </div>
+//               </label>
+
+//               <button
+//                 onClick={handleAttendanceSubmit}
+//                 disabled={attendanceLoading}
+//                 className={`w-full py-3.5 rounded-xl font-semibold text-white flex items-center justify-center gap-2 transition-all
+//                   ${attendanceLoading 
+//                     ? "bg-teal-400 cursor-not-allowed" 
+//                     : "bg-teal-600 hover:bg-teal-700 shadow-lg hover:shadow-xl"}`}
+//               >
+//                 {attendanceLoading && <Loader2 className="animate-spin" size={20} />}
+//                 {attendanceLoading ? "Processing..." : "Continue to Dashboard"}
+//               </button>
+              
+//               <p className="text-center text-xs text-gray-500">
+//                 Press <kbd className="px-2 py-1 bg-gray-100 rounded">ESC</kbd> to skip
+//               </p>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </>
+//   );
+// };
+
+// export default Login;
+
+
+
+// import { useState, useEffect } from "react";
+// import { Link, useNavigate } from "react-router-dom";
+// import API from "../api/axios";
+// import { Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
+// import toast from 'react-hot-toast';
+
+// const Login = () => {
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [showPassword, setShowPassword] = useState(false);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState("");
+
+//   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
+//   const [markAttendance, setMarkAttendance] = useState(true);
+//   const [attendanceLoading, setAttendanceLoading] = useState(false);
+
+//   const navigate = useNavigate();
+
+//   // Check if already logged in
+//   useEffect(() => {
+//     const token = localStorage.getItem("token");
+//     if (token) {
+//       // Optional: Verify token is still valid
+//       navigate("/dashboard", { replace: true });
+//     }
+//   }, [navigate]);
+
+//   // const handleSubmit = async (e) => {
+//   //   e.preventDefault();
+//   //   if (!email || !password) {
+//   //     toast.error("Please enter both email and password");
+//   //     return;
+//   //   }
+
+//   //   setLoading(true);
+//   //   setError("");
+
+//   //   try {
+//   //     // Step 1: Authenticate user
+//   //     const res = await API.post("/auth/login", { email, password });
+//   //     const { token, user } = res.data;
+
+//   //     // Step 2: Store authentication data
+//   //     localStorage.setItem("token", token);
+//   //     localStorage.setItem("role", user.role);
+//   //     localStorage.setItem("userId", user.id || user._id);
+//   //     localStorage.setItem("userEmail", user.email);
+//   //     localStorage.setItem("userName", user.name || user.username);
+      
+//   //     // Set auth header for future requests
+//   //     API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+//   //     // Step 3: Record login hours (with error handling)
+//   //     let loginRecorded = false;
+//   //     try {
+//   //       await API.post("/login-hours/login");
+//   //       loginRecorded = true;
+//   //       toast.success("Login recorded successfully!");
+        
+//   //       // Store login timestamp
+//   //       const loginTimestamp = new Date().toISOString();
+//   //       localStorage.setItem("todayLoginTime", loginTimestamp);
+//   //       localStorage.setItem("isLoggedIn", "true");
+        
+//   //     } catch (loginErr) {
+//   //       console.log("Login hours API response:", loginErr.response);
+        
+//   //       // Check different types of 400 errors
+//   //       if (loginErr.response?.status === 400) {
+//   //         const errorMessage = loginErr.response?.data?.message || "";
+          
+//   //         if (errorMessage.toLowerCase().includes("already logged in") ||
+//   //             errorMessage.toLowerCase().includes("already exists") ||
+//   //             errorMessage.toLowerCase().includes("duplicate")) {
+//   //           // User is already logged in today - this is OK
+//   //           toast.success("Welcome back! Already logged in today.");
+//   //           loginRecorded = true;
+//   //           localStorage.setItem("isLoggedIn", "true");
+            
+//   //         } else if (errorMessage.toLowerCase().includes("shift") ||
+//   //                   errorMessage.toLowerCase().includes("time")) {
+//   //           // Shift/time related error - still allow login
+//   //           toast.warning("Login recorded with time restrictions");
+//   //           loginRecorded = true;
+//   //           localStorage.setItem("isLoggedIn", "true");
+            
+//   //         } else {
+//   //           // Other 400 error - log it but continue
+//   //           console.warn("Login hours 400 error:", errorMessage);
+//   //           toast.warning("Login successful, but recording failed");
+//   //           loginRecorded = false;
+//   //         }
+//   //       } else {
+//   //         // Non-400 error (network, 500, etc.)
+//   //         console.warn("Login hours error:", loginErr.message);
+//   //         toast.warning("Login successful, but could not record hours");
+//   //         loginRecorded = false;
+//   //       }
+//   //     }
+
+//   //     // Step 4: Route based on role
+//   //     if (user.role === "admin") {
+//   //       navigate("/dashboard", { replace: true });
+//   //     } else {
+//   //       // For employees, show attendance modal
+//   //       setShowAttendanceModal(true);
+//   //     }
+
+//   //   } catch (err) {
+//   //     console.error("Login error:", err);
+//   //     const message = err.response?.data?.message || "Login failed. Please check credentials.";
+//   //     setError(message);
+//   //     toast.error(message);
+      
+//   //     // Clear any invalid stored data
+//   //     localStorage.removeItem("token");
+//   //     localStorage.removeItem("todayLoginTime");
+//   //     localStorage.removeItem("isLoggedIn");
+//   //   } finally {
+//   //     setLoading(false);
+//   //   }
+//   // };
+
+//   // Attendance modal handler
+  
+//   // In Login.jsx - handleSubmit function (updated section)
+// const handleSubmit = async (e) => {
+//   e.preventDefault();
+//   if (!email || !password) {
+//     toast.error("Please enter both email and password");
+//     return;
+//   }
+
+//   setLoading(true);
+//   setError("");
+
+//   try {
+//     // Step 1: Authenticate user
+//     const res = await API.post("/auth/login", { email, password });
+//     const { token, user } = res.data;
+
+//     // Step 2: Store authentication data
+//     localStorage.setItem("token", token);
+//     localStorage.setItem("role", user.role);
+//     localStorage.setItem("userId", user.id || user._id);
+//     localStorage.setItem("userEmail", user.email);
+//     localStorage.setItem("userName", user.name || user.username);
+    
+//     // Set auth header for future requests
+//     API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+//     // Step 3: Try to record login hours
+//     try {
+//       const loginRes = await API.post("/login-hours/login");
+      
+//       // Success case - new login recorded
+//       toast.success("Login recorded successfully!");
+      
+//       // Store login timestamp
+//       const loginTimestamp = new Date().toISOString();
+//       localStorage.setItem("todayLoginTime", loginTimestamp);
+//       localStorage.setItem("isLoggedIn", "true");
+      
+//     } catch (loginErr) {
+//       // Handle 400 errors from your backend
+//       if (loginErr.response?.status === 400) {
+//         const responseData = loginErr.response?.data;
+//         const message = responseData?.message || "";
+        
+//         // Case 1: Already logged in but not completed shift
+//         if (message.includes("Already logged in for today") && 
+//             !message.includes("completed today's shift")) {
+          
+//           // THIS IS A SUCCESS CASE - User is already logged in today
+//           toast.success("Welcome back! Already logged in today.");
+          
+//           // Try to get login time from the record in response
+//           if (responseData?.record?.loginTime) {
+//             localStorage.setItem("todayLoginTime", responseData.record.loginTime);
+//           } else {
+//             // Fallback to current time
+//             localStorage.setItem("todayLoginTime", new Date().toISOString());
+//           }
+          
+//           localStorage.setItem("isLoggedIn", "true");
+          
+//         } 
+//         // Case 2: Already completed today's shift
+//         else if (message.includes("completed today's shift")) {
+          
+//           // User has already worked today - this is informational
+//           toast.success("Shift already completed for today. Welcome back!");
+          
+//           // Store as logged in for session (but shift is done)
+//           localStorage.setItem("todayLoginTime", new Date().toISOString());
+//           localStorage.setItem("isLoggedIn", "true");
+//           localStorage.setItem("shiftCompleted", "true");
+          
+//         }
+//         // Case 3: Other 400 errors
+//         else {
+//           console.warn("Login hours 400 error:", responseData);
+//           toast.warning("Login successful, but recording issue");
+          
+//           // Still set as logged in for session
+//           localStorage.setItem("todayLoginTime", new Date().toISOString());
+//           localStorage.setItem("isLoggedIn", "true");
+//         }
+//       } 
+//       // Non-400 errors (network, 500, etc.)
+//       else {
+//         console.warn("Login hours error:", loginErr.message);
+//         toast.warning("Login successful, but could not record hours");
+        
+//         // Still set as logged in for session
+//         localStorage.setItem("todayLoginTime", new Date().toISOString());
+//         localStorage.setItem("isLoggedIn", "true");
+//       }
+//     }
+
+//     // Step 4: Route based on role
+//     if (user.role === "admin") {
+//       navigate("/dashboard", { replace: true });
+//     } else {
+//       // For employees, show attendance modal
+//       setShowAttendanceModal(true);
+//     }
+
+//   } catch (err) {
+//     console.error("Login error:", err);
+//     const message = err.response?.data?.message || "Login failed. Please check credentials.";
+//     setError(message);
+//     toast.error(message);
+    
+//     // Clear any invalid stored data
+//     localStorage.removeItem("token");
+//     localStorage.removeItem("todayLoginTime");
+//     localStorage.removeItem("isLoggedIn");
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+//   const handleAttendanceSubmit = async () => {
+//     if (attendanceLoading) return;
+    
+//     setAttendanceLoading(true);
+
+//     try {
+//       if (markAttendance) {
+//         await API.post("/attendance/mark");
+//         toast.success("Attendance marked successfully!");
+//         localStorage.setItem("attendanceMarked", "true");
+//       } else {
+//         toast("Attendance skipped for today", {
+//           icon: "ℹ️",
+//         });
+//         localStorage.setItem("attendanceMarked", "false");
+//       }
+
+//       // Close modal first
+//       setShowAttendanceModal(false);
+      
+//       // Navigate to dashboard
+//       navigate("/dashboard", { replace: true });
+
+//     } catch (err) {
+//       console.error("Attendance error:", err);
+//       const msg = err.response?.data?.message;
+      
+//       if (msg?.toLowerCase().includes("already marked")) {
+//         toast.success("Attendance already marked for today");
+//         localStorage.setItem("attendanceMarked", "true");
+//       } else {
+//         toast.error(msg || "Failed to process attendance");
+//       }
+      
+//       // Still proceed to dashboard
+//       setShowAttendanceModal(false);
+//       navigate("/dashboard", { replace: true });
+//     } finally {
+//       setAttendanceLoading(false);
+//     }
+//   };
+
+//   // Handle Escape key to close modal
+//   useEffect(() => {
+//     const handleEsc = (e) => {
+//       if (e.key === "Escape" && showAttendanceModal) {
+//         handleAttendanceSubmit();
+//       }
+//     };
+    
+//     window.addEventListener("keydown", handleEsc);
+//     return () => window.removeEventListener("keydown", handleEsc);
+//   }, [showAttendanceModal]);
+
+//   // Clear login state on component mount
+//   useEffect(() => {
+//     // Only clear if coming from logout
+//     const fromLogout = sessionStorage.getItem("fromLogout");
+//     if (fromLogout) {
+//       localStorage.removeItem("todayLoginTime");
+//       localStorage.removeItem("isLoggedIn");
+//       localStorage.removeItem("attendanceMarked");
+//       sessionStorage.removeItem("fromLogout");
+//     }
+//   }, []);
+
+//   return (
+//     <>
+//       {/* Background */}
+//       <div
+//         className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative"
+//         style={{
+//           backgroundImage:
+//             "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2073&q=80')",
+//         }}
+//       >
+//         <div className="absolute inset-0 bg-gradient-to-br from-black/60 to-black/40" />
+
+//         {/* Login Card */}
+//         <div className="relative z-10 w-full max-w-lg px-5 sm:px-6">
+//           <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-8 md:p-10 border border-white/40">
+//             {/* Logo & Title */}
+//             <div className="text-center mb-8">
+//               <div className="inline-flex items-center justify-center w-20 h-20 bg-teal-600 rounded-full mb-5 overflow-hidden mx-auto border-4 border-white shadow-lg">
+//                 <img
+//                   src="/fbt new logo.png"
+//                   alt="FareBuzzer Logo"
+//                   className="w-full h-full object-contain p-2"
+//                 />
+//               </div>
+//               <h2 className="text-3xl font-bold text-gray-800 tracking-tight">
+//                 FareBuzzer Travel CRM
+//               </h2>
+//               <p className="text-gray-600 mt-2 text-sm">
+//                 Sign in to manage your travel operations
+//               </p>
+//             </div>
+
+//             {/* Error Display */}
+//             {error && (
+//               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-center text-sm">
+//                 {error}
+//               </div>
+//             )}
+
+//             {/* Form */}
+//             <form onSubmit={handleSubmit} className="space-y-6">
+//               {/* Email */}
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
+//                   Email address
+//                 </label>
+//                 <div className="relative">
+//                   <input
+//                     type="email"
+//                     placeholder="your@email.com"
+//                     className="w-full pl-11 pr-4 py-3.5 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+//                     value={email}
+//                     onChange={(e) => setEmail(e.target.value)}
+//                     required
+//                     autoComplete="email"
+//                   />
+//                   <svg
+//                     className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+//                     fill="none"
+//                     stroke="currentColor"
+//                     viewBox="0 0 24 24"
+//                   >
+//                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+//                   </svg>
+//                 </div>
+//               </div>
+
+//               {/* Password */}
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
+//                   Password
+//                 </label>
+//                 <div className="relative">
+//                   <input
+//                     type={showPassword ? "text" : "password"}
+//                     placeholder="••••••••"
+//                     className="w-full pl-11 pr-11 py-3.5 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+//                     value={password}
+//                     onChange={(e) => setPassword(e.target.value)}
+//                     required
+//                     autoComplete="current-password"
+//                   />
+//                   <svg
+//                     className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+//                     fill="none"
+//                     stroke="currentColor"
+//                     viewBox="0 0 24 24"
+//                   >
+//                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+//                   </svg>
+//                   <button
+//                     type="button"
+//                     onClick={() => setShowPassword(!showPassword)}
+//                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-teal-600"
+//                   >
+//                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+//                   </button>
+//                 </div>
+//               </div>
+
+//               {/* Submit Button */}
+//               <button
+//                 type="submit"
+//                 disabled={loading}
+//                 className={`w-full py-3.5 rounded-xl font-semibold text-white transition-all duration-200 flex items-center justify-center gap-2
+//                   ${loading 
+//                     ? "bg-teal-400 cursor-not-allowed" 
+//                     : "bg-teal-600 hover:bg-teal-700 shadow-lg hover:shadow-xl hover:scale-[1.02]"}`}
+//               >
+//                 {loading && <Loader2 className="animate-spin" size={20} />}
+//                 {loading ? "Signing in..." : "Sign In"}
+//               </button>
+//             </form>
+
+//             <div className="text-center mt-6 space-y-2">
+//               <p className="text-sm text-gray-600">
+//                 Don't have an account?{" "}
+//                 <Link to="/signup" className="text-teal-600 font-medium hover:text-teal-800">
+//                   Sign up
+//                 </Link>
+//               </p>
+//               <p className="text-xs text-gray-500">
+//                 © {new Date().getFullYear()} FareBuzzer Travel CRM
+//               </p>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Attendance Modal */}
+//       {showAttendanceModal && (
+//         <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+//           <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border border-gray-100 animate-scale-in">
+//             <div className="text-center mb-6">
+//               <CheckCircle className="mx-auto text-teal-600 mb-3" size={48} />
+//               <h3 className="text-2xl font-bold text-gray-800">
+//                 Welcome back!
+//               </h3>
+//               <p className="text-gray-600 mt-2">
+//                 Let's start your day properly
+//               </p>
+//             </div>
+
+//             <div className="space-y-6">
+//               <label className="flex items-start gap-3 cursor-pointer bg-gray-50 p-4 rounded-xl hover:bg-gray-100 transition-colors">
+//                 <input
+//                   type="checkbox"
+//                   checked={markAttendance}
+//                   onChange={(e) => setMarkAttendance(e.target.checked)}
+//                   className="w-5 h-5 text-teal-600 rounded border-gray-300 focus:ring-teal-500 mt-0.5"
+//                 />
+//                 <div>
+//                   <span className="font-medium text-gray-800 block">
+//                     Mark attendance as Present
+//                   </span>
+//                   <span className="text-sm text-gray-500">
+//                     Required to access full features today
+//                   </span>
+//                 </div>
+//               </label>
+
+//               <button
+//                 onClick={handleAttendanceSubmit}
+//                 disabled={attendanceLoading}
+//                 className={`w-full py-3.5 rounded-xl font-semibold text-white flex items-center justify-center gap-2 transition-all
+//                   ${attendanceLoading 
+//                     ? "bg-teal-400 cursor-not-allowed" 
+//                     : "bg-teal-600 hover:bg-teal-700 shadow-lg hover:shadow-xl"}`}
+//               >
+//                 {attendanceLoading && <Loader2 className="animate-spin" size={20} />}
+//                 {attendanceLoading ? "Processing..." : "Continue to Dashboard"}
+//               </button>
+              
+//               <p className="text-center text-xs text-gray-500">
+//                 Press <kbd className="px-2 py-1 bg-gray-100 rounded">ESC</kbd> to skip
+//               </p>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </>
+//   );
+// };
+
+// export default Login;
+
+
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import { Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
-import toast from 'react-hot-toast'; // ← recommended (optional but very useful)
+import toast from 'react-hot-toast';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -645,92 +1827,172 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Attendance modal states
   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
-  const [markAttendance, setMarkAttendance] = useState(true); // default checked
+  const [markAttendance, setMarkAttendance] = useState(true);
   const [attendanceLoading, setAttendanceLoading] = useState(false);
 
   const navigate = useNavigate();
+  const hasNavigated = useRef(false); // To prevent multiple navigations
+
+  // Clear login state on component mount
+  useEffect(() => {
+    const fromLogout = sessionStorage.getItem("fromLogout");
+    if (fromLogout) {
+      localStorage.removeItem("todayLoginTime");
+      localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("attendanceMarked");
+      sessionStorage.removeItem("fromLogout");
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!email || !password) {
+      toast.error("Please enter both email and password");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
     try {
+      // Step 1: Authenticate user
       const res = await API.post("/auth/login", { email, password });
-
       const { token, user } = res.data;
 
+      console.log("Login successful, user role:", user.role);
+
+      // Step 2: Store authentication data
       localStorage.setItem("token", token);
       localStorage.setItem("role", user.role);
+      localStorage.setItem("userId", user.id || user._id);
+      localStorage.setItem("userEmail", user.email);
+      localStorage.setItem("userName", user.name || user.username);
+      
+      // Set auth header for future requests
       API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      // For admins → straight to dashboard
-      if (user.role === "admin") {
-        toast.success("Welcome Admin!");
-        navigate("/dashboard", { replace: true });
-        return;
+      // Step 3: Try to record login hours (optional - don't block login)
+      try {
+        const loginRes = await API.post("/login-hours/login");
+        console.log("Login hours recorded:", loginRes.data);
+        
+        // Store login timestamp
+        const loginTimestamp = new Date().toISOString();
+        localStorage.setItem("todayLoginTime", loginTimestamp);
+        localStorage.setItem("isLoggedIn", "true");
+        
+      } catch (loginErr) {
+        console.log("Login hours API response (non-critical):", loginErr.response?.data);
+        
+        // Check if it's "already logged in" error
+        if (loginErr.response?.data?.message?.includes("Already logged in")) {
+          toast.success("Welcome back!");
+          localStorage.setItem("isLoggedIn", "true");
+        }
+        // Ignore other errors - don't block login
       }
 
-      // For regular users → show attendance modal
-      setShowAttendanceModal(true);
-      
+      // Step 4: Route based on role
+      if (user.role === "admin") {
+        console.log("Admin login - navigating to dashboard");
+        navigate("/dashboard", { replace: true });
+      } else {
+        console.log("Employee login - showing attendance modal");
+        setShowAttendanceModal(true);
+      }
+
     } catch (err) {
-      const message = err.response?.data?.message || "Login failed. Please try again.";
+      console.error("Login error:", err);
+      const message = err.response?.data?.message || "Login failed. Please check credentials.";
       setError(message);
       toast.error(message);
+      
+      // Clear any invalid stored data
+      localStorage.removeItem("token");
+      localStorage.removeItem("todayLoginTime");
+      localStorage.removeItem("isLoggedIn");
     } finally {
       setLoading(false);
     }
   };
 
+  // Attendance modal handler - FIXED
   const handleAttendanceSubmit = async () => {
+    if (attendanceLoading || hasNavigated.current) return;
+    
     setAttendanceLoading(true);
+    console.log("Handling attendance submission...");
 
     try {
       if (markAttendance) {
-        await API.post("/attendance/mark");
-        toast.success("Attendance marked successfully!");
+        try {
+          await API.post("/attendance/mark");
+          toast.success("Attendance marked successfully!");
+          localStorage.setItem("attendanceMarked", "true");
+        } catch (attendanceErr) {
+          console.log("Attendance API response:", attendanceErr.response?.data);
+          
+          // Handle specific attendance errors
+          if (attendanceErr.response?.status === 400) {
+            const msg = attendanceErr.response?.data?.message || "";
+            
+            if (msg.toLowerCase().includes("already marked") || 
+                msg.toLowerCase().includes("already present")) {
+              toast.success("Attendance already marked for today");
+              localStorage.setItem("attendanceMarked", "true");
+            } else {
+              toast.warning("Attendance issue: " + msg);
+              localStorage.setItem("attendanceMarked", "pending");
+            }
+          } else {
+            toast.warning("Could not mark attendance, but login successful");
+            localStorage.setItem("attendanceMarked", "pending");
+          }
+        }
       } else {
-        toast("Attendance skipped", {
-          icon: "ℹ️",
-          style: { background: "#fefcbf", color: "#92400e" }
-        });
+        toast("Attendance skipped for today", { icon: "ℹ️" });
+        localStorage.setItem("attendanceMarked", "skipped");
       }
 
+      // Close modal
       setShowAttendanceModal(false);
-      navigate("/dashboard", { replace: true });
+      
+      // Set flag to prevent multiple navigations
+      hasNavigated.current = true;
+      
+      // Short delay before navigation
+      setTimeout(() => {
+        console.log("Navigating to dashboard...");
+        navigate("/dashboard", { replace: true });
+      }, 300);
 
     } catch (err) {
-      const message = err.response?.data?.message;
-
-      // Most common & expected case → already marked today
-      if (message?.includes("already marked")) {
-        toast.success("Attendance already marked today");
-        setShowAttendanceModal(false);
+      console.error("Unexpected error in attendance:", err);
+      
+      // Close modal and navigate anyway
+      setShowAttendanceModal(false);
+      hasNavigated.current = true;
+      
+      setTimeout(() => {
         navigate("/dashboard", { replace: true });
-        return;
-      }
-
-      // Real error
-      toast.error(message || "Failed to mark attendance");
-      console.error("Attendance error:", err);
+      }, 300);
     } finally {
       setAttendanceLoading(false);
     }
   };
 
-  // Optional: Close modal with Escape key
+  // Handle Escape key to close modal - FIXED (no infinite loop)
   useEffect(() => {
     const handleEsc = (e) => {
-      if (e.key === "Escape" && showAttendanceModal) {
-        handleAttendanceSubmit(); // or just close without marking
+      if (e.key === "Escape" && showAttendanceModal && !attendanceLoading) {
+        handleAttendanceSubmit();
       }
     };
+    
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [showAttendanceModal]);
+  }, [showAttendanceModal, attendanceLoading]); // Added dependencies
 
   return (
     <>
@@ -764,7 +2026,7 @@ const Login = () => {
               </p>
             </div>
 
-            {/* Error */}
+            {/* Error Display */}
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-center text-sm">
                 {error}
@@ -814,6 +2076,14 @@ const Login = () => {
                     required
                     autoComplete="current-password"
                   />
+                  <svg
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -824,7 +2094,7 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Submit */}
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
@@ -853,10 +2123,10 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Attendance Modal - only for non-admin users */}
+      {/* Attendance Modal */}
       {showAttendanceModal && (
-        <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4 border border-gray-100">
+        <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border border-gray-100 animate-scale-in">
             <div className="text-center mb-6">
               <CheckCircle className="mx-auto text-teal-600 mb-3" size={48} />
               <h3 className="text-2xl font-bold text-gray-800">
@@ -868,12 +2138,12 @@ const Login = () => {
             </div>
 
             <div className="space-y-6">
-              <label className="flex items-center gap-3 cursor-pointer bg-gray-50 p-4 rounded-xl hover:bg-gray-100 transition-colors">
+              <label className="flex items-start gap-3 cursor-pointer bg-gray-50 p-4 rounded-xl hover:bg-gray-100 transition-colors">
                 <input
                   type="checkbox"
                   checked={markAttendance}
                   onChange={(e) => setMarkAttendance(e.target.checked)}
-                  className="w-5 h-5 text-teal-600 rounded border-gray-300 focus:ring-teal-500"
+                  className="w-5 h-5 text-teal-600 rounded border-gray-300 focus:ring-teal-500 mt-0.5"
                 />
                 <div>
                   <span className="font-medium text-gray-800 block">
@@ -896,6 +2166,20 @@ const Login = () => {
                 {attendanceLoading && <Loader2 className="animate-spin" size={20} />}
                 {attendanceLoading ? "Processing..." : "Continue to Dashboard"}
               </button>
+              
+              <button
+                onClick={() => {
+                  setShowAttendanceModal(false);
+                  navigate("/dashboard", { replace: true });
+                }}
+                className="w-full py-3 text-gray-600 hover:text-gray-800 text-sm"
+              >
+                Skip for now
+              </button>
+              
+              <p className="text-center text-xs text-gray-500">
+                Press <kbd className="px-2 py-1 bg-gray-100 rounded">ESC</kbd> to skip
+              </p>
             </div>
           </div>
         </div>

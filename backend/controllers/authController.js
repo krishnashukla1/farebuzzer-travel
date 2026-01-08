@@ -65,16 +65,24 @@ export const register = async (req, res) => {
 // authController.js - login 8 jan
 export const login = async (req, res) => {
   try {
-       const { email, password } = req.body;
+    const { email, password } = req.body;
+
+    console.log(`Login attempt for email: ${email}`); // ← add this
 
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    console.log("User found:", user.email); // ← debug
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is not defined in environment variables!");
     }
 
     const token = jwt.sign(
@@ -83,36 +91,17 @@ export const login = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    // Very important: check today's status
-    const today = new Date().toISOString().split('T')[0];
-    
-    const todayAttendance = await Attendance.findOne({
-      user: user._id,
-      date: today
-    });
-
-    const todayLoginHour = await LoginHour.findOne({
-      userId: user._id,
-      date: today
-    });
-
     res.json({
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      },
-      todayStatus: {
-        hasAttendance: !!todayAttendance,
-        attendanceStatus: todayAttendance?.status || null,
-        hasLoginHour: !!todayLoginHour,
-        isCurrentlyLoggedIn: todayLoginHour && !todayLoginHour.logoutTime,
-        shiftDate: todayLoginHour?.date || today
-      }
+      user: { id: user._id, name: user.name, role: user.role }
     });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    console.error("LOGIN ERROR:", err);          // ← very important
+    console.error("Stack:", err.stack);          // ← shows exact line
+    
+    res.status(500).json({ 
+      message: "Internal server error",
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   }
 };

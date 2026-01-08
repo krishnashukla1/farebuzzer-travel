@@ -264,97 +264,170 @@
 
 
 
+// import { LogOut, User } from "lucide-react";
+// import { useState, useEffect } from "react";
+// import API from "../api/axios";
+// import { useNavigate } from "react-router-dom";
+// import toast from 'react-hot-toast';
+
+// const Navbar = () => {
+//   const [user, setUser] = useState(null);
+//   const [isLoggingOut, setIsLoggingOut] = useState(false);
+//   const navigate = useNavigate();
+
+//   useEffect(() => {
+//     const token = localStorage.getItem("token");
+//     if (token) {
+//       fetchUser();
+//     }
+//   }, []);
+
+//   const fetchUser = async () => {
+//     try {
+//       const res = await API.get("/users/me");
+//       setUser(res.data);
+//     } catch (err) {
+//       setUser(null);
+//     }
+//   };
+
+//   // const handleLogout = async () => {
+//   //   // Block multiple clicks
+//   //   if (isLoggingOut) return;
+    
+//   //   setIsLoggingOut(true);
+    
+//   //   try {
+//   //     // Quick logout call - don't wait too long
+//   //     const logoutPromise = API.post("/login-hours/logout");
+      
+//   //     // Timeout after 2 seconds max
+//   //     const timeoutPromise = new Promise((_, reject) => 
+//   //       setTimeout(() => reject(new Error("Timeout")), 2000)
+//   //     );
+      
+//   //     await Promise.race([logoutPromise, timeoutPromise]);
+      
+//   //   } catch (err) {
+//   //     // Ignore errors - we'll logout locally anyway
+//   //     console.log("Logout API may have failed, but continuing:", err.message);
+//   //   }
+    
+//   //   // ALWAYS clear local storage - this is the key fix
+//   //   localStorage.clear(); // Clear everything to be sure
+    
+//   //   // Also remove specific items
+//   //   const itemsToRemove = [
+//   //     "token", "role", "userId", "userEmail", "userName", 
+//   //     "todayLoginTime", "isLoggedIn", "attendanceMarked"
+//   //   ];
+    
+//   //   itemsToRemove.forEach(item => localStorage.removeItem(item));
+    
+//   //   // Remove API header
+//   //   delete API.defaults.headers.common["Authorization"];
+    
+//   //   // Clear state
+//   //   setUser(null);
+    
+//   //   // Show success message
+//   //   toast.success("Logged out successfully");
+    
+//   //   // Force navigation - use setTimeout to ensure state updates first
+//   //   setTimeout(() => {
+//   //     navigate("/login", { replace: true });
+//   //     // Force reload to reset any stuck state
+//   //     window.location.href = "/login";
+//   //   }, 50);
+    
+//   //   // Don't reset isLoggingOut since we're navigating away
+//   // };
+
+//   // In your Navbar.jsx logout function, add this:
+// const handleLogout = () => {
+//   // Set flag that we're coming from logout
+//   sessionStorage.setItem("fromLogout", "true");
+  
+//   // Clear all localStorage
+//   localStorage.clear();
+  
+//   // Force full page reload to reset all state
+//   window.location.href = "/login";
+// };
+
+
+//   return (
+//     <div className="h-14 bg-white border-b flex items-center justify-between px-6 shadow-sm">
+//       <h1 className="text-lg font-semibold text-gray-700">
+//         FareBuzzer Travel CRM
+//       </h1>
+
+//       <div className="flex items-center gap-4">
+//         {user && (
+//           <div className="flex items-center gap-2 text-gray-600">
+//             <User size={18} />
+//             <span className="text-sm font-medium text-teal-600">
+//               {user.name}
+//             </span>
+//           </div>
+//         )}
+
+//         <button
+//           onClick={handleLogout}
+//           disabled={isLoggingOut}
+//           className={`cursor-pointer flex items-center gap-1 text-red-600 hover:text-red-700 text-sm transition-opacity
+//             ${isLoggingOut ? 'opacity-50 cursor-not-allowed' : ''}`}
+//         >
+//           <LogOut size={16} />
+//           {isLoggingOut ? 'Logging out...' : 'Logout'}
+//         </button>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Navbar;
+
+
 import { LogOut, User } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
-import toast from 'react-hot-toast';
+import toast from "react-hot-toast";
 
 const Navbar = () => {
   const [user, setUser] = useState(null);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      fetchUser();
-    }
+    API.get("/users/me")
+      .then(res => setUser(res.data))
+      .catch(() => setUser(null));
   }, []);
 
-  const fetchUser = async () => {
+  const handleLogout = async () => {
+    if (loading) return;
+    setLoading(true);
+
     try {
-      const res = await API.get("/users/me");
-      setUser(res.data);
+      await API.post("/login-hours/logout"); // ✅ MUST hit backend
     } catch (err) {
-      setUser(null);
+      console.warn("Logout API failed, continuing...");
+    } finally {
+      // ✅ Clear auth data only
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("userName");
+
+      delete API.defaults.headers.common["Authorization"];
+
+      toast.success("Logged out successfully");
+      navigate("/login", { replace: true });
     }
   };
-
-  // const handleLogout = async () => {
-  //   // Block multiple clicks
-  //   if (isLoggingOut) return;
-    
-  //   setIsLoggingOut(true);
-    
-  //   try {
-  //     // Quick logout call - don't wait too long
-  //     const logoutPromise = API.post("/login-hours/logout");
-      
-  //     // Timeout after 2 seconds max
-  //     const timeoutPromise = new Promise((_, reject) => 
-  //       setTimeout(() => reject(new Error("Timeout")), 2000)
-  //     );
-      
-  //     await Promise.race([logoutPromise, timeoutPromise]);
-      
-  //   } catch (err) {
-  //     // Ignore errors - we'll logout locally anyway
-  //     console.log("Logout API may have failed, but continuing:", err.message);
-  //   }
-    
-  //   // ALWAYS clear local storage - this is the key fix
-  //   localStorage.clear(); // Clear everything to be sure
-    
-  //   // Also remove specific items
-  //   const itemsToRemove = [
-  //     "token", "role", "userId", "userEmail", "userName", 
-  //     "todayLoginTime", "isLoggedIn", "attendanceMarked"
-  //   ];
-    
-  //   itemsToRemove.forEach(item => localStorage.removeItem(item));
-    
-  //   // Remove API header
-  //   delete API.defaults.headers.common["Authorization"];
-    
-  //   // Clear state
-  //   setUser(null);
-    
-  //   // Show success message
-  //   toast.success("Logged out successfully");
-    
-  //   // Force navigation - use setTimeout to ensure state updates first
-  //   setTimeout(() => {
-  //     navigate("/login", { replace: true });
-  //     // Force reload to reset any stuck state
-  //     window.location.href = "/login";
-  //   }, 50);
-    
-  //   // Don't reset isLoggingOut since we're navigating away
-  // };
-
-  // In your Navbar.jsx logout function, add this:
-const handleLogout = () => {
-  // Set flag that we're coming from logout
-  sessionStorage.setItem("fromLogout", "true");
-  
-  // Clear all localStorage
-  localStorage.clear();
-  
-  // Force full page reload to reset all state
-  window.location.href = "/login";
-};
-
 
   return (
     <div className="h-14 bg-white border-b flex items-center justify-between px-6 shadow-sm">
@@ -374,12 +447,11 @@ const handleLogout = () => {
 
         <button
           onClick={handleLogout}
-          disabled={isLoggingOut}
-          className={`cursor-pointer flex items-center gap-1 text-red-600 hover:text-red-700 text-sm transition-opacity
-            ${isLoggingOut ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={loading}
+          className="flex items-center gap-1 text-red-600 hover:text-red-700 text-sm"
         >
           <LogOut size={16} />
-          {isLoggingOut ? 'Logging out...' : 'Logout'}
+          {loading ? "Logging out..." : "Logout"}
         </button>
       </div>
     </div>

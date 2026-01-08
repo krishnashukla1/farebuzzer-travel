@@ -458,631 +458,375 @@
 
 //==========
 
+// import { useEffect, useState } from "react";
+// import { FiCoffee, FiClock, FiCheck, FiX } from "react-icons/fi";
+// import api from "../api/axios";
+// import toast from "react-hot-toast";
 
-import { useState, useEffect } from 'react';
-import { FiCoffee, FiClock, FiAlertCircle, FiCheck, FiX, FiLogIn } from 'react-icons/fi';
-import api from '../api/axios';
-import toast from 'react-hot-toast';
+// const BreakRequest = () => {
+//   const [stats, setStats] = useState(null);
+//   const [breakHistory, setBreakHistory] = useState([]);
+//   const [pendingRequest, setPendingRequest] = useState(null);
+//   const [loading, setLoading] = useState(false);
 
-const BreakRequest = () => {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [breakHistory, setBreakHistory] = useState([]);
-  const [pendingRequest, setPendingRequest] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isOnBreak, setIsOnBreak] = useState(false);
+//   // ✅ AUTH comes ONLY from token
+//   const isAuthenticated = !!localStorage.getItem("token");
 
-  const fetchBreakData = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get('/login-hours/today');
-      
-      console.log('Break API Response:', response.data);
-      
-      const data = response.data.data || response.data;
-      setStats(data);
-      
-      // Get break history
-      const breaks = data.allBreaks || data.breaks || [];
-      setBreakHistory(breaks);
-      
-      // Check for pending request
-      const pending = breaks.find(b => b.status === 'pending');
-      setPendingRequest(pending);
-      
-      // Update login status from API response
-      const apiLoggedIn = response.data.isLoggedIn !== undefined 
-        ? response.data.isLoggedIn 
-        : checkLoginStatus(data);
-      setIsLoggedIn(apiLoggedIn);
-      
-      // Update break status
-      const breakStatus = checkOnBreakStatus(data, breaks);
-      setIsOnBreak(breakStatus);
-      
-    } catch (error) {
-      console.error('Error fetching break data:', error);
-      
-      // If 401/403, user is not logged in
-      if (error.response?.status === 401 || error.response?.status === 403) {
-        setIsLoggedIn(false);
-        toast.error('Please login to access break features');
-      } else {
-        toast.error('Failed to load break data');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+//   // ✅ Attendance state
+//   const hasActiveShift = stats?.loginTime && !stats?.logoutTime;
+//   const isOnBreak = stats?.isOnBreak === true;
 
-  // Check login status from data
-  const checkLoginStatus = (data) => {
-    if (!data) {
-      // Fallback to localStorage
-      return localStorage.getItem('isLoggedIn') === 'true' && 
-             !!localStorage.getItem('token');
-    }
-    
-    // Check API response properties
-    if (data.isLoggedIn !== undefined) return data.isLoggedIn;
-    if (data.loggedIn !== undefined) return data.loggedIn;
-    
-    // Check if there's an active login (has login time, no logout time)
-    if (data.loginTime && !data.logoutTime) return true;
-    
-    return false;
-  };
+//   const fetchBreakData = async () => {
+//     if (!isAuthenticated) return;
 
-  // Check if user is currently on break
-  const checkOnBreakStatus = (data, breaks) => {
-    if (!breaks || breaks.length === 0) return false;
-    
-    // Find active break (has start time but no end time)
-    const activeBreak = breaks.find(b => b.start && !b.end);
-    if (activeBreak) return true;
-    
-    // Check if data has isOnBreak property
-    if (data.isOnBreak !== undefined) return data.isOnBreak;
-    if (data.currentBreak) return true;
-    
-    return false;
-  };
+//     try {
+//       setLoading(true);
+//       const res = await api.get("/login-hours/today");
 
-  useEffect(() => {
-    fetchBreakData();
-    
-    // Refresh data every 30 seconds
-    const interval = setInterval(fetchBreakData, 30000);
-    return () => clearInterval(interval);
-  }, []);
+//       const data = res.data.data || res.data;
+//       setStats(data);
 
-  // Handle break request
-  const handleRequestBreak = async () => {
-    // Validate before making request
-    if (!isLoggedIn) {
-      toast.error('Please login first to take a break');
-      return;
-    }
-    
-    if (isOnBreak) {
-      toast.error('You are already on a break');
-      return;
-    }
-    
-    if (pendingRequest) {
-      toast.error('You already have a pending break request');
-      return;
-    }
-    
-    try {
-      setLoading(true);
-      const response = await api.post('/login-hours/break/request');
-      
-      console.log('Break request response:', response.data);
-      
-      if (response.data.autoApproved) {
-        toast.success('Break started automatically!');
-        setIsOnBreak(true);
-      } else if (response.data.pending) {
-        toast.success('Break request sent for approval');
-        setPendingRequest(response.data.break);
-      } else {
-        toast.success('Break request submitted');
-      }
-      
-      // Refresh data
-      setTimeout(() => fetchBreakData(), 1000);
-      
-    } catch (error) {
-      console.error('Break request error:', error);
-      const errorMsg = error.response?.data?.message || 'Failed to request break';
-      toast.error(errorMsg);
-      
-      // If error suggests not logged in, update status
-      if (errorMsg.toLowerCase().includes('not logged') || 
-          errorMsg.toLowerCase().includes('login') ||
-          error.response?.status === 401) {
-        setIsLoggedIn(false);
-        localStorage.setItem('isLoggedIn', 'false');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+//       const breaks = data.breaks || data.allBreaks || [];
+//       setBreakHistory(breaks);
 
-  // Handle end break
-  const handleEndBreak = async () => {
-    if (!isOnBreak) {
-      toast.error('You are not currently on a break');
-      return;
-    }
-    
-    try {
-      setLoading(true);
-      const response = await api.post('/login-hours/break/end');
-      
-      toast.success(response.data.message || 'Break ended successfully');
-      setIsOnBreak(false);
-      
-      // Refresh data
-      setTimeout(() => fetchBreakData(), 1000);
-      
-    } catch (error) {
-      console.error('End break error:', error);
-      const errorMsg = error.response?.data?.message || 'Failed to end break';
-      toast.error(errorMsg);
-    } finally {
-      setLoading(false);
-    }
-  };
+//       const pending = breaks.find(b => b.status === "pending");
+//       setPendingRequest(pending || null);
+//     } catch (err) {
+//       console.error(err);
+//       toast.error("Failed to load break data");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  // Handle cancel pending request
-  const handleCancelRequest = async () => {
-    if (!pendingRequest) {
-      toast.error('No pending request to cancel');
-      return;
-    }
-    
-    try {
-      setLoading(true);
-      
-      // Try different endpoint names based on your API
-      try {
-        await api.delete(`/login-hours/break/${pendingRequest._id || pendingRequest.id}`);
-        toast.success('Break request cancelled');
-      } catch (deleteError) {
-        // Try POST method if DELETE doesn't work
-        await api.post('/login-hours/break/cancel', {
-          breakId: pendingRequest._id || pendingRequest.id
-        });
-        toast.success('Break request cancelled');
-      }
-      
-      setPendingRequest(null);
-      fetchBreakData();
-      
-    } catch (error) {
-      console.error('Cancel request error:', error);
-      toast.error('Failed to cancel request');
-    } finally {
-      setLoading(false);
-    }
-  };
+//   useEffect(() => {
+//     fetchBreakData();
+//   }, []);
 
-  // Format time
-  const formatTime = (dateString) => {
-    if (!dateString) return 'N/A';
-    try {
-      return new Date(dateString).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      });
-    } catch (error) {
-      return 'Invalid time';
-    }
-  };
+//   // 🔹 START SHIFT (attendance only)
+//   const handleStartShift = async () => {
+//     try {
+//       setLoading(true);
+//       await api.post("/login-hours/login");
+//       toast.success("Shift started");
+//       fetchBreakData();
+//     } catch {
+//       toast.error("Failed to start shift");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  // Calculate duration
-  const calculateDuration = (start, end) => {
-    if (!start) return 'N/A';
-    if (!end) return 'Ongoing';
-    
-    try {
-      const startTime = new Date(start);
-      const endTime = new Date(end);
-      const diffMs = endTime - startTime;
-      const diffMins = Math.floor(diffMs / (1000 * 60));
-      
-      if (diffMins < 60) {
-        return `${diffMins} min`;
-      } else {
-        const hours = Math.floor(diffMins / 60);
-        const mins = diffMins % 60;
-        return `${hours}h ${mins}m`;
-      }
-    } catch (error) {
-      return 'Error';
-    }
-  };
+//   // 🔹 REQUEST BREAK
+//   const handleRequestBreak = async () => {
+//     try {
+//       setLoading(true);
+//       await api.post("/login-hours/break/request");
+//       toast.success("Break started / requested");
+//       fetchBreakData();
+//     } catch (e) {
+//       toast.error(e.response?.data?.message || "Break request failed");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  // Get status color
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case 'approved': return 'bg-green-100 text-green-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
+//   // 🔹 END BREAK
+//   const handleEndBreak = async () => {
+//     try {
+//       setLoading(true);
+//       await api.post("/login-hours/break/end");
+//       toast.success("Break ended");
+//       fetchBreakData();
+//     } catch {
+//       toast.error("Failed to end break");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  // Calculate free breaks left
-  const freeBreaksLeft = () => {
-    if (!stats) return 3;
-    
-    const approvedBreaks = breakHistory.filter(b => b.status === 'approved').length;
-    return Math.max(0, 3 - approvedBreaks);
-  };
+//   // 🔹 TIME FORMAT
+//   const formatTime = (d) =>
+//     d ? new Date(d).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—";
 
-  // Format hours to hrs mins
-  const formatHoursToHrsMins = (hours) => {
-    if (!hours || isNaN(hours)) return "0 hrs 0 mins";
+//   const formatDuration = (start, end) => {
+//     if (!start) return "—";
+//     const e = end ? new Date(end) : new Date();
+//     const mins = Math.floor((e - new Date(start)) / 60000);
+//     return `${Math.floor(mins / 60)}h ${mins % 60}m`;
+//   };
 
-    const totalMinutes = Math.round(Number(hours) * 60);
-    const hrs = Math.floor(totalMinutes / 60);
-    const mins = totalMinutes % 60;
+//   // 🚫 NOT AUTHENTICATED
+//   if (!isAuthenticated) {
+//     return (
+//       <div className="bg-red-50 border border-red-200 p-6 rounded-lg">
+//         <p className="font-semibold text-red-600">
+//           Please login from main login page.
+//         </p>
+//       </div>
+//     );
+//   }
 
-    return `${hrs} hrs ${mins} mins`;
-  };
+//   return (
+//     <div className="space-y-6">
 
-  // Main action button logic
-  const getActionButton = () => {
-    // User is NOT logged in
-    if (!isLoggedIn) {
-      return (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                <FiX className="w-6 h-6 text-gray-600" />
-              </div>
-              <div>
-                <p className="font-medium text-gray-800">Shift Not Started</p>
-                <p className="text-sm text-gray-600">
-                  Please login to start your shift and take breaks
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-gray-600">Status</p>
-              <p className="text-lg font-semibold text-red-600">OFFLINE</p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-    
-    // User has a pending break request
-    if (pendingRequest) {
-      return (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                <FiAlertCircle className="w-6 h-6 text-yellow-600" />
-              </div>
-              <div>
-                <p className="font-medium text-gray-800">Break Request Pending</p>
-                <p className="text-sm text-gray-600">
-                  Waiting for supervisor approval
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={handleCancelRequest}
-              disabled={loading}
-              className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
-            >
-              Cancel Request
-            </button>
-          </div>
-        </div>
-      );
-    }
-    
-    // User is currently on break
-    if (isOnBreak) {
-      // Find the current break
-      const currentBreak = breakHistory.find(b => b.start && !b.end) || 
-                          breakHistory[breakHistory.length - 1];
-      
-      return (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <FiCoffee className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <p className="font-medium text-gray-800">Currently on Break</p>
-                <p className="text-sm text-gray-600">
-                  Started at {formatTime(currentBreak?.start)}
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={handleEndBreak}
-              disabled={loading}
-              className="cursor-pointer px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
-            >
-              {loading ? 'Ending...' : 'End Break'}
-            </button>
-          </div>
-        </div>
-      );
-    }
-    
-    // User is logged in and can request a break
-    const breaksLeft = freeBreaksLeft();
-    const hasFreeBreaks = breaksLeft > 0;
-    
-    return (
-      <div className="space-y-4">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <FiCoffee className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <p className="font-medium text-gray-800">Ready for a Break?</p>
-                <p className="text-sm text-gray-600">
-                  {hasFreeBreaks 
-                    ? `You have ${breaksLeft} free break${breaksLeft !== 1 ? 's' : ''} remaining (15 minutes each).`
-                    : 'You have used all 3 free breaks. Additional breaks require approval.'}
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-gray-600">Free Breaks</p>
-              <p className={`text-3xl font-bold ${hasFreeBreaks ? 'text-blue-600' : 'text-red-600'}`}>
-                {breaksLeft}
-              </p>
-            </div>
-          </div>
-        </div>
+//       {/* STATUS */}
+//       <div className="bg-white p-6 rounded-xl shadow flex justify-between">
+//         <div>
+//           <p className="text-sm text-gray-500">Shift Status</p>
+//           <p className={`font-bold ${hasActiveShift ? "text-green-600" : "text-red-600"}`}>
+//             {hasActiveShift ? "IN PROGRESS" : "NOT STARTED"}
+//           </p>
+//         </div>
+//         <div>
+//           {hasActiveShift ? (
+//             <FiCheck className="text-green-600 w-6 h-6" />
+//           ) : (
+//             <FiX className="text-red-600 w-6 h-6" />
+//           )}
+//         </div>
+//       </div>
 
-        <button
-          onClick={handleRequestBreak}
-          disabled={loading}
-          className={`cursor-pointer w-full py-4 text-white rounded-lg font-bold text-lg transition-all duration-200 ${
-            hasFreeBreaks 
-              ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700' 
-              : 'bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700'
-          } disabled:opacity-50 disabled:cursor-not-allowed`}
-        >
-          {loading ? 'Processing...' : 
-           hasFreeBreaks ? 'Start Break (Auto-Approved)' : 
-           'Request Break (Requires Approval)'}
-        </button>
-      </div>
-    );
-  };
+//       {/* ACTION */}
+//       {!hasActiveShift ? (
+//         <button
+//           onClick={handleStartShift}
+//           disabled={loading}
+//           className="w-full bg-blue-600 text-white py-3 rounded-lg"
+//         >
+//           Start Shift
+//         </button>
+//       ) : isOnBreak ? (
+//         <button
+//           onClick={handleEndBreak}
+//           disabled={loading}
+//           className="w-full bg-green-600 text-white py-3 rounded-lg"
+//         >
+//           End Break
+//         </button>
+//       ) : (
+//         <button
+//           onClick={handleRequestBreak}
+//           disabled={loading || pendingRequest}
+//           className="w-full bg-indigo-600 text-white py-3 rounded-lg"
+//         >
+//           Request Break
+//         </button>
+//       )}
 
-  // Render loading state
-  if (loading && !stats) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Loading break data...</p>
-        </div>
-      </div>
-    );
-  }
+//       {/* BREAK HISTORY */}
+//       <div className="bg-white p-6 rounded-xl shadow">
+//         <h3 className="font-semibold mb-4">Today’s Breaks</h3>
+//         {breakHistory.length === 0 ? (
+//           <p className="text-gray-500">No breaks today</p>
+//         ) : (
+//           <table className="w-full text-sm">
+//             <thead>
+//               <tr className="text-left text-gray-500">
+//                 <th>Start</th>
+//                 <th>End</th>
+//                 <th>Duration</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {breakHistory.map((b, i) => (
+//                 <tr key={i} className="border-t">
+//                   <td>{formatTime(b.start)}</td>
+//                   <td>{formatTime(b.end)}</td>
+//                   <td>{formatDuration(b.start, b.end)}</td>
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
 
+// export default BreakRequest;
+
+// import { useEffect, useState, useRef } from "react";
+// import { FiCoffee, FiPlay } from "react-icons/fi";
+// import api from "../api/axios";
+// import toast from "react-hot-toast";
+
+// import { FiX } from "react-icons/fi";        // Stop / close
+// import { FiPause } from "react-icons/fi";   // Pause / break
+// import { FiSlash } from "react-icons/fi";   // End / cancel
+
+
+// const BreakRequest = () => {
+//   const [stats, setStats] = useState(null);
+//   const [loading, setLoading] = useState(false);
+//   const [breakSeconds, setBreakSeconds] = useState(0);
+//   const timerRef = useRef(null);
+
+//   const isAuthenticated = !!localStorage.getItem("token");
+
+//   const fetchStats = async () => {
+//     try {
+//       const res = await api.get("/login-hours/today");
+//       const data = res.data.data;
+//       setStats(data);
+
+//       // active break detection
+//       const active = data?.breaks?.find(
+//         b => !b.end && b.status === "approved"
+//       );
+
+//       if (active?.start) {
+//         const diff =
+//           Math.floor((Date.now() - new Date(active.start)) / 1000);
+//         setBreakSeconds(diff);
+//       } else {
+//         setBreakSeconds(0);
+//       }
+//     } catch (err) {
+//       toast.error("Failed to load break data");
+//     }
+//   };
+
+//   /* ================= TIMER ================= */
+//   useEffect(() => {
+//     if (stats?.breaks?.some(b => !b.end && b.status === "approved")) {
+//       timerRef.current = setInterval(() => {
+//         setBreakSeconds(prev => prev + 1);
+//       }, 1000);
+//     } else {
+//       clearInterval(timerRef.current);
+//       timerRef.current = null;
+//     }
+
+//     return () => clearInterval(timerRef.current);
+//   }, [stats]);
+
+//   useEffect(() => {
+//     if (isAuthenticated) fetchStats();
+//   }, []);
+
+//   /* ================= ACTIONS ================= */
+//   const startBreak = async () => {
+//     try {
+//       setLoading(true);
+//       await api.post("/login-hours/break/request");
+//       toast.success("Break started");
+//       fetchStats();
+//     } catch (e) {
+//       toast.error(e.response?.data?.message || "Failed to start break");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const endBreak = async () => {
+//     try {
+//       setLoading(true);
+//       await api.post("/login-hours/break/end");
+//       toast.success("Break ended");
+//       fetchStats();
+//     } catch {
+//       toast.error("Failed to end break");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   /* ================= HELPERS ================= */
+//   const formatDuration = (sec) => {
+//     const h = Math.floor(sec / 3600);
+//     const m = Math.floor((sec % 3600) / 60);
+//     const s = sec % 60;
+//     return `${h.toString().padStart(2, "0")}:${m
+//       .toString()
+//       .padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+//   };
+
+//   if (!isAuthenticated) return null;
+
+//   const activeBreak = stats?.breaks?.find(
+//     b => !b.end && b.status === "approved"
+//   );
+
+//   return (
+//     <div className="space-y-6">
+
+//       {/* STATUS */}
+//       <div className="bg-white p-5 rounded-xl shadow">
+//         <p className="text-sm text-gray-500">Break Status</p>
+//         <p className={`font-bold ${activeBreak ? "text-orange-600" : "text-green-600"}`}>
+//           {activeBreak ? "ON BREAK" : "WORKING"}
+//         </p>
+//       </div>
+
+//       {/* ACTION */}
+//       {activeBreak ? (
+//         <button
+//           onClick={endBreak}
+//           disabled={loading}
+//           className="w-full bg-red-600 text-white py-3 rounded-lg flex justify-center gap-2"
+//         >
+//           <FiStop /> End Break
+//         </button>
+//       ) : (
+//         <button
+//           onClick={startBreak}
+//           disabled={loading}
+//           className="w-full bg-indigo-600 text-white py-3 rounded-lg flex justify-center gap-2"
+//         >
+//           <FiPlay /> Start Break
+//         </button>
+//       )}
+
+//       {/* TIMER */}
+//       {activeBreak && (
+//         <div className="bg-orange-50 border border-orange-200 p-5 rounded-xl text-center">
+//           <p className="text-sm text-orange-600 mb-1">Current Break Time</p>
+//           <p className="text-2xl font-bold text-orange-700">
+//             {formatDuration(breakSeconds)}
+//           </p>
+//         </div>
+//       )}
+
+//       {/* SUMMARY */}
+//       <div className="bg-white p-5 rounded-xl shadow">
+//         <p className="text-sm text-gray-500 mb-2">Today Summary</p>
+//         <p>Worked Time: <b>{stats?.workedHours?.toFixed(2)} hrs</b></p>
+//         <p>Break Time: <b>{stats?.breakMinutes} mins</b></p>
+//         <p>Status: <b>{stats?.status}</b></p>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default BreakRequest;
+
+
+import api from "../api/axios";
+
+const LoginControls = ({ refresh }) => {
   return (
-    <div className="space-y-6 p-4 md:p-6">
-      {/* Header */}
-      <div className="bg-white rounded-xl shadow p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">Break Management</h1>
-            <p className="text-gray-600 mt-2">
-              Request and manage your breaks for today
-            </p>
-          </div>
-          <div className="flex items-center space-x-6">
-            <div className="text-center">
-              <p className="text-sm text-gray-600">Status</p>
-              <p className={`text-xl font-bold ${isLoggedIn ? 'text-green-600' : 'text-red-600'}`}>
-                {isLoggedIn ? 'ACTIVE' : 'OFFLINE'}
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-gray-600">Free Breaks</p>
-              <p className="text-2xl font-bold text-blue-600">
-                {freeBreaksLeft()}
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <FiCoffee className="w-6 h-6 text-blue-600" />
-            </div>
-          </div>
-        </div>
-      </div>
+    <>
+      <button onClick={() => api.post("/login-hours/login").then(refresh)}>
+        Login
+      </button>
 
-      {/* Current Status Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Shift Status</p>
-              <p className={`text-xl font-bold mt-2 ${
-                isLoggedIn ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {isLoggedIn ? 'IN PROGRESS' : 'NOT STARTED'}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                {isLoggedIn && stats?.loginTime 
-                  ? `Started at ${formatTime(stats.loginTime)}`
-                  : 'Login to start shift'}
-              </p>
-            </div>
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-              isLoggedIn ? 'bg-green-100' : 'bg-red-100'
-            }`}>
-              {isLoggedIn ? (
-                <FiCheck className="w-5 h-5 text-green-600" />
-              ) : (
-                <FiX className="w-5 h-5 text-red-600" />
-              )}
-            </div>
-          </div>
-        </div>
+      <button onClick={() => api.post("/login-hours/break/start").then(refresh)}>
+        Start Break
+      </button>
 
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Today's Breaks</p>
-              <p className="text-2xl font-bold text-gray-800 mt-2">
-                {breakHistory.length}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                {isOnBreak ? 'Currently on break' : 'No active break'}
-              </p>
-            </div>
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <FiClock className="w-5 h-5 text-purple-600" />
-            </div>
-          </div>
-        </div>
+      <button onClick={() => api.post("/login-hours/break/end").then(refresh)}>
+        End Break
+      </button>
 
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Break Time</p>
-              <p className="text-2xl font-bold text-gray-800 mt-2">
-                {formatHoursToHrsMins(stats?.breakHours)}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                {isOnBreak ? 'Break in progress...' : 'All breaks completed'}
-              </p>
-            </div>
-            <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-              <FiClock className="w-5 h-5 text-indigo-600" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Action Section */}
-      <div className="bg-white rounded-xl shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Break Actions</h2>
-        {getActionButton()}
-      </div>
-
-      {/* Break History */}
-      <div className="bg-white rounded-xl shadow p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold text-gray-800">Today's Breaks</h2>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-600">
-              Total: {breakHistory.length} break{breakHistory.length !== 1 ? 's' : ''}
-            </span>
-            <button
-              onClick={fetchBreakData}
-              disabled={loading}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 text-sm transition-colors"
-            >
-              {loading ? 'Refreshing...' : 'Refresh'}
-            </button>
-          </div>
-        </div>
-        
-        {breakHistory.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FiCoffee className="w-8 h-8 text-gray-400" />
-            </div>
-            <p className="text-gray-600">No breaks taken today</p>
-            {isLoggedIn && (
-              <p className="text-sm text-gray-500 mt-2">
-                Start your first break using the button above
-              </p>
-            )}
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Break #
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Start Time
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    End Time
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Duration
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Type
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {breakHistory.map((breakItem, index) => {
-                  const isCurrentBreak = !breakItem.end && isOnBreak;
-                  return (
-                    <tr 
-                      key={index} 
-                      className={`hover:bg-gray-50 ${isCurrentBreak ? 'bg-green-50 border-l-4 border-l-green-500' : ''}`}
-                    >
-                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        #{index + 1}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <div className="flex items-center">
-                          {formatTime(breakItem.start)}
-                          {isCurrentBreak && (
-                            <span className="ml-2 px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
-                              Active
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {breakItem.end ? formatTime(breakItem.end) : '—'}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {calculateDuration(breakItem.start, breakItem.end)}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <span className={`px-3 py-1 text-xs rounded-full ${getStatusColor(breakItem.status)}`}>
-                          {breakItem.status || 'unknown'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {breakItem.autoEnded ? 'Auto' : 'Manual'}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </div>
+      <button onClick={() => api.post("/login-hours/logout").then(refresh)}>
+        Logout
+      </button>
+    </>
   );
 };
 
-// Make sure this export is at the END of the file
-export default BreakRequest;
+export default LoginControls;
+
+
+

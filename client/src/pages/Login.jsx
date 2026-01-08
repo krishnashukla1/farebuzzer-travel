@@ -1814,377 +1814,451 @@
 // export default Login;
 
 
-import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import API from "../api/axios";
-import { Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
-import toast from 'react-hot-toast';
+// import { useState, useEffect, useRef } from "react";
+// import { Link, useNavigate } from "react-router-dom";
+// import API from "../api/axios";
+// import { Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
+// import toast from 'react-hot-toast';
+
+// const Login = () => {
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [showPassword, setShowPassword] = useState(false);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState("");
+
+//   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
+//   const [markAttendance, setMarkAttendance] = useState(true);
+//   const [attendanceLoading, setAttendanceLoading] = useState(false);
+
+//   const navigate = useNavigate();
+//   const hasNavigated = useRef(false); // To prevent multiple navigations
+
+//   // Clear login state on component mount
+//   useEffect(() => {
+//     const fromLogout = sessionStorage.getItem("fromLogout");
+//     if (fromLogout) {
+//       localStorage.removeItem("todayLoginTime");
+//       localStorage.removeItem("isLoggedIn");
+//       localStorage.removeItem("attendanceMarked");
+//       sessionStorage.removeItem("fromLogout");
+//     }
+//   }, []);
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     if (!email || !password) {
+//       toast.error("Please enter both email and password");
+//       return;
+//     }
+
+//     setLoading(true);
+//     setError("");
+
+//     try {
+//       // Step 1: Authenticate user
+//       const res = await API.post("/auth/login", { email, password });
+//       const { token, user } = res.data;
+
+//       console.log("Login successful, user role:", user.role);
+
+//       // Step 2: Store authentication data
+//       localStorage.setItem("token", token);
+//       localStorage.setItem("role", user.role);
+//       localStorage.setItem("userId", user.id || user._id);
+//       localStorage.setItem("userEmail", user.email);
+//       localStorage.setItem("userName", user.name || user.username);
+      
+//       // Set auth header for future requests
+//       API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+//       // Step 3: Try to record login hours (optional - don't block login)
+//       try {
+//         const loginRes = await API.post("/login-hours/login");
+//         console.log("Login hours recorded:", loginRes.data);
+        
+//         // Store login timestamp
+//         const loginTimestamp = new Date().toISOString();
+//         localStorage.setItem("todayLoginTime", loginTimestamp);
+//         localStorage.setItem("isLoggedIn", "true");
+        
+//       } catch (loginErr) {
+//         console.log("Login hours API response (non-critical):", loginErr.response?.data);
+        
+//         // Check if it's "already logged in" error
+//         if (loginErr.response?.data?.message?.includes("Already logged in")) {
+//           toast.success("Welcome back!");
+//           localStorage.setItem("isLoggedIn", "true");
+//         }
+//         // Ignore other errors - don't block login
+//       }
+
+//       // Step 4: Route based on role
+//       if (user.role === "admin") {
+//         console.log("Admin login - navigating to dashboard");
+//         navigate("/dashboard", { replace: true });
+//       } else {
+//         console.log("Employee login - showing attendance modal");
+//         setShowAttendanceModal(true);
+//       }
+
+//     } catch (err) {
+//       console.error("Login error:", err);
+//       const message = err.response?.data?.message || "Login failed. Please check credentials.";
+//       setError(message);
+//       toast.error(message);
+      
+//       // Clear any invalid stored data
+//       localStorage.removeItem("token");
+//       localStorage.removeItem("todayLoginTime");
+//       localStorage.removeItem("isLoggedIn");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   // Attendance modal handler - FIXED
+//   const handleAttendanceSubmit = async () => {
+//     if (attendanceLoading || hasNavigated.current) return;
+    
+//     setAttendanceLoading(true);
+//     console.log("Handling attendance submission...");
+
+//     try {
+//       if (markAttendance) {
+//         try {
+//           await API.post("/attendance/mark");
+//           toast.success("Attendance marked successfully!");
+//           localStorage.setItem("attendanceMarked", "true");
+//         } catch (attendanceErr) {
+//           console.log("Attendance API response:", attendanceErr.response?.data);
+          
+//           // Handle specific attendance errors
+//           if (attendanceErr.response?.status === 400) {
+//             const msg = attendanceErr.response?.data?.message || "";
+            
+//             if (msg.toLowerCase().includes("already marked") || 
+//                 msg.toLowerCase().includes("already present")) {
+//               toast.success("Attendance already marked for today");
+//               localStorage.setItem("attendanceMarked", "true");
+//             } else {
+//               toast.warning("Attendance issue: " + msg);
+//               localStorage.setItem("attendanceMarked", "pending");
+//             }
+//           } else {
+//             toast.warning("Could not mark attendance, but login successful");
+//             localStorage.setItem("attendanceMarked", "pending");
+//           }
+//         }
+//       } else {
+//         toast("Attendance skipped for today", { icon: "ℹ️" });
+//         localStorage.setItem("attendanceMarked", "skipped");
+//       }
+
+//       // Close modal
+//       setShowAttendanceModal(false);
+      
+//       // Set flag to prevent multiple navigations
+//       hasNavigated.current = true;
+      
+//       // Short delay before navigation
+//       setTimeout(() => {
+//         console.log("Navigating to dashboard...");
+//         navigate("/dashboard", { replace: true });
+//       }, 300);
+
+//     } catch (err) {
+//       console.error("Unexpected error in attendance:", err);
+      
+//       // Close modal and navigate anyway
+//       setShowAttendanceModal(false);
+//       hasNavigated.current = true;
+      
+//       setTimeout(() => {
+//         navigate("/dashboard", { replace: true });
+//       }, 300);
+//     } finally {
+//       setAttendanceLoading(false);
+//     }
+//   };
+
+//   // Handle Escape key to close modal - FIXED (no infinite loop)
+//   useEffect(() => {
+//     const handleEsc = (e) => {
+//       if (e.key === "Escape" && showAttendanceModal && !attendanceLoading) {
+//         handleAttendanceSubmit();
+//       }
+//     };
+    
+//     window.addEventListener("keydown", handleEsc);
+//     return () => window.removeEventListener("keydown", handleEsc);
+//   }, [showAttendanceModal, attendanceLoading]); // Added dependencies
+
+//   return (
+//     <>
+//       {/* Background */}
+//       <div
+//         className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative"
+//         style={{
+//           backgroundImage:
+//             "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2073&q=80')",
+//         }}
+//       >
+//         <div className="absolute inset-0 bg-gradient-to-br from-black/60 to-black/40" />
+
+//         {/* Login Card */}
+//         <div className="relative z-10 w-full max-w-lg px-5 sm:px-6">
+//           <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-8 md:p-10 border border-white/40">
+//             {/* Logo & Title */}
+//             <div className="text-center mb-8">
+//               <div className="inline-flex items-center justify-center w-20 h-20 bg-teal-600 rounded-full mb-5 overflow-hidden mx-auto border-4 border-white shadow-lg">
+//                 <img
+//                   src="/fbt new logo.png"
+//                   alt="FareBuzzer Logo"
+//                   className="w-full h-full object-contain p-2"
+//                 />
+//               </div>
+//               <h2 className="text-3xl font-bold text-gray-800 tracking-tight">
+//                 FareBuzzer Travel CRM
+//               </h2>
+//               <p className="text-gray-600 mt-2 text-sm">
+//                 Sign in to manage your travel operations
+//               </p>
+//             </div>
+
+//             {/* Error Display */}
+//             {error && (
+//               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-center text-sm">
+//                 {error}
+//               </div>
+//             )}
+
+//             {/* Form */}
+//             <form onSubmit={handleSubmit} className="space-y-6">
+//               {/* Email */}
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
+//                   Email address
+//                 </label>
+//                 <div className="relative">
+//                   <input
+//                     type="email"
+//                     placeholder="your@email.com"
+//                     className="w-full pl-11 pr-4 py-3.5 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+//                     value={email}
+//                     onChange={(e) => setEmail(e.target.value)}
+//                     required
+//                     autoComplete="email"
+//                   />
+//                   <svg
+//                     className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+//                     fill="none"
+//                     stroke="currentColor"
+//                     viewBox="0 0 24 24"
+//                   >
+//                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+//                   </svg>
+//                 </div>
+//               </div>
+
+//               {/* Password */}
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
+//                   Password
+//                 </label>
+//                 <div className="relative">
+//                   <input
+//                     type={showPassword ? "text" : "password"}
+//                     placeholder="••••••••"
+//                     className="w-full pl-11 pr-11 py-3.5 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+//                     value={password}
+//                     onChange={(e) => setPassword(e.target.value)}
+//                     required
+//                     autoComplete="current-password"
+//                   />
+//                   <svg
+//                     className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+//                     fill="none"
+//                     stroke="currentColor"
+//                     viewBox="0 0 24 24"
+//                   >
+//                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+//                   </svg>
+//                   <button
+//                     type="button"
+//                     onClick={() => setShowPassword(!showPassword)}
+//                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-teal-600"
+//                   >
+//                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+//                   </button>
+//                 </div>
+//               </div>
+
+//               {/* Submit Button */}
+//               <button
+//                 type="submit"
+//                 disabled={loading}
+//                 className={`w-full py-3.5 rounded-xl font-semibold text-white transition-all duration-200 flex items-center justify-center gap-2
+//                   ${loading 
+//                     ? "bg-teal-400 cursor-not-allowed" 
+//                     : "bg-teal-600 hover:bg-teal-700 shadow-lg hover:shadow-xl hover:scale-[1.02]"}`}
+//               >
+//                 {loading && <Loader2 className="animate-spin" size={20} />}
+//                 {loading ? "Signing in..." : "Sign In"}
+//               </button>
+//             </form>
+
+//             <div className="text-center mt-6 space-y-2">
+//               <p className="text-sm text-gray-600">
+//                 Don't have an account?{" "}
+//                 <Link to="/signup" className="text-teal-600 font-medium hover:text-teal-800">
+//                   Sign up
+//                 </Link>
+//               </p>
+//               <p className="text-xs text-gray-500">
+//                 © {new Date().getFullYear()} FareBuzzer Travel CRM
+//               </p>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Attendance Modal */}
+//       {showAttendanceModal && (
+//         <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+//           <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border border-gray-100 animate-scale-in">
+//             <div className="text-center mb-6">
+//               <CheckCircle className="mx-auto text-teal-600 mb-3" size={48} />
+//               <h3 className="text-2xl font-bold text-gray-800">
+//                 Welcome back!
+//               </h3>
+//               <p className="text-gray-600 mt-2">
+//                 Let's start your day properly
+//               </p>
+//             </div>
+
+//             <div className="space-y-6">
+//               <label className="flex items-start gap-3 cursor-pointer bg-gray-50 p-4 rounded-xl hover:bg-gray-100 transition-colors">
+//                 <input
+//                   type="checkbox"
+//                   checked={markAttendance}
+//                   onChange={(e) => setMarkAttendance(e.target.checked)}
+//                   className="w-5 h-5 text-teal-600 rounded border-gray-300 focus:ring-teal-500 mt-0.5"
+//                 />
+//                 <div>
+//                   <span className="font-medium text-gray-800 block">
+//                     Mark attendance as Present
+//                   </span>
+//                   <span className="text-sm text-gray-500">
+//                     Required to access full features today
+//                   </span>
+//                 </div>
+//               </label>
+
+//               <button
+//                 onClick={handleAttendanceSubmit}
+//                 disabled={attendanceLoading}
+//                 className={`w-full py-3.5 rounded-xl font-semibold text-white flex items-center justify-center gap-2 transition-all
+//                   ${attendanceLoading 
+//                     ? "bg-teal-400 cursor-not-allowed" 
+//                     : "bg-teal-600 hover:bg-teal-700 shadow-lg hover:shadow-xl"}`}
+//               >
+//                 {attendanceLoading && <Loader2 className="animate-spin" size={20} />}
+//                 {attendanceLoading ? "Processing..." : "Continue to Dashboard"}
+//               </button>
+              
+//               <button
+//                 onClick={() => {
+//                   setShowAttendanceModal(false);
+//                   navigate("/dashboard", { replace: true });
+//                 }}
+//                 className="w-full py-3 text-gray-600 hover:text-gray-800 text-sm"
+//               >
+//                 Skip for now
+//               </button>
+              
+//               <p className="text-center text-xs text-gray-500">
+//                 Press <kbd className="px-2 py-1 bg-gray-100 rounded">ESC</kbd> to skip
+//               </p>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </>
+//   );
+// };
+
+// export default Login;
+
+
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const [showAttendanceModal, setShowAttendanceModal] = useState(false);
-  const [markAttendance, setMarkAttendance] = useState(true);
-  const [attendanceLoading, setAttendanceLoading] = useState(false);
-
-  const navigate = useNavigate();
-  const hasNavigated = useRef(false); // To prevent multiple navigations
-
-  // Clear login state on component mount
-  useEffect(() => {
-    const fromLogout = sessionStorage.getItem("fromLogout");
-    if (fromLogout) {
-      localStorage.removeItem("todayLoginTime");
-      localStorage.removeItem("isLoggedIn");
-      localStorage.removeItem("attendanceMarked");
-      sessionStorage.removeItem("fromLogout");
-    }
-  }, []);
-
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
-      toast.error("Please enter both email and password");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
 
     try {
-      // Step 1: Authenticate user
-      const res = await API.post("/auth/login", { email, password });
-      const { token, user } = res.data;
+      setLoading(true);
 
-      console.log("Login successful, user role:", user.role);
+      const res = await api.post("/auth/login", { email, password });
 
-      // Step 2: Store authentication data
-      localStorage.setItem("token", token);
-      localStorage.setItem("role", user.role);
-      localStorage.setItem("userId", user.id || user._id);
-      localStorage.setItem("userEmail", user.email);
-      localStorage.setItem("userName", user.name || user.username);
-      
-      // Set auth header for future requests
-      API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      if (res.data?.token) {
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("role", res.data.user.role);
 
-      // Step 3: Try to record login hours (optional - don't block login)
-      try {
-        const loginRes = await API.post("/login-hours/login");
-        console.log("Login hours recorded:", loginRes.data);
-        
-        // Store login timestamp
-        const loginTimestamp = new Date().toISOString();
-        localStorage.setItem("todayLoginTime", loginTimestamp);
-        localStorage.setItem("isLoggedIn", "true");
-        
-      } catch (loginErr) {
-        console.log("Login hours API response (non-critical):", loginErr.response?.data);
-        
-        // Check if it's "already logged in" error
-        if (loginErr.response?.data?.message?.includes("Already logged in")) {
-          toast.success("Welcome back!");
-          localStorage.setItem("isLoggedIn", "true");
-        }
-        // Ignore other errors - don't block login
+        // ❌ DO NOT decide login-hours here
+        // ✅ Attendance handled by backend APIs
+
+        navigate("/dashboard"); // or /bookings as you want
       }
-
-      // Step 4: Route based on role
-      if (user.role === "admin") {
-        console.log("Admin login - navigating to dashboard");
-        navigate("/dashboard", { replace: true });
-      } else {
-        console.log("Employee login - showing attendance modal");
-        setShowAttendanceModal(true);
-      }
-
     } catch (err) {
-      console.error("Login error:", err);
-      const message = err.response?.data?.message || "Login failed. Please check credentials.";
-      setError(message);
-      toast.error(message);
-      
-      // Clear any invalid stored data
-      localStorage.removeItem("token");
-      localStorage.removeItem("todayLoginTime");
-      localStorage.removeItem("isLoggedIn");
+      alert(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
   };
 
-  // Attendance modal handler - FIXED
-  const handleAttendanceSubmit = async () => {
-    if (attendanceLoading || hasNavigated.current) return;
-    
-    setAttendanceLoading(true);
-    console.log("Handling attendance submission...");
-
-    try {
-      if (markAttendance) {
-        try {
-          await API.post("/attendance/mark");
-          toast.success("Attendance marked successfully!");
-          localStorage.setItem("attendanceMarked", "true");
-        } catch (attendanceErr) {
-          console.log("Attendance API response:", attendanceErr.response?.data);
-          
-          // Handle specific attendance errors
-          if (attendanceErr.response?.status === 400) {
-            const msg = attendanceErr.response?.data?.message || "";
-            
-            if (msg.toLowerCase().includes("already marked") || 
-                msg.toLowerCase().includes("already present")) {
-              toast.success("Attendance already marked for today");
-              localStorage.setItem("attendanceMarked", "true");
-            } else {
-              toast.warning("Attendance issue: " + msg);
-              localStorage.setItem("attendanceMarked", "pending");
-            }
-          } else {
-            toast.warning("Could not mark attendance, but login successful");
-            localStorage.setItem("attendanceMarked", "pending");
-          }
-        }
-      } else {
-        toast("Attendance skipped for today", { icon: "ℹ️" });
-        localStorage.setItem("attendanceMarked", "skipped");
-      }
-
-      // Close modal
-      setShowAttendanceModal(false);
-      
-      // Set flag to prevent multiple navigations
-      hasNavigated.current = true;
-      
-      // Short delay before navigation
-      setTimeout(() => {
-        console.log("Navigating to dashboard...");
-        navigate("/dashboard", { replace: true });
-      }, 300);
-
-    } catch (err) {
-      console.error("Unexpected error in attendance:", err);
-      
-      // Close modal and navigate anyway
-      setShowAttendanceModal(false);
-      hasNavigated.current = true;
-      
-      setTimeout(() => {
-        navigate("/dashboard", { replace: true });
-      }, 300);
-    } finally {
-      setAttendanceLoading(false);
-    }
-  };
-
-  // Handle Escape key to close modal - FIXED (no infinite loop)
-  useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === "Escape" && showAttendanceModal && !attendanceLoading) {
-        handleAttendanceSubmit();
-      }
-    };
-    
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, [showAttendanceModal, attendanceLoading]); // Added dependencies
-
   return (
-    <>
-      {/* Background */}
-      <div
-        className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2073&q=80')",
-        }}
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <form
+        onSubmit={handleLogin}
+        className="bg-white p-6 rounded shadow w-96"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-black/60 to-black/40" />
+        <h2 className="text-xl font-semibold mb-4">Login</h2>
 
-        {/* Login Card */}
-        <div className="relative z-10 w-full max-w-lg px-5 sm:px-6">
-          <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-8 md:p-10 border border-white/40">
-            {/* Logo & Title */}
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-teal-600 rounded-full mb-5 overflow-hidden mx-auto border-4 border-white shadow-lg">
-                <img
-                  src="/fbt new logo.png"
-                  alt="FareBuzzer Logo"
-                  className="w-full h-full object-contain p-2"
-                />
-              </div>
-              <h2 className="text-3xl font-bold text-gray-800 tracking-tight">
-                FareBuzzer Travel CRM
-              </h2>
-              <p className="text-gray-600 mt-2 text-sm">
-                Sign in to manage your travel operations
-              </p>
-            </div>
+        <input
+          type="email"
+          placeholder="Email"
+          className="w-full border p-2 mb-3 rounded"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
-            {/* Error Display */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-center text-sm">
-                {error}
-              </div>
-            )}
+        <input
+          type="password"
+          placeholder="Password"
+          className="w-full border p-2 mb-3 rounded"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Email */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Email address
-                </label>
-                <div className="relative">
-                  <input
-                    type="email"
-                    placeholder="your@email.com"
-                    className="w-full pl-11 pr-4 py-3.5 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    autoComplete="email"
-                  />
-                  <svg
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Password */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    className="w-full pl-11 pr-11 py-3.5 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    autoComplete="current-password"
-                  />
-                  <svg
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-teal-600"
-                  >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className={`w-full py-3.5 rounded-xl font-semibold text-white transition-all duration-200 flex items-center justify-center gap-2
-                  ${loading 
-                    ? "bg-teal-400 cursor-not-allowed" 
-                    : "bg-teal-600 hover:bg-teal-700 shadow-lg hover:shadow-xl hover:scale-[1.02]"}`}
-              >
-                {loading && <Loader2 className="animate-spin" size={20} />}
-                {loading ? "Signing in..." : "Sign In"}
-              </button>
-            </form>
-
-            <div className="text-center mt-6 space-y-2">
-              <p className="text-sm text-gray-600">
-                Don't have an account?{" "}
-                <Link to="/signup" className="text-teal-600 font-medium hover:text-teal-800">
-                  Sign up
-                </Link>
-              </p>
-              <p className="text-xs text-gray-500">
-                © {new Date().getFullYear()} FareBuzzer Travel CRM
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Attendance Modal */}
-      {showAttendanceModal && (
-        <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border border-gray-100 animate-scale-in">
-            <div className="text-center mb-6">
-              <CheckCircle className="mx-auto text-teal-600 mb-3" size={48} />
-              <h3 className="text-2xl font-bold text-gray-800">
-                Welcome back!
-              </h3>
-              <p className="text-gray-600 mt-2">
-                Let's start your day properly
-              </p>
-            </div>
-
-            <div className="space-y-6">
-              <label className="flex items-start gap-3 cursor-pointer bg-gray-50 p-4 rounded-xl hover:bg-gray-100 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={markAttendance}
-                  onChange={(e) => setMarkAttendance(e.target.checked)}
-                  className="w-5 h-5 text-teal-600 rounded border-gray-300 focus:ring-teal-500 mt-0.5"
-                />
-                <div>
-                  <span className="font-medium text-gray-800 block">
-                    Mark attendance as Present
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    Required to access full features today
-                  </span>
-                </div>
-              </label>
-
-              <button
-                onClick={handleAttendanceSubmit}
-                disabled={attendanceLoading}
-                className={`w-full py-3.5 rounded-xl font-semibold text-white flex items-center justify-center gap-2 transition-all
-                  ${attendanceLoading 
-                    ? "bg-teal-400 cursor-not-allowed" 
-                    : "bg-teal-600 hover:bg-teal-700 shadow-lg hover:shadow-xl"}`}
-              >
-                {attendanceLoading && <Loader2 className="animate-spin" size={20} />}
-                {attendanceLoading ? "Processing..." : "Continue to Dashboard"}
-              </button>
-              
-              <button
-                onClick={() => {
-                  setShowAttendanceModal(false);
-                  navigate("/dashboard", { replace: true });
-                }}
-                className="w-full py-3 text-gray-600 hover:text-gray-800 text-sm"
-              >
-                Skip for now
-              </button>
-              
-              <p className="text-center text-xs text-gray-500">
-                Press <kbd className="px-2 py-1 bg-gray-100 rounded">ESC</kbd> to skip
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+        <button
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-2 rounded"
+        >
+          {loading ? "Logging in..." : "Login"}
+        </button>
+      </form>
+    </div>
   );
 };
 

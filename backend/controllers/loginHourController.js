@@ -1,218 +1,333 @@
 
-import Attendance from "../models/Attendance.js";
-import LoginHour from "../models/loginHoursSchema.js";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc.js";
-import timezone from "dayjs/plugin/timezone.js";
+// import Attendance from "../models/Attendance.js";
+// import LoginHour from "../models/loginHoursSchema.js";
+// import dayjs from "dayjs";
+// import utc from "dayjs/plugin/utc.js";
+// import timezone from "dayjs/plugin/timezone.js";
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
+// dayjs.extend(utc);
+// dayjs.extend(timezone);
 
-/* ================= CONSTANTS ================= */
-const BREAK_LIMITS = {
-  HALF_DAY: 70, // 1 hour 10 minutes in minutes
-  ABSENT: 90    // 1 hour 30 minutes in minutes
-};
+// /* ================= CONSTANTS ================= */
+// const BREAK_LIMITS = {
+//   HALF_DAY: 70, // 1 hour 10 minutes in minutes
+//   ABSENT: 90    // 1 hour 30 minutes in minutes
+// };
 
-const SHIFT_START_HOUR = 15; // 3 PM IST
-const MAX_FREE_BREAKS = 3;
-const FREE_BREAK_DURATION = 15; // 15 minutes for free breaks
+// const SHIFT_START_HOUR = 15; // 3 PM IST
+// const MAX_FREE_BREAKS = 3;
+// const FREE_BREAK_DURATION = 15; // 15 minutes for free breaks
 
-/* ================= HELPERS ================= */
-function getISTNow() {
-  return dayjs().tz("Asia/Kolkata");
-}
+// /* ================= HELPERS ================= */
+// function getISTNow() {
+//   return dayjs().tz("Asia/Kolkata");
+// }
 
-function getShiftDate() {
-  const istNow = getISTNow();
+// function getShiftDate() {
+//   const istNow = getISTNow();
   
-  // If current time is before 3 PM, it belongs to previous day's shift
-  if (istNow.hour() < SHIFT_START_HOUR) {
-    return istNow.subtract(1, 'day').format("YYYY-MM-DD");
-  }
+//   // If current time is before 3 PM, it belongs to previous day's shift
+//   if (istNow.hour() < SHIFT_START_HOUR) {
+//     return istNow.subtract(1, 'day').format("YYYY-MM-DD");
+//   }
   
-  return istNow.format("YYYY-MM-DD");
-}
+//   return istNow.format("YYYY-MM-DD");
+// }
+
+// // function calculateTotalBreakMinutes(breaks = []) {
+// //   return breaks.reduce((total, b) => {
+// //     if (!b.start || b.status !== "approved") return total;
+    
+// //     const start = new Date(b.start);
+// //     const end = b.end ? new Date(b.end) : new Date();
+    
+// //     // Make sure end is after start
+// //     if (end <= start) return total;
+    
+// //     const duration = (end - start) / (1000 * 60); // Convert to minutes
+// //     return total + Math.max(0, duration);
+// //   }, 0);
+// // }
 
 // function calculateTotalBreakMinutes(breaks = []) {
 //   return breaks.reduce((total, b) => {
 //     if (!b.start || b.status !== "approved") return total;
-    
-//     const start = new Date(b.start);
+
 //     const end = b.end ? new Date(b.end) : new Date();
-    
-//     // Make sure end is after start
+//     const start = new Date(b.start);
+
 //     if (end <= start) return total;
-    
-//     const duration = (end - start) / (1000 * 60); // Convert to minutes
-//     return total + Math.max(0, duration);
+
+//     return total + (end - start) / (1000 * 60);
 //   }, 0);
 // }
 
-function calculateTotalBreakMinutes(breaks = []) {
-  return breaks.reduce((total, b) => {
-    if (!b.start || b.status !== "approved") return total;
 
-    const end = b.end ? new Date(b.end) : new Date();
-    const start = new Date(b.start);
-
-    if (end <= start) return total;
-
-    return total + (end - start) / (1000 * 60);
-  }, 0);
-}
-
-
-function calculateWorkedHours(loginTime, logoutTime, totalBreakMinutes) {
-  if (!loginTime) return 0;
+// function calculateWorkedHours(loginTime, logoutTime, totalBreakMinutes) {
+//   if (!loginTime) return 0;
   
-  const login = new Date(loginTime);
-  const logout = logoutTime ? new Date(logoutTime) : new Date();
+//   const login = new Date(loginTime);
+//   const logout = logoutTime ? new Date(logoutTime) : new Date();
   
-  // Ensure logout is after login
-  if (logout <= login) return 0;
+//   // Ensure logout is after login
+//   if (logout <= login) return 0;
   
-  const totalMs = logout - login;
-  const breakMs = totalBreakMinutes * 60 * 1000;
-  const workedMs = totalMs - breakMs;
+//   const totalMs = logout - login;
+//   const breakMs = totalBreakMinutes * 60 * 1000;
+//   const workedMs = totalMs - breakMs;
   
-  return workedMs > 0 ? workedMs / (1000 * 60 * 60) : 0; // Convert to hours
-}
+//   return workedMs > 0 ? workedMs / (1000 * 60 * 60) : 0; // Convert to hours
+// }
 
-function calculateAttendanceStatus(totalBreakMinutes) {
-  if (totalBreakMinutes >= BREAK_LIMITS.ABSENT) return "absent";
-  if (totalBreakMinutes >= BREAK_LIMITS.HALF_DAY) return "half-day";
-  return "present";
-}
+// function calculateAttendanceStatus(totalBreakMinutes) {
+//   if (totalBreakMinutes >= BREAK_LIMITS.ABSENT) return "absent";
+//   if (totalBreakMinutes >= BREAK_LIMITS.HALF_DAY) return "half-day";
+//   return "present";
+// }
 
-function formatDuration(minutes) {
-  if (!minutes || minutes <= 0) return "0 min";
+// function formatDuration(minutes) {
+//   if (!minutes || minutes <= 0) return "0 min";
   
-  const hours = Math.floor(minutes / 60);
-  const mins = Math.floor(minutes % 60);
+//   const hours = Math.floor(minutes / 60);
+//   const mins = Math.floor(minutes % 60);
   
-  if (hours > 0) {
-    return `${hours}h ${mins}m`;
-  }
-  return `${mins}m`;
-}
+//   if (hours > 0) {
+//     return `${hours}h ${mins}m`;
+//   }
+//   return `${mins}m`;
+// }
 
-/* ================= LOGIN / LOGOUT ================= */
+// /* ================= LOGIN / LOGOUT ================= */
+// // export const login = async (req, res) => {
+// //   try {
+// //     const userId = req.user._id;
+// //     const date = getShiftDate();
+
+// //     // Check if already logged in today
+// //     const existingRecord = await LoginHour.findOne({ 
+// //       userId, 
+// //       date,
+// //       logoutTime: { $exists: false }
+// //     });
+
+// //     if (existingRecord) {
+// //       return res.status(400).json({ 
+// //         success: false,
+// //         message: "Already logged in for today",
+// //         record: existingRecord 
+// //       });
+// //     }
+
+// //     // Check if there's a completed record for today
+// //     const completedRecord = await LoginHour.findOne({ 
+// //       userId, 
+// //       date,
+// //       logoutTime: { $exists: true }
+// //     });
+
+// //     if (completedRecord) {
+// //       return res.status(400).json({ 
+// //         success: false,
+// //         message: "Already completed today's shift. Cannot login again.",
+// //         record: completedRecord 
+// //       });
+// //     }
+
+// //     const record = new LoginHour({
+// //       userId,
+// //       date,
+// //       loginTime: new Date(),
+// //       breaks: [],
+// //       status: "present"
+// //     });
+
+// //     await record.save();
+
+// //     res.json({ 
+// //       success: true,
+// //       message: "Login recorded successfully", 
+// //       record: {
+// //         _id: record._id,
+// //         userId: record.userId,
+// //         date: record.date,
+// //         loginTime: record.loginTime,
+// //         breaks: record.breaks,
+// //         status: record.status
+// //       }
+// //     });
+// //   } catch (err) {
+// //     console.error("Login error:", err);
+    
+// //     // Handle duplicate key error
+// //     if (err.code === 11000) {
+// //       return res.status(400).json({ 
+// //         success: false,
+// //         message: "Already logged in for today", 
+// //         error: "Duplicate entry"
+// //       });
+// //     }
+    
+// //     res.status(500).json({ 
+// //       success: false,
+// //       message: "Login failed", 
+// //       error: err.message 
+// //     });
+// //   }
+// // };
+
+
 // export const login = async (req, res) => {
 //   try {
 //     const userId = req.user._id;
 //     const date = getShiftDate();
 
-//     // Check if already logged in today
-//     const existingRecord = await LoginHour.findOne({ 
-//       userId, 
-//       date,
-//       logoutTime: { $exists: false }
-//     });
+//     const existing = await LoginHour.findOne({ userId, date });
 
-//     if (existingRecord) {
-//       return res.status(400).json({ 
+//     if (existing) {
+//       return res.status(400).json({
 //         success: false,
-//         message: "Already logged in for today",
-//         record: existingRecord 
+//         message: "Already logged in today"
 //       });
 //     }
 
-//     // Check if there's a completed record for today
-//     const completedRecord = await LoginHour.findOne({ 
-//       userId, 
-//       date,
-//       logoutTime: { $exists: true }
-//     });
-
-//     if (completedRecord) {
-//       return res.status(400).json({ 
-//         success: false,
-//         message: "Already completed today's shift. Cannot login again.",
-//         record: completedRecord 
-//       });
-//     }
-
-//     const record = new LoginHour({
+//     const record = await LoginHour.create({
 //       userId,
 //       date,
 //       loginTime: new Date(),
-//       breaks: [],
-//       status: "present"
+//       status: "present",
+//       breaks: []
 //     });
 
-//     await record.save();
+//     await Attendance.findOneAndUpdate(
+//       { user: userId, date },
+//       { punchIn: new Date(), status: "Present" },
+//       { upsert: true, new: true }
+//     );
 
-//     res.json({ 
-//       success: true,
-//       message: "Login recorded successfully", 
-//       record: {
-//         _id: record._id,
-//         userId: record.userId,
-//         date: record.date,
-//         loginTime: record.loginTime,
-//         breaks: record.breaks,
-//         status: record.status
-//       }
-//     });
+//     res.json({ success: true, record });
 //   } catch (err) {
-//     console.error("Login error:", err);
-    
-//     // Handle duplicate key error
-//     if (err.code === 11000) {
-//       return res.status(400).json({ 
-//         success: false,
-//         message: "Already logged in for today", 
-//         error: "Duplicate entry"
-//       });
-//     }
-    
-//     res.status(500).json({ 
-//       success: false,
-//       message: "Login failed", 
-//       error: err.message 
-//     });
+//     res.status(500).json({ success: false, message: err.message });
 //   }
 // };
 
 
-export const login = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const date = getShiftDate();
 
-    const existing = await LoginHour.findOne({ userId, date });
+// // export const logout = async (req, res) => {
+// //   try {
+// //     const userId = req.user._id;
+// //     const date = getShiftDate();
 
-    if (existing) {
-      return res.status(400).json({
-        success: false,
-        message: "Already logged in today"
-      });
-    }
+// //     const record = await LoginHour.findOne({ userId, date });
+// //     if (!record) {
+// //       return res.status(404).json({ 
+// //         success: false,
+// //         message: "No login record found for today" 
+// //       });
+// //     }
 
-    const record = await LoginHour.create({
-      userId,
-      date,
-      loginTime: new Date(),
-      status: "present",
-      breaks: []
-    });
+// //     if (record.logoutTime) {
+// //       return res.status(400).json({ 
+// //         success: false,
+// //         message: "Already logged out for today" 
+// //       });
+// //     }
 
-    await Attendance.findOneAndUpdate(
-      { user: userId, date },
-      { punchIn: new Date(), status: "Present" },
-      { upsert: true, new: true }
-    );
+// //     // End any active break
+// //     const activeBreak = record.breaks.find(b => !b.end && b.status === "approved");
+// //     if (activeBreak) {
+// //       activeBreak.end = new Date();
+// //       console.log(`Auto-ended break for user ${userId}`);
+// //     }
 
-    res.json({ success: true, record });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
+// //     // Calculate totals
+// //     const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
+// //     const totalWorkedHours = calculateWorkedHours(
+// //       record.loginTime, 
+// //       new Date(), 
+// //       totalBreakMinutes
+// //     );
+// //     const status = calculateAttendanceStatus(totalBreakMinutes);
 
+// //     record.logoutTime = new Date();
+// //     record.totalBreakHours = totalBreakMinutes / 60;
+// //     record.totalWorkedHours = totalWorkedHours;
+// //     record.status = status;
 
+// //     await record.save();
+
+// //     res.json({ 
+// //       success: true,
+// //       message: "Logout recorded successfully", 
+// //       record: {
+// //         _id: record._id,
+// //         userId: record.userId,
+// //         date: record.date,
+// //         loginTime: record.loginTime,
+// //         logoutTime: record.logoutTime,
+// //         totalWorkedHours: record.totalWorkedHours,
+// //         totalBreakHours: record.totalBreakHours,
+// //         status: record.status,
+// //         breaks: record.breaks
+// //       },
+// //       summary: {
+// //         workedHours: totalWorkedHours.toFixed(2),
+// //         breakHours: (totalBreakMinutes / 60).toFixed(2),
+// //         status: status
+// //       }
+// //     });
+// //   } catch (err) {
+// //     console.error("Logout error:", err);
+// //     res.status(500).json({ 
+// //       success: false,
+// //       message: "Logout failed", 
+// //       error: err.message 
+// //     });
+// //   }
+// // };
 
 // export const logout = async (req, res) => {
+//   try {
+//     const userId = req.user._id;
+//     const date = getShiftDate();
+
+//     const record = await LoginHour.findOne({ userId, date });
+//     if (!record || record.logoutTime) {
+//       return res.status(400).json({ success: false, message: "Already logged out" });
+//     }
+
+//     const activeBreak = record.breaks.find(
+//       b => !b.end && b.status === "approved"
+//     );
+
+//     if (activeBreak) activeBreak.end = new Date();
+
+//     const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
+//     const workedHours = calculateWorkedHours(
+//       record.loginTime,
+//       new Date(),
+//       totalBreakMinutes
+//     );
+
+//     record.logoutTime = new Date();
+//     record.totalBreakHours = totalBreakMinutes / 60;
+//     record.totalWorkedHours = workedHours;
+//     record.status = calculateAttendanceStatus(totalBreakMinutes);
+
+//     await record.save();
+
+//     res.json({
+//       success: true,
+//       workedHours,
+//       breakHours: record.totalBreakHours,
+//       status: record.status
+//     });
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
+
+// /* ================= BREAK MANAGEMENT ================= */
+// export const requestBreak = async (req, res) => {
 //   try {
 //     const userId = req.user._id;
 //     const date = getShiftDate();
@@ -221,763 +336,771 @@ export const login = async (req, res) => {
 //     if (!record) {
 //       return res.status(404).json({ 
 //         success: false,
-//         message: "No login record found for today" 
+//         message: "No active shift found. Please login first." 
 //       });
 //     }
 
 //     if (record.logoutTime) {
 //       return res.status(400).json({ 
 //         success: false,
-//         message: "Already logged out for today" 
+//         message: "Cannot take break after logout" 
 //       });
 //     }
 
-//     // End any active break
+//     // Check if already on break
 //     const activeBreak = record.breaks.find(b => !b.end && b.status === "approved");
 //     if (activeBreak) {
-//       activeBreak.end = new Date();
-//       console.log(`Auto-ended break for user ${userId}`);
+//       return res.status(400).json({ 
+//         success: false,
+//         message: "You are already on a break. End current break first." 
+//       });
 //     }
 
-//     // Calculate totals
-//     const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
-//     const totalWorkedHours = calculateWorkedHours(
-//       record.loginTime, 
-//       new Date(), 
-//       totalBreakMinutes
-//     );
-//     const status = calculateAttendanceStatus(totalBreakMinutes);
+//     // Check if pending request exists
+//     const pendingBreak = record.breaks.find(b => b.status === "pending");
+//     if (pendingBreak) {
+//       return res.status(400).json({ 
+//         success: false,
+//         message: "You already have a pending break request" 
+//       });
+//     }
 
-//     record.logoutTime = new Date();
-//     record.totalBreakHours = totalBreakMinutes / 60;
-//     record.totalWorkedHours = totalWorkedHours;
-//     record.status = status;
+//     // Count approved breaks
+//     const approvedBreaks = record.breaks.filter(b => b.status === "approved");
+    
+//     // AUTO APPROVE FIRST 3 BREAKS
+//     if (approvedBreaks.length < MAX_FREE_BREAKS) {
+//       const breakRecord = {
+//         start: new Date(),
+//         status: "approved",
+//         approvedAt: new Date(),
+//         requestedAt: new Date()
+//       };
 
+//       record.breaks.push(breakRecord);
+//       await record.save();
+
+//       return res.json({
+//         success: true,
+//         autoApproved: true,
+//         message: `Break started automatically (${approvedBreaks.length + 1}/${MAX_FREE_BREAKS} free breaks)`,
+//         break: breakRecord
+//       });
+//     }
+
+//     // NEED SUPERVISOR APPROVAL FOR ADDITIONAL BREAKS
+//     const breakRecord = {
+//       requestedAt: new Date(),
+//       status: "pending"
+//     };
+
+//     record.breaks.push(breakRecord);
 //     await record.save();
 
-//     res.json({ 
+//     res.json({
 //       success: true,
-//       message: "Logout recorded successfully", 
-//       record: {
-//         _id: record._id,
-//         userId: record.userId,
-//         date: record.date,
-//         loginTime: record.loginTime,
-//         logoutTime: record.logoutTime,
-//         totalWorkedHours: record.totalWorkedHours,
-//         totalBreakHours: record.totalBreakHours,
-//         status: record.status,
-//         breaks: record.breaks
-//       },
-//       summary: {
-//         workedHours: totalWorkedHours.toFixed(2),
-//         breakHours: (totalBreakMinutes / 60).toFixed(2),
-//         status: status
-//       }
+//       pending: true,
+//       message: "Break request sent to supervisor for approval",
+//       breakId: breakRecord._id
 //     });
+
 //   } catch (err) {
-//     console.error("Logout error:", err);
+//     console.error("Break request error:", err);
 //     res.status(500).json({ 
 //       success: false,
-//       message: "Logout failed", 
+//       message: "Break request failed", 
 //       error: err.message 
 //     });
 //   }
 // };
 
-export const logout = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const date = getShiftDate();
-
-    const record = await LoginHour.findOne({ userId, date });
-    if (!record || record.logoutTime) {
-      return res.status(400).json({ success: false, message: "Already logged out" });
-    }
-
-    const activeBreak = record.breaks.find(
-      b => !b.end && b.status === "approved"
-    );
-
-    if (activeBreak) activeBreak.end = new Date();
-
-    const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
-    const workedHours = calculateWorkedHours(
-      record.loginTime,
-      new Date(),
-      totalBreakMinutes
-    );
-
-    record.logoutTime = new Date();
-    record.totalBreakHours = totalBreakMinutes / 60;
-    record.totalWorkedHours = workedHours;
-    record.status = calculateAttendanceStatus(totalBreakMinutes);
-
-    await record.save();
-
-    res.json({
-      success: true,
-      workedHours,
-      breakHours: record.totalBreakHours,
-      status: record.status
-    });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-/* ================= BREAK MANAGEMENT ================= */
-export const requestBreak = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const date = getShiftDate();
-
-    const record = await LoginHour.findOne({ userId, date });
-    if (!record) {
-      return res.status(404).json({ 
-        success: false,
-        message: "No active shift found. Please login first." 
-      });
-    }
-
-    if (record.logoutTime) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Cannot take break after logout" 
-      });
-    }
-
-    // Check if already on break
-    const activeBreak = record.breaks.find(b => !b.end && b.status === "approved");
-    if (activeBreak) {
-      return res.status(400).json({ 
-        success: false,
-        message: "You are already on a break. End current break first." 
-      });
-    }
-
-    // Check if pending request exists
-    const pendingBreak = record.breaks.find(b => b.status === "pending");
-    if (pendingBreak) {
-      return res.status(400).json({ 
-        success: false,
-        message: "You already have a pending break request" 
-      });
-    }
-
-    // Count approved breaks
-    const approvedBreaks = record.breaks.filter(b => b.status === "approved");
-    
-    // AUTO APPROVE FIRST 3 BREAKS
-    if (approvedBreaks.length < MAX_FREE_BREAKS) {
-      const breakRecord = {
-        start: new Date(),
-        status: "approved",
-        approvedAt: new Date(),
-        requestedAt: new Date()
-      };
-
-      record.breaks.push(breakRecord);
-      await record.save();
-
-      return res.json({
-        success: true,
-        autoApproved: true,
-        message: `Break started automatically (${approvedBreaks.length + 1}/${MAX_FREE_BREAKS} free breaks)`,
-        break: breakRecord
-      });
-    }
-
-    // NEED SUPERVISOR APPROVAL FOR ADDITIONAL BREAKS
-    const breakRecord = {
-      requestedAt: new Date(),
-      status: "pending"
-    };
-
-    record.breaks.push(breakRecord);
-    await record.save();
-
-    res.json({
-      success: true,
-      pending: true,
-      message: "Break request sent to supervisor for approval",
-      breakId: breakRecord._id
-    });
-
-  } catch (err) {
-    console.error("Break request error:", err);
-    res.status(500).json({ 
-      success: false,
-      message: "Break request failed", 
-      error: err.message 
-    });
-  }
-};
-
-// Add this function since it's imported in routes
-export const startBreak = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const date = getShiftDate();
-
-    const record = await LoginHour.findOne({ userId, date });
-    if (!record) {
-      return res.status(404).json({ 
-        success: false,
-        message: "No active shift found. Please login first." 
-      });
-    }
-
-    // Check if already on break
-    const activeBreak = record.breaks.find(b => !b.end && b.status === "approved");
-    if (activeBreak) {
-      return res.status(400).json({ 
-        success: false,
-        message: "You are already on a break" 
-      });
-    }
-
-    // Auto approve if within free breaks limit
-    const approvedBreaks = record.breaks.filter(b => b.status === "approved");
-    
-    if (approvedBreaks.length < MAX_FREE_BREAKS) {
-      const breakRecord = {
-        start: new Date(),
-        status: "approved",
-        requestedAt: new Date(),
-        approvedAt: new Date()
-      };
-
-      record.breaks.push(breakRecord);
-      await record.save();
-
-      return res.json({
-        success: true,
-        message: `Break started (${approvedBreaks.length + 1}/${MAX_FREE_BREAKS} free breaks)`,
-        break: breakRecord
-      });
-    }
-
-    // If exceeded free breaks, require approval
-    return res.status(400).json({
-      success: false,
-      message: "Free break limit exceeded. Please request break approval."
-    });
-
-  } catch (err) {
-    console.error("Start break error:", err);
-    res.status(500).json({ 
-      success: false,
-      message: "Failed to start break", 
-      error: err.message 
-    });
-  }
-};
-
-export const endBreak = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const date = getShiftDate();
-
-    const record = await LoginHour.findOne({ userId, date });
-    if (!record) {
-      return res.status(404).json({ 
-        success: false,
-        message: "No attendance record found" 
-      });
-    }
-
-    const activeBreak = record.breaks.find(b => !b.end && b.status === "approved");
-    if (!activeBreak) {
-      return res.status(400).json({ 
-        success: false,
-        message: "No active break found" 
-      });
-    }
-
-    activeBreak.end = new Date();
-    
-    // Calculate break duration
-    const breakDuration = (new Date(activeBreak.end) - new Date(activeBreak.start)) / (1000 * 60);
-    
-    // Auto-end if free break exceeds 15 minutes
-    if (breakDuration > FREE_BREAK_DURATION) {
-      activeBreak.autoEnded = true;
-    }
-
-    // Update totals immediately
-    const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
-    record.totalBreakHours = totalBreakMinutes / 60;
-    
-    // If already logged out, update worked hours
-    if (record.logoutTime) {
-      record.totalWorkedHours = calculateWorkedHours(
-        record.loginTime, 
-        record.logoutTime, 
-        totalBreakMinutes
-      );
-      record.status = calculateAttendanceStatus(totalBreakMinutes);
-    }
-
-    await record.save();
-
-    res.json({
-      success: true,
-      message: "Break ended successfully",
-      break: activeBreak,
-      duration: `${breakDuration.toFixed(1)} minutes`,
-      totalBreakMinutes: totalBreakMinutes
-    });
-
-  } catch (err) {
-    console.error("End break error:", err);
-    res.status(500).json({ 
-      success: false,
-      message: "Failed to end break", 
-      error: err.message 
-    });
-  }
-};
-
-/* ================= SUPERVISOR FUNCTIONS ================= */
-export const reviewBreakRequest = async (req, res) => {
-  try {
-    const { userId, breakId, action, rejectReason } = req.body;
-    const supervisorId = req.user._id;
-
-    if (!["approve", "reject"].includes(action)) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Invalid action. Use 'approve' or 'reject'" 
-      });
-    }
-
-    const date = getShiftDate();
-    const record = await LoginHour.findOne({ userId, date });
-    
-    if (!record) {
-      return res.status(404).json({ 
-        success: false,
-        message: "User record not found" 
-      });
-    }
-
-    const breakIndex = record.breaks.findIndex(b => 
-      b._id.toString() === breakId
-    );
-
-    if (breakIndex === -1) {
-      return res.status(404).json({ 
-        success: false,
-        message: "Break request not found" 
-      });
-    }
-
-    const breakRecord = record.breaks[breakIndex];
-
-    if (breakRecord.status !== "pending") {
-      return res.status(400).json({ 
-        success: false,
-        message: "Break request already processed" 
-      });
-    }
-
-    if (action === "approve") {
-      breakRecord.status = "approved";
-      breakRecord.start = breakRecord.start || new Date();
-      breakRecord.approvedBy = supervisorId;
-      breakRecord.approvedAt = new Date();
-    } else {
-      breakRecord.status = "rejected";
-      breakRecord.rejectReason = rejectReason || "No reason provided";
-    }
-
-    await record.save();
-
-    res.json({
-      success: true,
-      message: `Break request ${action}d successfully`,
-      break: breakRecord
-    });
-
-  } catch (err) {
-    console.error("Review break error:", err);
-    res.status(500).json({ 
-      success: false,
-      message: "Failed to review break request", 
-      error: err.message 
-    });
-  }
-};
-
-export const getPendingBreakRequests = async (req, res) => {
-  try {
-    const date = getShiftDate();
-
-    const records = await LoginHour.find({
-      date,
-      "breaks.status": "pending"
-    })
-      .populate("userId", "name email employeeId")
-      .select("userId date loginTime breaks");
-
-    // Format response
-    const pendingRequests = records.flatMap(record => 
-      record.breaks
-        .filter(b => b.status === "pending")
-        .map(breakRecord => ({
-          userId: record.userId._id,
-          userName: record.userId.name,
-          userEmail: record.userId.email,
-          employeeId: record.userId.employeeId,
-          date: record.date,
-          loginTime: record.loginTime,
-          breakId: breakRecord._id,
-          requestedAt: breakRecord.requestedAt,
-          status: breakRecord.status
-        }))
-    );
-
-    res.json({
-      success: true,
-      count: pendingRequests.length,
-      requests: pendingRequests
-    });
-
-  } catch (err) {
-    console.error("Fetch pending breaks error:", err);
-    res.status(500).json({ 
-      success: false,
-      message: "Failed to fetch pending break requests", 
-      error: err.message 
-    });
-  }
-};
-
-/* ================= STATISTICS ================= */
-// export const getTodayStats = async (req, res) => {
+// // Add this function since it's imported in routes
+// export const startBreak = async (req, res) => {
 //   try {
 //     const userId = req.user._id;
 //     const date = getShiftDate();
 
 //     const record = await LoginHour.findOne({ userId, date });
-    
 //     if (!record) {
-//       return res.json({
-//         success: true,
-//         isLoggedIn: false,
-//         message: "No record found for today",
-//         data: {
-//           workedHours: 0,
-//           breakHours: 0,
-//           breakCount: 0,
-//           status: "pending"
-//         }
+//       return res.status(404).json({ 
+//         success: false,
+//         message: "No active shift found. Please login first." 
 //       });
 //     }
 
-//     const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
-//     const totalWorkedHours = calculateWorkedHours(
-//       record.loginTime,
-//       record.logoutTime || new Date(),
-//       totalBreakMinutes
-//     );
-
+//     // Check if already on break
 //     const activeBreak = record.breaks.find(b => !b.end && b.status === "approved");
-    
-//     const formattedBreaks = record.breaks.map(b => ({
-//       id: b._id,
-//       start: b.start,
-//       end: b.end,
-//       status: b.status,
-//       duration: b.start && b.end ? 
-//         formatDuration((new Date(b.end) - new Date(b.start)) / (1000 * 60)) : 
-//         "Ongoing"
-//     }));
+//     if (activeBreak) {
+//       return res.status(400).json({ 
+//         success: false,
+//         message: "You are already on a break" 
+//       });
+//     }
 
-//     res.json({
-//       success: true,
-//       isLoggedIn: !record.logoutTime,
-//       data: {
-//         loginTime: record.loginTime,
-//         logoutTime: record.logoutTime,
-//         workedHours: totalWorkedHours.toFixed(2),
-//         breakHours: (totalBreakMinutes / 60).toFixed(2),
-//         breakCount: record.breaks.filter(b => b.status === "approved").length,
-//         pendingBreaks: record.breaks.filter(b => b.status === "pending").length,
-//         freeBreaksUsed: record.breaks.filter(b => b.status === "approved").length,
-//         freeBreaksLeft: Math.max(0, MAX_FREE_BREAKS - record.breaks.filter(b => b.status === "approved").length),
-//         isOnBreak: !!activeBreak,
-//         currentBreak: activeBreak,
-//         allBreaks: formattedBreaks,
-//         status: record.status || calculateAttendanceStatus(totalBreakMinutes)
-//       }
+//     // Auto approve if within free breaks limit
+//     const approvedBreaks = record.breaks.filter(b => b.status === "approved");
+    
+//     if (approvedBreaks.length < MAX_FREE_BREAKS) {
+//       const breakRecord = {
+//         start: new Date(),
+//         status: "approved",
+//         requestedAt: new Date(),
+//         approvedAt: new Date()
+//       };
+
+//       record.breaks.push(breakRecord);
+//       await record.save();
+
+//       return res.json({
+//         success: true,
+//         message: `Break started (${approvedBreaks.length + 1}/${MAX_FREE_BREAKS} free breaks)`,
+//         break: breakRecord
+//       });
+//     }
+
+//     // If exceeded free breaks, require approval
+//     return res.status(400).json({
+//       success: false,
+//       message: "Free break limit exceeded. Please request break approval."
 //     });
 
 //   } catch (err) {
-//     console.error("Get stats error:", err);
+//     console.error("Start break error:", err);
 //     res.status(500).json({ 
 //       success: false,
-//       message: "Failed to fetch today's statistics", 
+//       message: "Failed to start break", 
 //       error: err.message 
 //     });
 //   }
 // };
 
-export const getTodayStats = async (req, res) => {
-  const userId = req.user._id;
+// export const endBreak = async (req, res) => {
+//   try {
+//     const userId = req.user._id;
+//     const date = getShiftDate();
+
+//     const record = await LoginHour.findOne({ userId, date });
+//     if (!record) {
+//       return res.status(404).json({ 
+//         success: false,
+//         message: "No attendance record found" 
+//       });
+//     }
+
+//     const activeBreak = record.breaks.find(b => !b.end && b.status === "approved");
+//     if (!activeBreak) {
+//       return res.status(400).json({ 
+//         success: false,
+//         message: "No active break found" 
+//       });
+//     }
+
+//     activeBreak.end = new Date();
+    
+//     // Calculate break duration
+//     const breakDuration = (new Date(activeBreak.end) - new Date(activeBreak.start)) / (1000 * 60);
+    
+//     // Auto-end if free break exceeds 15 minutes
+//     if (breakDuration > FREE_BREAK_DURATION) {
+//       activeBreak.autoEnded = true;
+//     }
+
+//     // Update totals immediately
+//     const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
+//     record.totalBreakHours = totalBreakMinutes / 60;
+    
+//     // If already logged out, update worked hours
+//     if (record.logoutTime) {
+//       record.totalWorkedHours = calculateWorkedHours(
+//         record.loginTime, 
+//         record.logoutTime, 
+//         totalBreakMinutes
+//       );
+//       record.status = calculateAttendanceStatus(totalBreakMinutes);
+//     }
+
+//     await record.save();
+
+//     res.json({
+//       success: true,
+//       message: "Break ended successfully",
+//       break: activeBreak,
+//       duration: `${breakDuration.toFixed(1)} minutes`,
+//       totalBreakMinutes: totalBreakMinutes
+//     });
+
+//   } catch (err) {
+//     console.error("End break error:", err);
+//     res.status(500).json({ 
+//       success: false,
+//       message: "Failed to end break", 
+//       error: err.message 
+//     });
+//   }
+// };
+
+// /* ================= SUPERVISOR FUNCTIONS ================= */
+// export const reviewBreakRequest = async (req, res) => {
+//   try {
+//     const { userId, breakId, action, rejectReason } = req.body;
+//     const supervisorId = req.user._id;
+
+//     if (!["approve", "reject"].includes(action)) {
+//       return res.status(400).json({ 
+//         success: false,
+//         message: "Invalid action. Use 'approve' or 'reject'" 
+//       });
+//     }
+
+//     const date = getShiftDate();
+//     const record = await LoginHour.findOne({ userId, date });
+    
+//     if (!record) {
+//       return res.status(404).json({ 
+//         success: false,
+//         message: "User record not found" 
+//       });
+//     }
+
+//     const breakIndex = record.breaks.findIndex(b => 
+//       b._id.toString() === breakId
+//     );
+
+//     if (breakIndex === -1) {
+//       return res.status(404).json({ 
+//         success: false,
+//         message: "Break request not found" 
+//       });
+//     }
+
+//     const breakRecord = record.breaks[breakIndex];
+
+//     if (breakRecord.status !== "pending") {
+//       return res.status(400).json({ 
+//         success: false,
+//         message: "Break request already processed" 
+//       });
+//     }
+
+//     if (action === "approve") {
+//       breakRecord.status = "approved";
+//       breakRecord.start = breakRecord.start || new Date();
+//       breakRecord.approvedBy = supervisorId;
+//       breakRecord.approvedAt = new Date();
+//     } else {
+//       breakRecord.status = "rejected";
+//       breakRecord.rejectReason = rejectReason || "No reason provided";
+//     }
+
+//     await record.save();
+
+//     res.json({
+//       success: true,
+//       message: `Break request ${action}d successfully`,
+//       break: breakRecord
+//     });
+
+//   } catch (err) {
+//     console.error("Review break error:", err);
+//     res.status(500).json({ 
+//       success: false,
+//       message: "Failed to review break request", 
+//       error: err.message 
+//     });
+//   }
+// };
+
+// export const getPendingBreakRequests = async (req, res) => {
+//   try {
+//     const date = getShiftDate();
+
+//     const records = await LoginHour.find({
+//       date,
+//       "breaks.status": "pending"
+//     })
+//       .populate("userId", "name email employeeId")
+//       .select("userId date loginTime breaks");
+
+//     // Format response
+//     const pendingRequests = records.flatMap(record => 
+//       record.breaks
+//         .filter(b => b.status === "pending")
+//         .map(breakRecord => ({
+//           userId: record.userId._id,
+//           userName: record.userId.name,
+//           userEmail: record.userId.email,
+//           employeeId: record.userId.employeeId,
+//           date: record.date,
+//           loginTime: record.loginTime,
+//           breakId: breakRecord._id,
+//           requestedAt: breakRecord.requestedAt,
+//           status: breakRecord.status
+//         }))
+//     );
+
+//     res.json({
+//       success: true,
+//       count: pendingRequests.length,
+//       requests: pendingRequests
+//     });
+
+//   } catch (err) {
+//     console.error("Fetch pending breaks error:", err);
+//     res.status(500).json({ 
+//       success: false,
+//       message: "Failed to fetch pending break requests", 
+//       error: err.message 
+//     });
+//   }
+// };
+
+// /* ================= STATISTICS ================= */
+// // export const getTodayStats = async (req, res) => {
+// //   try {
+// //     const userId = req.user._id;
+// //     const date = getShiftDate();
+
+// //     const record = await LoginHour.findOne({ userId, date });
+    
+// //     if (!record) {
+// //       return res.json({
+// //         success: true,
+// //         isLoggedIn: false,
+// //         message: "No record found for today",
+// //         data: {
+// //           workedHours: 0,
+// //           breakHours: 0,
+// //           breakCount: 0,
+// //           status: "pending"
+// //         }
+// //       });
+// //     }
+
+// //     const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
+// //     const totalWorkedHours = calculateWorkedHours(
+// //       record.loginTime,
+// //       record.logoutTime || new Date(),
+// //       totalBreakMinutes
+// //     );
+
+// //     const activeBreak = record.breaks.find(b => !b.end && b.status === "approved");
+    
+// //     const formattedBreaks = record.breaks.map(b => ({
+// //       id: b._id,
+// //       start: b.start,
+// //       end: b.end,
+// //       status: b.status,
+// //       duration: b.start && b.end ? 
+// //         formatDuration((new Date(b.end) - new Date(b.start)) / (1000 * 60)) : 
+// //         "Ongoing"
+// //     }));
+
+// //     res.json({
+// //       success: true,
+// //       isLoggedIn: !record.logoutTime,
+// //       data: {
+// //         loginTime: record.loginTime,
+// //         logoutTime: record.logoutTime,
+// //         workedHours: totalWorkedHours.toFixed(2),
+// //         breakHours: (totalBreakMinutes / 60).toFixed(2),
+// //         breakCount: record.breaks.filter(b => b.status === "approved").length,
+// //         pendingBreaks: record.breaks.filter(b => b.status === "pending").length,
+// //         freeBreaksUsed: record.breaks.filter(b => b.status === "approved").length,
+// //         freeBreaksLeft: Math.max(0, MAX_FREE_BREAKS - record.breaks.filter(b => b.status === "approved").length),
+// //         isOnBreak: !!activeBreak,
+// //         currentBreak: activeBreak,
+// //         allBreaks: formattedBreaks,
+// //         status: record.status || calculateAttendanceStatus(totalBreakMinutes)
+// //       }
+// //     });
+
+// //   } catch (err) {
+// //     console.error("Get stats error:", err);
+// //     res.status(500).json({ 
+// //       success: false,
+// //       message: "Failed to fetch today's statistics", 
+// //       error: err.message 
+// //     });
+// //   }
+// // };
+
+// export const getTodayStats = async (req, res) => {
+//   const userId = req.user._id;
+//   const date = getShiftDate();
+
+//   const record = await LoginHour.findOne({ userId, date });
+
+//   if (!record) {
+//     return res.json({ success: true, isLoggedIn: false, data: null });
+//   }
+
+//   const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
+//   const workedHours = calculateWorkedHours(
+//     record.loginTime,
+//     record.logoutTime || new Date(),
+//     totalBreakMinutes
+//   );
+
+//   res.json({
+//     success: true,
+//     isLoggedIn: !record.logoutTime,
+//     data: {
+//       loginTime: record.loginTime,
+//       logoutTime: record.logoutTime,
+//       workedHours,
+//       breakMinutes: totalBreakMinutes,
+//       breaks: record.breaks,
+//       status: record.status
+//     }
+//   });
+// };
+
+// export const getAllLoginHours = async (req, res) => {
+//   try {
+//     const { startDate, endDate, userId } = req.query;
+    
+//     let filter = {};
+    
+//     if (startDate && endDate) {
+//       filter.date = { $gte: startDate, $lte: endDate };
+//     } else {
+//       // Default to last 30 days if no date range provided
+//       const thirtyDaysAgo = getISTNow().subtract(30, 'day').format("YYYY-MM-DD");
+//       const today = getISTNow().format("YYYY-MM-DD");
+//       filter.date = { $gte: thirtyDaysAgo, $lte: today };
+//     }
+    
+//     if (userId) {
+//       filter.userId = userId;
+//     }
+
+//     const records = await LoginHour.find(filter)
+//       .populate("userId", "name email employeeId department")
+//       .sort({ date: -1, loginTime: -1 })
+//       .lean();
+
+//     // Format response
+//     const formattedRecords = records.map(record => {
+//       const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
+//       const totalWorkedHours = calculateWorkedHours(
+//         record.loginTime,
+//         record.logoutTime || new Date(),
+//         totalBreakMinutes
+//       );
+
+//       return {
+//         _id: record._id,
+//         user: record.userId,
+//         date: record.date,
+//         loginTime: record.loginTime,
+//         logoutTime: record.logoutTime,
+//         workedHours: totalWorkedHours.toFixed(2),
+//         breakHours: (totalBreakMinutes / 60).toFixed(2),
+//         breakCount: record.breaks.filter(b => b.status === "approved").length,
+//         status: record.status || calculateAttendanceStatus(totalBreakMinutes),
+//         createdAt: record.createdAt
+//       };
+//     });
+
+//     res.json({
+//       success: true,
+//       count: formattedRecords.length,
+//       records: formattedRecords
+//     });
+
+//   } catch (err) {
+//     console.error("Get all login hours error:", err);
+//     res.status(500).json({ 
+//       success: false,
+//       message: "Failed to fetch login hours", 
+//       error: err.message 
+//     });
+//   }
+// };
+
+// // Add any other missing exports that might be in your routes
+// export const getMyLoginHours = async (req, res) => {
+//   try {
+//     const userId = req.user._id;
+//     const { startDate, endDate } = req.query;
+    
+//     let filter = { userId };
+    
+//     if (startDate && endDate) {
+//       filter.date = { $gte: startDate, $lte: endDate };
+//     } else {
+//       // Default to last 7 days
+//       const sevenDaysAgo = getISTNow().subtract(7, 'day').format("YYYY-MM-DD");
+//       const today = getISTNow().format("YYYY-MM-DD");
+//       filter.date = { $gte: sevenDaysAgo, $lte: today };
+//     }
+
+//     const records = await LoginHour.find(filter)
+//       .sort({ date: -1, loginTime: -1 })
+//       .lean();
+
+//     const formattedRecords = records.map(record => {
+//       const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
+//       const totalWorkedHours = calculateWorkedHours(
+//         record.loginTime,
+//         record.logoutTime || new Date(),
+//         totalBreakMinutes
+//       );
+
+//       return {
+//         _id: record._id,
+//         date: record.date,
+//         loginTime: record.loginTime,
+//         logoutTime: record.logoutTime,
+//         workedHours: totalWorkedHours.toFixed(2),
+//         breakHours: (totalBreakMinutes / 60).toFixed(2),
+//         breakCount: record.breaks.filter(b => b.status === "approved").length,
+//         status: record.status || calculateAttendanceStatus(totalBreakMinutes)
+//       };
+//     });
+
+//     res.json({
+//       success: true,
+//       count: formattedRecords.length,
+//       records: formattedRecords
+//     });
+
+//   } catch (err) {
+//     console.error("Get my login hours error:", err);
+//     res.status(500).json({ 
+//       success: false,
+//       message: "Failed to fetch login hours", 
+//       error: err.message 
+//     });
+//   }
+// };
+
+
+// export const getTodayLoginHoursAdmin = async (req, res) => {
+//   try {
+//     const date = getShiftDate();
+//     const { userId } = req.query;
+
+//     const filter = { date };
+//     if (userId) filter.userId = userId;
+
+//     const records = await LoginHour.find(filter)
+//       .populate("userId", "name email employeeId role")
+//       .sort({ loginTime: -1 })
+//       .lean();
+
+//     const formatted = records.map(r => {
+//       const totalBreakMinutes = calculateTotalBreakMinutes(r.breaks);
+//       const workedHours = calculateWorkedHours(
+//         r.loginTime,
+//         r.logoutTime, // ✅ IMPORTANT: DO NOT USE new Date()
+//         totalBreakMinutes
+//       );
+
+//       return {
+//         _id: r._id,
+//         userId: r.userId,
+//         loginTime: r.loginTime,
+//         logoutTime: r.logoutTime,
+//         workedHours: workedHours.toFixed(2),
+//         breakHours: (totalBreakMinutes / 60).toFixed(2),
+//         status: r.logoutTime ? "Logged Out" : "Logged In"
+//       };
+//     });
+
+//     res.json({
+//       success: true,
+//       data: formatted
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to fetch today login hours"
+//     });
+//   }
+// };
+
+// // New endpoint: /login-hours/auto-first-login   8 jan
+// export const autoFirstLoginAndMark = async (req, res) => {
+//   try {
+//     const userId = req.user._id;
+//     const today = getShiftDate(); // your existing function
+
+//     // 1. Check if already has record today
+//     let loginRecord = await LoginHour.findOne({ userId, date: today });
+
+//     // 2. Check attendance
+//     let attendanceRecord = await Attendance.findOne({
+//       user: userId,
+//       date: today
+//     });
+
+//     // If both exist → just return current status
+//     if (loginRecord && attendanceRecord) {
+//       return res.json({
+//         success: true,
+//         alreadyDone: true,
+//         message: "Today's attendance & login already recorded",
+//         loginRecord,
+//         attendanceRecord
+//       });
+//     }
+
+//     // 3. Create missing records
+//     if (!loginRecord) {
+//       loginRecord = await new LoginHour({
+//         userId,
+//         date: today,
+//         loginTime: new Date(),
+//         status: "present" // will be recalculated on logout
+//       }).save();
+//     }
+
+//     if (!attendanceRecord) {
+//       attendanceRecord = await new Attendance({
+//         user: userId,
+//         date: today,
+//         punchIn: new Date(),
+//         status: "Present"
+//       }).save();
+//     }
+
+//     res.json({
+//       success: true,
+//       message: "First login & attendance marked automatically",
+//       loginRecord,
+//       attendanceRecord
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to record first login + attendance",
+//       error: err.message
+//     });
+//   }
+// };
+
+//========================================
+import LoginHour from "../models/loginHoursSchema.js";
+import { getShiftDate } from "../utils/shiftDate.js";
+import dayjs from "dayjs";
+
+export const markLogin = async (req, res) => {
+  const userId = req.user.id;
+  const date = getShiftDate();
+
+  const existing = await LoginHour.findOne({ userId, date });
+  if (existing) {
+    return res.json(existing); // already logged in
+  }
+
+  const record = await LoginHour.create({
+    userId,
+    date,
+    loginTime: new Date()
+  });
+
+  res.status(201).json(record);
+};
+
+export const startBreak = async (req, res) => {
+  const userId = req.user.id;
+  const date = getShiftDate();
+
+  const record = await LoginHour.findOne({ userId, date });
+  if (!record) {
+    return res.status(400).json({ message: "Login first" });
+  }
+
+  if (record.logoutTime) {
+    return res.status(400).json({ message: "Already logged out" });
+  }
+
+  const activeBreak = record.breaks.find(b => !b.end);
+  if (activeBreak) {
+    return res.status(400).json({ message: "Break already running" });
+  }
+
+  record.breaks.push({ start: new Date() });
+  await record.save();
+
+  res.json({ message: "Break started" });
+};
+
+export const endBreak = async (req, res) => {
+  const userId = req.user.id;
+  const date = getShiftDate();
+
+  const record = await LoginHour.findOne({ userId, date });
+  if (!record) {
+    return res.status(400).json({ message: "Login first" });
+  }
+
+  const activeBreak = record.breaks.find(b => !b.end);
+  if (!activeBreak) {
+    return res.status(400).json({ message: "No active break" });
+  }
+
+  activeBreak.end = new Date();
+
+  const mins = dayjs(activeBreak.end).diff(dayjs(activeBreak.start), "minute");
+  record.totalBreakMinutes += mins;
+
+  await record.save();
+  res.json({ message: "Break ended" });
+};
+
+export const markLogout = async (req, res) => {
+  const userId = req.user.id;
+  const date = getShiftDate();
+
+  const record = await LoginHour.findOne({ userId, date });
+  if (!record) {
+    return res.status(400).json({ message: "Login first" });
+  }
+
+  if (record.logoutTime) {
+    return res.status(400).json({ message: "Already logged out" });
+  }
+
+  // close running break
+  const activeBreak = record.breaks.find(b => !b.end);
+  if (activeBreak) {
+    activeBreak.end = new Date();
+    const mins = dayjs(activeBreak.end).diff(dayjs(activeBreak.start), "minute");
+    record.totalBreakMinutes += mins;
+  }
+
+  record.logoutTime = new Date();
+
+  const totalMinutes =
+    dayjs(record.logoutTime).diff(dayjs(record.loginTime), "minute");
+
+  record.totalWorkMinutes = totalMinutes - record.totalBreakMinutes;
+
+  await record.save();
+  res.json(record);
+};
+export const todayStatus = async (req, res) => {
+  const userId = req.user.id;
   const date = getShiftDate();
 
   const record = await LoginHour.findOne({ userId, date });
 
   if (!record) {
-    return res.json({ success: true, isLoggedIn: false, data: null });
+    return res.json({ loggedIn: false });
   }
 
-  const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
-  const workedHours = calculateWorkedHours(
-    record.loginTime,
-    record.logoutTime || new Date(),
-    totalBreakMinutes
-  );
+  const activeBreak = record.breaks.find(b => !b.end);
 
   res.json({
-    success: true,
-    isLoggedIn: !record.logoutTime,
-    data: {
-      loginTime: record.loginTime,
-      logoutTime: record.logoutTime,
-      workedHours,
-      breakMinutes: totalBreakMinutes,
-      breaks: record.breaks,
-      status: record.status
-    }
+    loggedIn: true,
+    loginTime: record.loginTime,
+    logoutTime: record.logoutTime,
+    isOnBreak: !!activeBreak,
+    workedMinutes: record.totalWorkMinutes,
+    breakMinutes: record.totalBreakMinutes
   });
-};
-
-export const getAllLoginHours = async (req, res) => {
-  try {
-    const { startDate, endDate, userId } = req.query;
-    
-    let filter = {};
-    
-    if (startDate && endDate) {
-      filter.date = { $gte: startDate, $lte: endDate };
-    } else {
-      // Default to last 30 days if no date range provided
-      const thirtyDaysAgo = getISTNow().subtract(30, 'day').format("YYYY-MM-DD");
-      const today = getISTNow().format("YYYY-MM-DD");
-      filter.date = { $gte: thirtyDaysAgo, $lte: today };
-    }
-    
-    if (userId) {
-      filter.userId = userId;
-    }
-
-    const records = await LoginHour.find(filter)
-      .populate("userId", "name email employeeId department")
-      .sort({ date: -1, loginTime: -1 })
-      .lean();
-
-    // Format response
-    const formattedRecords = records.map(record => {
-      const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
-      const totalWorkedHours = calculateWorkedHours(
-        record.loginTime,
-        record.logoutTime || new Date(),
-        totalBreakMinutes
-      );
-
-      return {
-        _id: record._id,
-        user: record.userId,
-        date: record.date,
-        loginTime: record.loginTime,
-        logoutTime: record.logoutTime,
-        workedHours: totalWorkedHours.toFixed(2),
-        breakHours: (totalBreakMinutes / 60).toFixed(2),
-        breakCount: record.breaks.filter(b => b.status === "approved").length,
-        status: record.status || calculateAttendanceStatus(totalBreakMinutes),
-        createdAt: record.createdAt
-      };
-    });
-
-    res.json({
-      success: true,
-      count: formattedRecords.length,
-      records: formattedRecords
-    });
-
-  } catch (err) {
-    console.error("Get all login hours error:", err);
-    res.status(500).json({ 
-      success: false,
-      message: "Failed to fetch login hours", 
-      error: err.message 
-    });
-  }
-};
-
-// Add any other missing exports that might be in your routes
-export const getMyLoginHours = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const { startDate, endDate } = req.query;
-    
-    let filter = { userId };
-    
-    if (startDate && endDate) {
-      filter.date = { $gte: startDate, $lte: endDate };
-    } else {
-      // Default to last 7 days
-      const sevenDaysAgo = getISTNow().subtract(7, 'day').format("YYYY-MM-DD");
-      const today = getISTNow().format("YYYY-MM-DD");
-      filter.date = { $gte: sevenDaysAgo, $lte: today };
-    }
-
-    const records = await LoginHour.find(filter)
-      .sort({ date: -1, loginTime: -1 })
-      .lean();
-
-    const formattedRecords = records.map(record => {
-      const totalBreakMinutes = calculateTotalBreakMinutes(record.breaks);
-      const totalWorkedHours = calculateWorkedHours(
-        record.loginTime,
-        record.logoutTime || new Date(),
-        totalBreakMinutes
-      );
-
-      return {
-        _id: record._id,
-        date: record.date,
-        loginTime: record.loginTime,
-        logoutTime: record.logoutTime,
-        workedHours: totalWorkedHours.toFixed(2),
-        breakHours: (totalBreakMinutes / 60).toFixed(2),
-        breakCount: record.breaks.filter(b => b.status === "approved").length,
-        status: record.status || calculateAttendanceStatus(totalBreakMinutes)
-      };
-    });
-
-    res.json({
-      success: true,
-      count: formattedRecords.length,
-      records: formattedRecords
-    });
-
-  } catch (err) {
-    console.error("Get my login hours error:", err);
-    res.status(500).json({ 
-      success: false,
-      message: "Failed to fetch login hours", 
-      error: err.message 
-    });
-  }
-};
-
-
-export const getTodayLoginHoursAdmin = async (req, res) => {
-  try {
-    const date = getShiftDate();
-    const { userId } = req.query;
-
-    const filter = { date };
-    if (userId) filter.userId = userId;
-
-    const records = await LoginHour.find(filter)
-      .populate("userId", "name email employeeId role")
-      .sort({ loginTime: -1 })
-      .lean();
-
-    const formatted = records.map(r => {
-      const totalBreakMinutes = calculateTotalBreakMinutes(r.breaks);
-      const workedHours = calculateWorkedHours(
-        r.loginTime,
-        r.logoutTime, // ✅ IMPORTANT: DO NOT USE new Date()
-        totalBreakMinutes
-      );
-
-      return {
-        _id: r._id,
-        userId: r.userId,
-        loginTime: r.loginTime,
-        logoutTime: r.logoutTime,
-        workedHours: workedHours.toFixed(2),
-        breakHours: (totalBreakMinutes / 60).toFixed(2),
-        status: r.logoutTime ? "Logged Out" : "Logged In"
-      };
-    });
-
-    res.json({
-      success: true,
-      data: formatted
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch today login hours"
-    });
-  }
-};
-
-// New endpoint: /login-hours/auto-first-login   8 jan
-export const autoFirstLoginAndMark = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const today = getShiftDate(); // your existing function
-
-    // 1. Check if already has record today
-    let loginRecord = await LoginHour.findOne({ userId, date: today });
-
-    // 2. Check attendance
-    let attendanceRecord = await Attendance.findOne({
-      user: userId,
-      date: today
-    });
-
-    // If both exist → just return current status
-    if (loginRecord && attendanceRecord) {
-      return res.json({
-        success: true,
-        alreadyDone: true,
-        message: "Today's attendance & login already recorded",
-        loginRecord,
-        attendanceRecord
-      });
-    }
-
-    // 3. Create missing records
-    if (!loginRecord) {
-      loginRecord = await new LoginHour({
-        userId,
-        date: today,
-        loginTime: new Date(),
-        status: "present" // will be recalculated on logout
-      }).save();
-    }
-
-    if (!attendanceRecord) {
-      attendanceRecord = await new Attendance({
-        user: userId,
-        date: today,
-        punchIn: new Date(),
-        status: "Present"
-      }).save();
-    }
-
-    res.json({
-      success: true,
-      message: "First login & attendance marked automatically",
-      loginRecord,
-      attendanceRecord
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      success: false,
-      message: "Failed to record first login + attendance",
-      error: err.message
-    });
-  }
 };

@@ -918,10 +918,10 @@ const Sidebar = () => {
             <span>My Leaves</span>
           </NavLink>
 
-          {/* <NavLink to="/mark-attendance" className={linkClass}>
+          <NavLink to="/mark-attendance" className={linkClass}>
             <Clock size={20} />
             <span>Mark Attendance</span>
-          </NavLink> */}
+          </NavLink>
 
           <NavLink to="/my-attendance" className={linkClass}>
             <CalendarDays size={20} />

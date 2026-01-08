@@ -796,3 +796,64 @@ export const getTodayLoginHoursAdmin = async (req, res) => {
     });
   }
 };
+
+// New endpoint: /login-hours/auto-first-login   8 jan
+export const autoFirstLoginAndMark = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const today = getShiftDate(); // your existing function
+
+    // 1. Check if already has record today
+    let loginRecord = await LoginHour.findOne({ userId, date: today });
+
+    // 2. Check attendance
+    let attendanceRecord = await Attendance.findOne({
+      user: userId,
+      date: today
+    });
+
+    // If both exist → just return current status
+    if (loginRecord && attendanceRecord) {
+      return res.json({
+        success: true,
+        alreadyDone: true,
+        message: "Today's attendance & login already recorded",
+        loginRecord,
+        attendanceRecord
+      });
+    }
+
+    // 3. Create missing records
+    if (!loginRecord) {
+      loginRecord = await new LoginHour({
+        userId,
+        date: today,
+        loginTime: new Date(),
+        status: "present" // will be recalculated on logout
+      }).save();
+    }
+
+    if (!attendanceRecord) {
+      attendanceRecord = await new Attendance({
+        user: userId,
+        date: today,
+        punchIn: new Date(),
+        status: "Present"
+      }).save();
+    }
+
+    res.json({
+      success: true,
+      message: "First login & attendance marked automatically",
+      loginRecord,
+      attendanceRecord
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to record first login + attendance",
+      error: err.message
+    });
+  }
+};

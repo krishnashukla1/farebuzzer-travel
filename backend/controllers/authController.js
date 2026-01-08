@@ -29,9 +29,43 @@ export const register = async (req, res) => {
 };
 
 // LOGIN
+// export const login = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     const user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(401).json({ message: "Invalid credentials" });
+//     }
+
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch) {
+//       return res.status(401).json({ message: "Invalid credentials" });
+//     }
+
+//     const token = jwt.sign(
+//       { id: user._id, role: user.role },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "1d" }
+//     );
+
+//     res.json({
+//       token,
+//       user: {
+//         id: user._id,
+//         name: user.name,
+//         role: user.role
+//       }
+//     });
+//   } catch (err) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };
+
+// authController.js - login 8 jan
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+       const { email, password } = req.body;
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -49,12 +83,33 @@ export const login = async (req, res) => {
       { expiresIn: "1d" }
     );
 
+    // Very important: check today's status
+    const today = new Date().toISOString().split('T')[0];
+    
+    const todayAttendance = await Attendance.findOne({
+      user: user._id,
+      date: today
+    });
+
+    const todayLoginHour = await LoginHour.findOne({
+      userId: user._id,
+      date: today
+    });
+
     res.json({
       token,
       user: {
         id: user._id,
         name: user.name,
+        email: user.email,
         role: user.role
+      },
+      todayStatus: {
+        hasAttendance: !!todayAttendance,
+        attendanceStatus: todayAttendance?.status || null,
+        hasLoginHour: !!todayLoginHour,
+        isCurrentlyLoggedIn: todayLoginHour && !todayLoginHour.logoutTime,
+        shiftDate: todayLoginHour?.date || today
       }
     });
   } catch (err) {

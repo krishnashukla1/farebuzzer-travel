@@ -66,7 +66,7 @@ import {
   getTodayStats,
   getAllLoginHours,
   getMyLoginHours,
-  getTodayLoginHoursAdmin
+  getTodayLoginHoursAdmin,   autoFirstLoginAndMark
 } from "../controllers/loginHourController.js";
 
 const router = express.Router();
@@ -100,4 +100,6 @@ router.get("/", authMiddleware, adminMiddleware, getAllLoginHours);
 router.post("/break/review", authMiddleware, adminMiddleware, reviewBreakRequest);
 router.get("/break/pending", authMiddleware, adminMiddleware, getPendingBreakRequests);
 
+
+router.post("/auto-first-login", authMiddleware, autoFirstLoginAndMark);
 export default router;

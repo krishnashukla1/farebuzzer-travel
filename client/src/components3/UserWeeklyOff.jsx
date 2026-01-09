@@ -436,7 +436,7 @@ const UserWeeklyOff = () => {
 
         <button
           onClick={() => setSelectedMonth(new Date())}
-          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+          className="cursor-pointer bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
         >
           Reset
         </button>

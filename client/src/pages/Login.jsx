@@ -434,19 +434,25 @@ const Login = () => {
     }
 
     // ✅ success → redirect
-    window.location.href = "/dashboard";
+    // window.location.href = "/dashboard";
+    window.location.href = "/send-email";
+
   } catch (err) {
     const message = err.response?.data?.message;
 
     // ✅ Attendance already marked → NOT an error
     if (message === "Attendance already marked for today") {
-      window.location.href = "/dashboard";
+      // window.location.href = "/dashboard";
+      window.location.href = "/send-email";
+
       return;
     }
 
     // ❌ Real error only
     alert("Something went wrong while marking attendance");
-    window.location.href = "/dashboard";
+    // window.location.href = "/dashboard";
+    window.location.href = "/send-email";
+
   }
 };
 

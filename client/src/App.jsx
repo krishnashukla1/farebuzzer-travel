@@ -1,77 +1,4 @@
-
-// import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-// import Login from "./pages/Login";
-// import Signup from "./pages/Signup";       
-// import Dashboard from "./pages/Dashboard";
-// import Bookings from "./pages/Bookings";
-// import Enquiries from "./pages/Enquiries";
-// import Sidebar from "./components/Sidebar";
-// import Navbar from "./components/Navbar";
-// import Reports from "./pages/Reports"
-// import Users from './pages/Users'
-// import Settings from './pages/Settings'
-
-// const App = () => {
-//   const token = localStorage.getItem("token");
-//   const isAuthenticated = !!token;
-
-//   return (
-//     <Router>
-//       <Routes>
-//         {/* Public Routes - Only when NOT authenticated */}
-//         {!isAuthenticated ? (
-//           <>
-//             <Route path="/login" element={<Login />} />
-//             <Route path="/signup" element={<Signup />} />
-//             <Route path="*" element={<Navigate to="/login" replace />} />
-//           </>
-//         ) : (
-//           <>
-//             {/* Protected Routes - Only when authenticated */}
-//             <Route
-//               path="/*"
-//               element={
-//                 <div className="flex h-screen bg-gray-100">
-//                   {/* Sidebar */}
-//                   <Sidebar />
-
-//                   {/* Main Content Area */}
-//                   <div className="flex-1 flex flex-col">
-//                     <Navbar />
-
-//                     <div className="p-6 overflow-auto bg-gray-50">
-//                       <Routes>
-//                         <Route path="/dashboard" element={<Dashboard />} />
-//                         <Route path="/bookings" element={<Bookings />} />
-//                         <Route path="/enquiries" element={<Enquiries />} />
-//                         <Route path="/reports" element={<Reports />} />
-//                         <Route path="/users" element={<Users />} />
-//                         <Route path="/settings" element={<Settings />} />
-
-
-//                         {/* Default redirect inside authenticated layout */}
-//                         <Route path="/" element={<Navigate to="/dashboard" replace />} />
-//                         <Route path="*" element={<Navigate to="/dashboard" replace />} />
-//                       </Routes>
-//                     </div>
-//                   </div>
-//                 </div>
-//               }
-//             />
-
-//             {/* Redirect any direct access to /login or /signup when already logged in */}
-//             <Route path="/login" element={<Navigate to="/dashboard" replace />} />
-//             <Route path="/signup" element={<Navigate to="/dashboard" replace />} />
-//           </>
-//         )}
-//       </Routes>
-//     </Router>
-//   );
-// };
-
-// export default App;
-
-//===================with user admin both====================
+//===================with user admin both===correct=================
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
@@ -143,7 +70,7 @@ const App = () => {
                   <div className="p-4 overflow-auto bg-gray-50">
                     <Routes>
                       {/* Common routes (Admin + User) */}
-                      <Route path="/dashboard" element={<Dashboard />} />
+                      {/* <Route path="/dashboard" element={<Dashboard />} /> */}
                       <Route path="/bookings" element={<Bookings />} />
                       <Route path="/add-booking" element={<AddBooking />} />
 
@@ -160,15 +87,23 @@ const App = () => {
                       <Route path="/my-login-hours" element={<MyLoginHours />} />
                       <Route path="/my-weekly-off" element={<MyWeeklyOff />} />
 
-                 
+
 
 
 
                       {/* ADMIN ONLY */}
+
+                      <Route path="/dashboard" element={
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      } />
+
                       <Route
                         path="/reports"
                         element={
                           <ProtectedRoute allowedRoles={["admin"]}>
+
                             <Reports />
                           </ProtectedRoute>
                         }
@@ -230,19 +165,19 @@ const App = () => {
 
 
 
-<Route
-  path="/all-login-hours"
-  element={
-    <ProtectedRoute allowedRoles={["admin"]}>
-      <AllLoginHours />
-    </ProtectedRoute>
-  }
-/>
+                      <Route
+                        path="/all-login-hours"
+                        element={
+                          <ProtectedRoute allowedRoles={["admin"]}>
+                            <AllLoginHours />
+                          </ProtectedRoute>
+                        }
+                      />
 
 
 
 
- <Route path="/weekly-off" element={
+                      <Route path="/weekly-off" element={
                         <ProtectedRoute allowedRoles={["admin"]}>
                           <WeeklyOff />
                         </ProtectedRoute>
@@ -266,14 +201,14 @@ const App = () => {
 
 
 
-<Route
-  path="/all-login-hours"
-  element={
-    <ProtectedRoute allowedRoles={["admin"]}>
-      <AllLoginHours />
-    </ProtectedRoute>
-  }
-/>
+                      <Route
+                        path="/all-login-hours"
+                        element={
+                          <ProtectedRoute allowedRoles={["admin"]}>
+                            <AllLoginHours />
+                          </ProtectedRoute>
+                        }
+                      />
 
 
 
@@ -289,14 +224,14 @@ const App = () => {
                         }
                       />
 
-
-
-
-
-
-
+                      {/* 
                       <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                      <Route path="*" element={<Navigate to="/dashboard" replace />} /> */}
+
+
+
+                      <Route path="/" element={<Navigate to="/send-email" replace />} />
+                      <Route path="*" element={<Navigate to="/send-email" replace />} />
                     </Routes>
                   </div>
                 </div>
@@ -310,3 +245,4 @@ const App = () => {
 };
 
 export default App;
+

@@ -1206,6 +1206,7 @@
 // };
 
 //==========================correct 3 with all ===========
+
 import transporter from "../utils/email.js";
 import Email from "../models/Email.js";
 
@@ -1367,7 +1368,9 @@ export const sendCustomerEmail = async (req, res) => {
     await transporter.sendMail({
       from: `"FareBuzzer Support" <${process.env.GMAIL_USER}>`,
       to: billingEmail,
-      replyTo: "farebuzzertravel1@gmail.com",
+      // replyTo: "farebuzzertravel1@gmail.com",
+
+       replyTo: "besttripmakers@gmail.com",
       subject,
       html
     });

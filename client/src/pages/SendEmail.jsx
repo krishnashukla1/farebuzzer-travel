@@ -1032,6 +1032,486 @@
 
 //==================with added phn number also=============
 
+// import { useState, useEffect } from "react";
+// import API from "../api/axios";
+
+// const SendEmail = () => {
+//   const [emailType, setEmailType] = useState("refund_request");
+//   const [loading, setLoading] = useState(false);
+//   const [successMessage, setSuccessMessage] = useState("");
+//   const [errorMessage, setErrorMessage] = useState("");
+
+//   const initialFormState = {
+//     customerName: "",
+//     customerPhone: "",           // ← ADDED
+//     billingEmail: "",
+//     confirmationNumber: "",
+//     airline: "",
+//     departure: "",
+//     arrival: "",
+//     travelDate: "",
+//     bookingAmount: "",
+//     oldTravelDate: "",
+//     newTravelDate: "",
+//     changeFee: "",
+//     fareDifference: "",
+//     refundAmount: "",
+//     cancellationDate: "",
+//     customMessage: ""
+//   };
+
+//   const [form, setForm] = useState(initialFormState);
+
+//   const handleChange = (e) => {
+//     setForm({ ...form, [e.target.name]: e.target.value });
+//   };
+
+//   useEffect(() => {
+//     if (successMessage || errorMessage) {
+//       const timer = setTimeout(() => {
+//         setSuccessMessage("");
+//         setErrorMessage("");
+//       }, 3000);
+//       return () => clearTimeout(timer);
+//     }
+//   }, [successMessage, errorMessage]);
+
+//   // const handleSubmit = async (e) => {
+//   //   e.preventDefault();
+//   //   setLoading(true);
+//   //   setSuccessMessage("");
+//   //   setErrorMessage("");
+
+//   //   try {
+//   //     await API.post("/email/send", {
+//   //       emailType,
+//   //       ...form,
+//   //     });
+
+//   //     setSuccessMessage("Email sent successfully!");
+//   //     setForm(initialFormState);
+//   //   } catch (err) {
+//   //     setErrorMessage(err.response?.data?.message || "Failed to send email");
+//   //   } finally {
+//   //     setLoading(false);
+//   //   }
+//   // };
+
+//   // Reusable classes
+ 
+ 
+ 
+// const handleSubmit = async (e) => {
+//   e.preventDefault();
+
+//   const phone = (form.customerPhone || "").trim();
+
+//   // ── Real working regex for phone ─────────────────────────────
+//   const phoneRegex = /^[+0-9\s\-\(\)]{8,20}$/;
+
+//   if (phone === "") {
+//     setErrorMessage("Phone number is required");
+//     return;
+//   }
+
+//   if (!phoneRegex.test(phone)) {
+//     setErrorMessage(
+//       "Invalid phone number format. Use only numbers, spaces, +, -, () (8–20 characters)"
+//     );
+//     return;
+//   }
+
+//   setLoading(true);
+//   setSuccessMessage("");
+//   setErrorMessage("");
+
+//   try {
+//     await API.post("/email/send", {
+//       emailType,
+//       ...form,
+//     });
+
+//     setSuccessMessage("Email sent successfully!");
+//     setForm(initialFormState);
+//   } catch (err) {
+//     setErrorMessage(err.response?.data?.message || "Failed to send email");
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+ 
+//   const inputClass =
+//     "w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200";
+
+//   const labelClass = "text-sm font-medium text-gray-700 mb-2 block";
+
+//   const sectionClass = "bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-2xl shadow-sm border border-gray-200";
+
+//   return (
+//     <div className="p-4">
+//       <h1 className="text-xl font-bold mb-4">Send Customer Email</h1>
+
+//       <div className="max-w-full mx-auto p-4 sm:p-6">
+//         <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+//           <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-8 pt-2 pb-1">
+//             <h2 className="text-xl font-bold text-white">Select category and fill details</h2>
+//           </div>
+
+//           <form onSubmit={handleSubmit} className="p-8 space-y-7">
+//             {/* Email Category */}
+//             <div>
+//               <label className={labelClass}>Email Category</label>
+//               <select
+//                 value={emailType}
+//                 onChange={(e) => setEmailType(e.target.value)}
+//                 className={`${inputClass} cursor-pointer appearance-none bg-white pr-10 bg-chevron-down bg-no-repeat bg-right-center`}
+//                 style={{
+//                   backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`,
+//                   backgroundSize: "12px",
+//                   backgroundPosition: "right 1rem center",
+//                 }}
+//               >
+//                 <option value="new_reservation">New Reservation</option>
+//                 <option value="exchange_ticket">Exchange Ticket</option>
+//                 <option value="flight_cancellation">Flight Cancellation</option>
+//                 <option value="refund_request">Refund Request</option>
+//                 <option value="seat_addons">Seat / Add-ons</option>
+//                 <option value="name_correction">Name Correction</option>
+//                 <option value="add_pet">Add Pet</option>
+//                 <option value="flight_confirmation">Flight Confirmation</option>
+//                 <option value="hotel_booking">Hotel Booking</option>
+//                 <option value="car_rental">Car Rental</option>
+//                 <option value="customer_support">Customer Support</option>
+//               </select>
+//             </div>
+
+//             {/* Customer Information - NOW WITH PHONE */}
+//             <section className={sectionClass}>
+//               <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
+//                 <span className="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
+//                 Customer Information
+//               </h3>
+//               <div className="grid sm:grid-cols-3 gap-5">
+//                 <div>
+//                   <label className={labelClass}>Customer Name *</label>
+//                   <input
+//                     name="customerName"
+//                     placeholder="Enter full name"
+//                     className={inputClass}
+//                     onChange={handleChange}
+//                     value={form.customerName}
+//                     required
+//                   />
+//                 </div>
+//                 {/* <div>
+//                   <label className={labelClass}>Phone Number *</label>
+//                   <input
+//                     name="customerPhone"
+//                     type="tel"
+//                     placeholder="+1 555 123 4567"
+//                     className={inputClass}
+//                     onChange={handleChange}
+//                     value={form.customerPhone}
+//                     required
+//                   />
+//                 </div> */}
+
+//               {/* Phone Input */}
+// <div>
+//   <label className={labelClass}>Phone Number *</label>
+//   <input
+//     name="customerPhone"
+//     type="tel"
+//     // placeholder="+91 98765 43210 or +1 202 555 0123"
+//     placeholder="Only numbers, spaces, +, -, () allowed (8–20 characters)"
+//     className={inputClass}
+//     onChange={handleChange}
+//     value={form.customerPhone}
+//     required
+//   />
+//   {/* <p className="text-xs text-gray-500 mt-1">
+//     Only numbers, spaces, +, -, () allowed (8–20 characters)
+//   </p> */}
+// </div>
+
+//                 <div>
+//                   <label className={labelClass}>Billing Email *</label>
+//                   <input
+//                     name="billingEmail"
+//                     type="email"
+//                     placeholder="customer@example.com"
+//                     className={inputClass}
+//                     onChange={handleChange}
+//                     value={form.billingEmail}
+//                     required
+//                   />
+//                 </div>
+//               </div>
+//             </section>
+
+//             {/* Common Booking Info */}
+//             {emailType !== "customer_support" && (
+//               <section className={sectionClass}>
+//                 <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
+//                   <span className="w-2 h-2 bg-indigo-600 rounded-full mr-3"></span>
+//                   Booking Details
+//                 </h3>
+//                 <div className="grid sm:grid-cols-2 gap-5">
+//                   <div>
+//                     <label className={labelClass}>Confirmation Number</label>
+//                     <input
+//                       name="confirmationNumber"
+//                       placeholder="e.g. ABC123"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.confirmationNumber}
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className={labelClass}>Airline</label>
+//                     <input
+//                       name="airline"
+//                       placeholder="e.g. Delta Airlines"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.airline}
+//                     />
+//                   </div>
+//                 </div>
+//               </section>
+//             )}
+
+//             {/* ────────────────────────────────────────────── */}
+//             {/* New Reservation */}
+//             {emailType === "new_reservation" && (
+//               <section className={sectionClass}>
+//                 <h3 className="text-lg font-semibold text-gray-800 mb-5">Flight Details</h3>
+//                 <div className="grid sm:grid-cols-2 gap-5">
+//                   <div>
+//                     <label className={labelClass}>Departure</label>
+//                     <input
+//                       name="departure"
+//                       placeholder="e.g. New York - JFK"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.departure}
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className={labelClass}>Arrival</label>
+//                     <input
+//                       name="arrival"
+//                       placeholder="e.g. London - LHR"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.arrival}
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className={labelClass}>Travel Date</label>
+//                     <input
+//                       type="date"
+//                       name="travelDate"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.travelDate}
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className={labelClass}>Booking Amount (USD)</label>
+//                     <input
+//                       type="number"
+//                       step="0.01"
+//                       min="0"
+//                       name="bookingAmount"
+//                       placeholder="0.00"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.bookingAmount}
+//                     />
+//                   </div>
+//                 </div>
+//               </section>
+//             )}
+
+//             {/* Exchange Ticket */}
+//             {emailType === "exchange_ticket" && (
+//               <section className={sectionClass}>
+//                 <h3 className="text-lg font-semibold text-gray-800 mb-5">Date Change Details</h3>
+//                 <div className="grid sm:grid-cols-2 gap-5">
+//                   <div>
+//                     <label className={labelClass}>Original Travel Date</label>
+//                     <input
+//                       type="date"
+//                       name="oldTravelDate"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.oldTravelDate}
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className={labelClass}>New Travel Date</label>
+//                     <input
+//                       type="date"
+//                       name="newTravelDate"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.newTravelDate}
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className={labelClass}>Change Fee (USD)</label>
+//                     <input
+//                       type="number"
+//                       step="0.01"
+//                       min="0"
+//                       name="changeFee"
+//                       placeholder="0.00"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.changeFee}
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className={labelClass}>Fare Difference (USD)</label>
+//                     <input
+//                       type="number"
+//                       step="0.01"
+//                       name="fareDifference"
+//                       placeholder="0.00"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.fareDifference}
+//                     />
+//                   </div>
+//                 </div>
+//               </section>
+//             )}
+
+//             {/* Flight Cancellation */}
+//             {emailType === "flight_cancellation" && (
+//               <section className={sectionClass}>
+//                 <h3 className="text-lg font-semibold text-gray-800 mb-5">Cancellation Date</h3>
+//                 <div className="max-w-md">
+//                   <label className={labelClass}>Date of Cancellation</label>
+//                   <input
+//                     type="date"
+//                     name="cancellationDate"
+//                     className={inputClass}
+//                     onChange={handleChange}
+//                     value={form.cancellationDate}
+//                   />
+//                 </div>
+//               </section>
+//             )}
+
+//             {/* Refund Request */}
+//             {emailType === "refund_request" && (
+//               <section className={sectionClass}>
+//                 <h3 className="text-lg font-semibold text-gray-800 mb-5">Refund Information</h3>
+//                 <div className="grid sm:grid-cols-2 gap-5 max-w-2xl">
+//                   <div>
+//                     <label className={labelClass}>Refund Amount (USD) *</label>
+//                     <input
+//                       type="number"
+//                       step="0.01"
+//                       min="0"
+//                       name="refundAmount"
+//                       placeholder="0.00"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.refundAmount}
+//                       required
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className={labelClass}>Cancellation Date (optional)</label>
+//                     <input
+//                       type="date"
+//                       name="cancellationDate"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.cancellationDate}
+//                     />
+//                   </div>
+//                 </div>
+//               </section>
+//             )}
+
+//             {/* Customer Support */}
+//             {emailType === "customer_support" && (
+//               <section className={sectionClass}>
+//                 <h3 className="text-lg font-semibold text-gray-800 mb-5">Custom Message</h3>
+//                 <textarea
+//                   name="customMessage"
+//                   rows="6"
+//                   placeholder="Write your detailed message here..."
+//                   className={`${inputClass} resize-none`}
+//                   onChange={handleChange}
+//                   value={form.customMessage}
+//                 />
+//               </section>
+//             )}
+
+//             {/* Messages */}
+//             {successMessage && (
+//               <div className="p-3 rounded-lg bg-green-100 text-green-700 text-sm font-medium">
+//                 {successMessage}
+//               </div>
+//             )}
+
+//             {errorMessage && (
+//               <div className="p-3 rounded-lg bg-red-100 text-red-700 text-sm font-medium">
+//                 {errorMessage}
+//               </div>
+//             )}
+
+//             {/* Submit */}
+//             <div className="pt-4">
+//               <button
+//                 type="submit"
+//                 disabled={loading}
+//                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold py-3 rounded-xl shadow-lg disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer transition-all"
+//               >
+//                 {loading ? (
+//                   <span className="flex items-center justify-center">
+//                     <svg
+//                       className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+//                       xmlns="http://www.w3.org/2000/svg"
+//                       fill="none"
+//                       viewBox="0 0 24 24"
+//                     >
+//                       <circle
+//                         className="opacity-25"
+//                         cx="12"
+//                         cy="12"
+//                         r="10"
+//                         stroke="currentColor"
+//                         strokeWidth="4"
+//                       />
+//                       <path
+//                         className="opacity-75"
+//                         fill="currentColor"
+//                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+//                       />
+//                     </svg>
+//                     Sending...
+//                   </span>
+//                 ) : (
+//                   "Send Email"
+//                 )}
+//               </button>
+//             </div>
+//           </form>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default SendEmail;
+
+//===========with dynamic data=============
 import { useState, useEffect } from "react";
 import API from "../api/axios";
 
@@ -1057,7 +1537,10 @@ const SendEmail = () => {
     fareDifference: "",
     refundAmount: "",
     cancellationDate: "",
-    customMessage: ""
+    customMessage: "",
+    searchQuery: "",    // NEW: Add search query field
+    category: "",       // NEW: Add category field
+    destination: ""     // NEW: Add destination field
   };
 
   const [form, setForm] = useState(initialFormState);
@@ -1076,70 +1559,45 @@ const SendEmail = () => {
     }
   }, [successMessage, errorMessage]);
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   setSuccessMessage("");
-  //   setErrorMessage("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  //   try {
-  //     await API.post("/email/send", {
-  //       emailType,
-  //       ...form,
-  //     });
+    const phone = (form.customerPhone || "").trim();
 
-  //     setSuccessMessage("Email sent successfully!");
-  //     setForm(initialFormState);
-  //   } catch (err) {
-  //     setErrorMessage(err.response?.data?.message || "Failed to send email");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+    // ── Real working regex for phone ─────────────────────────────
+    const phoneRegex = /^[+0-9\s\-\(\)]{8,20}$/;
 
-  // Reusable classes
- 
- 
- 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+    if (phone === "") {
+      setErrorMessage("Phone number is required");
+      return;
+    }
 
-  const phone = (form.customerPhone || "").trim();
+    if (!phoneRegex.test(phone)) {
+      setErrorMessage(
+        "Invalid phone number format. Use only numbers, spaces, +, -, () (8–20 characters)"
+      );
+      return;
+    }
 
-  // ── Real working regex for phone ─────────────────────────────
-  const phoneRegex = /^[+0-9\s\-\(\)]{8,20}$/;
+    setLoading(true);
+    setSuccessMessage("");
+    setErrorMessage("");
 
-  if (phone === "") {
-    setErrorMessage("Phone number is required");
-    return;
-  }
+    try {
+      const response = await API.post("/email/send", {
+        emailType,
+        ...form,
+      });
 
-  if (!phoneRegex.test(phone)) {
-    setErrorMessage(
-      "Invalid phone number format. Use only numbers, spaces, +, -, () (8–20 characters)"
-    );
-    return;
-  }
+      setSuccessMessage(`Email sent successfully! ${response.data?.data?.dynamicGreeting ? `(${response.data.data.dynamicGreeting})` : ''}`);
+      setForm(initialFormState);
+    } catch (err) {
+      setErrorMessage(err.response?.data?.message || "Failed to send email");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  setLoading(true);
-  setSuccessMessage("");
-  setErrorMessage("");
-
-  try {
-    await API.post("/email/send", {
-      emailType,
-      ...form,
-    });
-
-    setSuccessMessage("Email sent successfully!");
-    setForm(initialFormState);
-  } catch (err) {
-    setErrorMessage(err.response?.data?.message || "Failed to send email");
-  } finally {
-    setLoading(false);
-  }
-};
- 
   const inputClass =
     "w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200";
 
@@ -1185,7 +1643,7 @@ const handleSubmit = async (e) => {
               </select>
             </div>
 
-            {/* Customer Information - NOW WITH PHONE */}
+            {/* Customer Information */}
             <section className={sectionClass}>
               <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
                 <span className="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
@@ -1203,36 +1661,19 @@ const handleSubmit = async (e) => {
                     required
                   />
                 </div>
-                {/* <div>
+
+                <div>
                   <label className={labelClass}>Phone Number *</label>
                   <input
                     name="customerPhone"
                     type="tel"
-                    placeholder="+1 555 123 4567"
+                    placeholder="Only numbers, spaces, +, -, () allowed (8–20 characters)"
                     className={inputClass}
                     onChange={handleChange}
                     value={form.customerPhone}
                     required
                   />
-                </div> */}
-
-              {/* Phone Input */}
-<div>
-  <label className={labelClass}>Phone Number *</label>
-  <input
-    name="customerPhone"
-    type="tel"
-    // placeholder="+91 98765 43210 or +1 202 555 0123"
-    placeholder="Only numbers, spaces, +, -, () allowed (8–20 characters)"
-    className={inputClass}
-    onChange={handleChange}
-    value={form.customerPhone}
-    required
-  />
-  {/* <p className="text-xs text-gray-500 mt-1">
-    Only numbers, spaces, +, -, () allowed (8–20 characters)
-  </p> */}
-</div>
+                </div>
 
                 <div>
                   <label className={labelClass}>Billing Email *</label>
@@ -1246,6 +1687,85 @@ const handleSubmit = async (e) => {
                     required
                   />
                 </div>
+              </div>
+            </section>
+
+            {/* NEW: Dynamic Greeting Information Section */}
+            <section className={sectionClass}>
+              <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
+                <span className="w-2 h-2 bg-green-600 rounded-full mr-3"></span>
+                Enquiry Details (For Personalized Greeting)
+                <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Optional</span>
+              </h3>
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600 mb-4">
+                  These fields help personalize the greeting in the email. Fill based on what the customer enquired about.
+                </p>
+                <div className="grid sm:grid-cols-3 gap-5">
+                  <div>
+                    <label className={labelClass}>Customer's Search Query</label>
+                    <input
+                      name="searchQuery"
+                      placeholder="e.g., 'flights to Dubai' or 'Kashmir packages'"
+                      className={inputClass}
+                      onChange={handleChange}
+                      value={form.searchQuery}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      What the customer searched for
+                    </p>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Service Category</label>
+                    <select
+                      name="category"
+                      className={`${inputClass} cursor-pointer appearance-none bg-white pr-10 bg-chevron-down bg-no-repeat bg-right-center`}
+                      onChange={handleChange}
+                      value={form.category}
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`,
+                        backgroundSize: "12px",
+                        backgroundPosition: "right 1rem center",
+                      }}
+                    >
+                      <option value="">Select category</option>
+                      <option value="flight">Flight Booking</option>
+                      <option value="hotel">Hotel Booking</option>
+                      <option value="package">Holiday Package</option>
+                      <option value="car_rental">Car Rental</option>
+                      <option value="cruise">Cruise</option>
+                      <option value="visa">Visa Assistance</option>
+                      <option value="insurance">Travel Insurance</option>
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Type of service enquired
+                    </p>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Destination</label>
+                    <input
+                      name="destination"
+                      placeholder="e.g., Kashmir, Manali, Goa, Dubai"
+                      className={inputClass}
+                      onChange={handleChange}
+                      value={form.destination}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Specific destination if known
+                    </p>
+                  </div>
+                </div>
+                {/* Preview of greeting */}
+                {(form.searchQuery || form.category || form.destination) && (
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-sm text-blue-800">
+                      <span className="font-medium">Preview greeting:</span> 
+                      <span className="italic ml-2">
+                        "Thank you for your enquiry regarding the {form.destination ? `${form.destination} package` : form.category ? `${form.category} booking` : 'travel enquiry'}."
+                      </span>
+                    </p>
+                  </div>
+                )}
               </div>
             </section>
 

@@ -1,4 +1,52 @@
 
+// import mongoose from "mongoose";
+
+// const emailSchema = new mongoose.Schema(
+//   {
+//     type: {
+//       type: String,
+//       enum: ["sent", "received"],
+//       required: true,
+//     },
+
+//     emailType: {
+//       type: String,
+//       default: "customer_support",
+//     },
+
+//     from: String,
+//     to: String,
+//     subject: String,
+
+//     text: String,
+//     html: String,
+
+//     // 👇 store FULL DETAILS here
+//     meta: {
+//       customerName: String,
+//       confirmationNumber: String,
+//       airline: String,
+//       departure: String,
+//       arrival: String,
+//       travelDate: String,
+//       refundAmount: String,
+//       bookingAmount: String,
+//       message: String,
+//     },
+
+//     isRead: {
+//       type: Boolean,
+//       default: false,
+//     },
+//   },
+//   { timestamps: true }
+// );
+
+// export default mongoose.model("Email", emailSchema);
+
+
+//===============ADD PHN NUMBER============
+
 import mongoose from "mongoose";
 
 const emailSchema = new mongoose.Schema(
@@ -21,17 +69,25 @@ const emailSchema = new mongoose.Schema(
     text: String,
     html: String,
 
-    // 👇 store FULL DETAILS here
     meta: {
       customerName: String,
+      customerPhone: {           // ← ADD THIS
+        type: String,
+      },
+      billingEmail: String,      // optional - good to have
       confirmationNumber: String,
       airline: String,
       departure: String,
       arrival: String,
       travelDate: String,
-      refundAmount: String,
       bookingAmount: String,
-      message: String,
+      refundAmount: String,
+      oldTravelDate: String,
+      newTravelDate: String,
+      changeFee: String,
+      fareDifference: String,
+      cancellationDate: String,
+      customMessage: String,     // if you use it in future
     },
 
     isRead: {

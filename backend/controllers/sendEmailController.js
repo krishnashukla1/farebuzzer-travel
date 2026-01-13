@@ -1207,6 +1207,216 @@
 
 //==========================correct 3 with all ===========
 
+// import transporter from "../utils/email.js";
+// import Email from "../models/Email.js";
+
+// export const sendCustomerEmail = async (req, res) => {
+//   try {
+//     const {
+//       emailType,
+//       customerName,
+//       billingEmail,
+//       confirmationNumber,
+//       airline,
+//       departure,
+//       arrival,
+//       travelDate,
+//       bookingAmount,
+//       oldTravelDate,
+//       newTravelDate,
+//       changeFee,
+//       fareDifference,
+//       refundAmount,
+//       cancellationDate,
+//       customMessage
+//     } = req.body;
+
+//     if (!customerName || !billingEmail) {
+//       return res.status(400).json({
+//         status: "fail",
+//         message: "Customer name and billing email are required"
+//       });
+//     }
+
+//     /* ---------------- SUBJECT MAP ---------------- */
+//     const subjectMap = {
+//       new_reservation: "New Flight Reservation Confirmation",
+//       exchange_ticket: "Ticket Exchange Confirmation",
+//       flight_cancellation: "Flight Cancellation Confirmation",
+//       refund_request: "Refund Request Received",
+//       seat_addons: "Seat / Add-ons Confirmation",
+//       name_correction: "Name Correction Request Received",
+//       add_pet: "Pet Addition Confirmation",
+//       flight_confirmation: "Flight Booking Confirmation",
+//       hotel_booking: "Hotel Booking Confirmation",
+//       car_rental: "Car Rental Confirmation",
+//       customer_support: "Customer Support Response"
+//     };
+
+//     const subject = subjectMap[emailType] || "FareBuzzer Notification";
+
+//     /* ---------------- EMAIL BODY ---------------- */
+//     let message = "";
+
+//     switch (emailType) {
+//       case "new_reservation":
+//         message = `
+//           <p>Your flight reservation has been successfully confirmed.</p>
+//           <p><b>Airline:</b> ${airline}</p>
+//           <p><b>Route:</b> ${departure} → ${arrival}</p>
+//           <p><b>Travel Date:</b> ${travelDate}</p>
+//           <p><b>Booking Amount:</b> USD ${bookingAmount}</p>
+//           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
+//         `;
+//         break;
+
+//       case "exchange_ticket":
+//         message = `
+//           <p>Your ticket exchange request has been processed.</p>
+//           <p><b>Original Date:</b> ${oldTravelDate}</p>
+//           <p><b>New Date:</b> ${newTravelDate}</p>
+//           <p><b>Change Fee:</b> USD ${changeFee}</p>
+//           <p><b>Fare Difference:</b> USD ${fareDifference}</p>
+//           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
+//         `;
+//         break;
+
+//       case "flight_cancellation":
+//         message = `
+//           <p>Your flight booking has been cancelled successfully.</p>
+//           <p><b>Cancellation Date:</b> ${cancellationDate}</p>
+//           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
+//         `;
+//         break;
+
+//       case "refund_request":
+//         message = `
+//           <p>Your refund request has been received and is under processing.</p>
+//           <p><b>Refund Amount:</b> USD ${refundAmount}</p>
+//           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
+//           <p>Amount will be credited within 5–10 business days.</p>
+//         `;
+//         break;
+
+//       case "seat_addons":
+//         message = `
+//           <p>Your seat selection / add-ons request has been confirmed.</p>
+//           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
+//         `;
+//         break;
+
+//       case "name_correction":
+//         message = `
+//           <p>Your name correction request has been received.</p>
+//           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
+//           <p>Our team will verify and update shortly.</p>
+//         `;
+//         break;
+
+//       case "add_pet":
+//         message = `
+//           <p>Your pet addition request has been confirmed.</p>
+//           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
+//         `;
+//         break;
+
+//       case "flight_confirmation":
+//         message = `
+//           <p>Your flight booking is fully confirmed.</p>
+//           <p><b>Airline:</b> ${airline}</p>
+//           <p><b>Route:</b> ${departure} → ${arrival}</p>
+//           <p><b>Date:</b> ${travelDate}</p>
+//         `;
+//         break;
+
+//       case "hotel_booking":
+//         message = `
+//           <p>Your hotel booking has been successfully confirmed.</p>
+//           <p><b>Booking Reference:</b> ${confirmationNumber}</p>
+//         `;
+//         break;
+
+//       case "car_rental":
+//         message = `
+//           <p>Your car rental booking has been confirmed.</p>
+//           <p><b>Booking Reference:</b> ${confirmationNumber}</p>
+//         `;
+//         break;
+
+//       case "customer_support":
+//         message = `
+//           <p>${customMessage || "Thank you for contacting FareBuzzer support."}</p>
+//         `;
+//         break;
+
+//       default:
+//         message = `<p>Thank you for choosing FareBuzzer.</p>`;
+//     }
+
+//     /* ---------------- FINAL HTML ---------------- */
+//     const html = `
+//       <div style="font-family:Arial; padding:30px">
+//         <h2>${subject}</h2>
+//         <p>Dear ${customerName},</p>
+//         ${message}
+//         <br/>
+//         <p>Regards,<br/><b>FareBuzzer Support Team</b></p>
+//       </div>
+//     `;
+
+//     /* ---------------- SEND EMAIL ---------------- */
+//     await transporter.sendMail({
+//       from: `"FareBuzzer Support" <${process.env.GMAIL_USER}>`,
+//       to: billingEmail,
+//       // replyTo: "farebuzzertravel1@gmail.com",
+
+//        replyTo: "besttripmakers@gmail.com",
+//       //  replyTo: "FareBuzzer Support",
+//       subject,
+//       html
+//     });
+
+//     /* ---------------- SAVE TO CRM INBOX ---------------- */
+//     await Email.create({
+//       type: "sent",
+//       emailType,
+//       from: process.env.GMAIL_USER,
+//       to: billingEmail,
+//       subject,
+//       html,
+//       meta: {
+//         customerName,
+//         airline,
+//         confirmationNumber,
+//         departure,
+//         arrival,
+//         travelDate,
+//         bookingAmount,
+//         refundAmount,
+//         oldTravelDate,
+//         newTravelDate,
+//         changeFee,
+//         fareDifference,
+//         cancellationDate
+//       }
+//     });
+
+//     res.status(200).json({
+//       status: "success",
+//       message: "Email sent & saved successfully"
+//     });
+
+//   } catch (error) {
+//     console.error("Send email error:", error);
+//     res.status(500).json({
+//       status: "error",
+//       message: "Failed to send email"
+//     });
+//   }
+// };
+
+//=========================with add hn number also===============
+
 import transporter from "../utils/email.js";
 import Email from "../models/Email.js";
 
@@ -1215,6 +1425,7 @@ export const sendCustomerEmail = async (req, res) => {
     const {
       emailType,
       customerName,
+      customerPhone, // NEW: Phone number field
       billingEmail,
       confirmationNumber,
       airline,
@@ -1231,10 +1442,11 @@ export const sendCustomerEmail = async (req, res) => {
       customMessage
     } = req.body;
 
-    if (!customerName || !billingEmail) {
+    // UPDATED: Added phone validation
+    if (!customerName || !billingEmail || !customerPhone) {
       return res.status(400).json({
         status: "fail",
-        message: "Customer name and billing email are required"
+        message: "Customer name, phone number, and billing email are required"
       });
     }
 
@@ -1255,13 +1467,15 @@ export const sendCustomerEmail = async (req, res) => {
 
     const subject = subjectMap[emailType] || "FareBuzzer Notification";
 
-    /* ---------------- EMAIL BODY ---------------- */
+    /* ---------------- EMAIL BODY (UPDATED: Added phone in all cases) ---------------- */
     let message = "";
 
     switch (emailType) {
       case "new_reservation":
         message = `
           <p>Your flight reservation has been successfully confirmed.</p>
+          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+          <p><b>Email:</b> ${billingEmail}</p>
           <p><b>Airline:</b> ${airline}</p>
           <p><b>Route:</b> ${departure} → ${arrival}</p>
           <p><b>Travel Date:</b> ${travelDate}</p>
@@ -1273,6 +1487,8 @@ export const sendCustomerEmail = async (req, res) => {
       case "exchange_ticket":
         message = `
           <p>Your ticket exchange request has been processed.</p>
+          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+          <p><b>Email:</b> ${billingEmail}</p>
           <p><b>Original Date:</b> ${oldTravelDate}</p>
           <p><b>New Date:</b> ${newTravelDate}</p>
           <p><b>Change Fee:</b> USD ${changeFee}</p>
@@ -1284,6 +1500,8 @@ export const sendCustomerEmail = async (req, res) => {
       case "flight_cancellation":
         message = `
           <p>Your flight booking has been cancelled successfully.</p>
+          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+          <p><b>Email:</b> ${billingEmail}</p>
           <p><b>Cancellation Date:</b> ${cancellationDate}</p>
           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
         `;
@@ -1292,6 +1510,8 @@ export const sendCustomerEmail = async (req, res) => {
       case "refund_request":
         message = `
           <p>Your refund request has been received and is under processing.</p>
+          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+          <p><b>Email:</b> ${billingEmail}</p>
           <p><b>Refund Amount:</b> USD ${refundAmount}</p>
           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
           <p>Amount will be credited within 5–10 business days.</p>
@@ -1301,6 +1521,8 @@ export const sendCustomerEmail = async (req, res) => {
       case "seat_addons":
         message = `
           <p>Your seat selection / add-ons request has been confirmed.</p>
+          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+          <p><b>Email:</b> ${billingEmail}</p>
           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
         `;
         break;
@@ -1308,6 +1530,8 @@ export const sendCustomerEmail = async (req, res) => {
       case "name_correction":
         message = `
           <p>Your name correction request has been received.</p>
+          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+          <p><b>Email:</b> ${billingEmail}</p>
           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
           <p>Our team will verify and update shortly.</p>
         `;
@@ -1316,6 +1540,8 @@ export const sendCustomerEmail = async (req, res) => {
       case "add_pet":
         message = `
           <p>Your pet addition request has been confirmed.</p>
+          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+          <p><b>Email:</b> ${billingEmail}</p>
           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
         `;
         break;
@@ -1323,6 +1549,8 @@ export const sendCustomerEmail = async (req, res) => {
       case "flight_confirmation":
         message = `
           <p>Your flight booking is fully confirmed.</p>
+          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+          <p><b>Email:</b> ${billingEmail}</p>
           <p><b>Airline:</b> ${airline}</p>
           <p><b>Route:</b> ${departure} → ${arrival}</p>
           <p><b>Date:</b> ${travelDate}</p>
@@ -1332,6 +1560,8 @@ export const sendCustomerEmail = async (req, res) => {
       case "hotel_booking":
         message = `
           <p>Your hotel booking has been successfully confirmed.</p>
+          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+          <p><b>Email:</b> ${billingEmail}</p>
           <p><b>Booking Reference:</b> ${confirmationNumber}</p>
         `;
         break;
@@ -1339,28 +1569,50 @@ export const sendCustomerEmail = async (req, res) => {
       case "car_rental":
         message = `
           <p>Your car rental booking has been confirmed.</p>
+          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+          <p><b>Email:</b> ${billingEmail}</p>
           <p><b>Booking Reference:</b> ${confirmationNumber}</p>
         `;
         break;
 
       case "customer_support":
         message = `
+          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+          <p><b>Email:</b> ${billingEmail}</p>
           <p>${customMessage || "Thank you for contacting FareBuzzer support."}</p>
         `;
         break;
 
       default:
-        message = `<p>Thank you for choosing FareBuzzer.</p>`;
+        message = `
+          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+          <p><b>Email:</b> ${billingEmail}</p>
+          <p>Thank you for choosing FareBuzzer.</p>
+        `;
     }
 
-    /* ---------------- FINAL HTML ---------------- */
+    /* ---------------- FINAL HTML (Greeting unchanged) ---------------- */
     const html = `
-      <div style="font-family:Arial; padding:30px">
-        <h2>${subject}</h2>
-        <p>Dear ${customerName},</p>
+      <div style="font-family:Arial, sans-serif; padding:30px; max-width:600px; margin:0 auto; line-height:1.6; color:#333;">
+        <div style="text-align:center; padding-bottom:20px; border-bottom:2px solid #10b981;">
+          <h1 style="color:#10b981; margin:0; font-size:24px;">✈️ FareBuzzer Travel</h1>
+        </div>
+        <h2 style="color:#1e293b; margin:20px 0 10px 0;">${subject}</h2>
+        <p style="font-size:16px; margin-bottom:10px;"><strong>Dear ${customerName},</strong></p>
         ${message}
         <br/>
-        <p>Regards,<br/><b>FareBuzzer Support Team</b></p>
+        <div style="margin-top:30px; padding:20px; background:#f8fafc; border-radius:8px; border-left:4px solid #10b981;">
+          <p style="margin:0 0 10px 0; font-weight:500;">Contact Us:</p>
+          <p style="margin:0; color:#64748b;">📧 <strong>support@farebuzzer.com</strong> | 📞 <strong>+1-800-FAREBUZ</strong></p>
+        </div>
+        <p style="margin-top:30px; color:#64748b; font-size:14px;">
+          Regards,<br/>
+          <b style="color:#10b981;">FareBuzzer Support Team</b>
+        </p>
+        <hr style="border:none; border-top:1px solid #e2e8f0; margin:30px 0;">
+        <p style="text-align:center; font-size:12px; color:#94a3b8;">
+          © ${new Date().getFullYear()} FareBuzzer Travel. Prayagraj, UP, India.
+        </p>
       </div>
     `;
 
@@ -1368,15 +1620,12 @@ export const sendCustomerEmail = async (req, res) => {
     await transporter.sendMail({
       from: `"FareBuzzer Support" <${process.env.GMAIL_USER}>`,
       to: billingEmail,
-      // replyTo: "farebuzzertravel1@gmail.com",
-
-       replyTo: "besttripmakers@gmail.com",
-      //  replyTo: "FareBuzzer Support",
+      replyTo: "besttripmakers@gmail.com",
       subject,
       html
     });
 
-    /* ---------------- SAVE TO CRM INBOX ---------------- */
+    /* ---------------- SAVE TO CRM INBOX (UPDATED: Added phone) ---------------- */
     await Email.create({
       type: "sent",
       emailType,
@@ -1386,6 +1635,8 @@ export const sendCustomerEmail = async (req, res) => {
       html,
       meta: {
         customerName,
+        customerPhone, // NEW
+        billingEmail,  // NEW: Explicitly save email too
         airline,
         confirmationNumber,
         departure,
@@ -1403,14 +1654,16 @@ export const sendCustomerEmail = async (req, res) => {
 
     res.status(200).json({
       status: "success",
-      message: "Email sent & saved successfully"
+      message: `Email sent to ${customerName} (${customerPhone}) & saved successfully`,
+      data: { customerName, customerPhone, billingEmail, emailType }
     });
 
   } catch (error) {
     console.error("Send email error:", error);
     res.status(500).json({
       status: "error",
-      message: "Failed to send email"
+      message: "Failed to send email",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined
     });
   }
 };

@@ -632,11 +632,408 @@
 
 //==============clear form after send email=============
 
+// import { useState, useEffect } from "react";
+// // import API from "../api";
+// import API from "../api/axios";
+
+
+// const SendEmail = () => {
+//   const [emailType, setEmailType] = useState("refund_request");
+//   const [loading, setLoading] = useState(false);
+//   const [successMessage, setSuccessMessage] = useState("");
+//   const [errorMessage, setErrorMessage] = useState("");
+
+//   const initialFormState = {
+//     customerName: "",
+//     billingEmail: "",
+//     confirmationNumber: "",
+//     airline: "",
+//     departure: "",
+//     arrival: "",
+//     travelDate: "",
+//     bookingAmount: "",
+//     oldTravelDate: "",
+//     newTravelDate: "",
+//     changeFee: "",
+//     fareDifference: "",
+//     refundAmount: "",
+//     cancellationDate: "",
+//     customMessage: ""
+//   };
+
+//   const [form, setForm] = useState(initialFormState);
+
+//   const handleChange = (e) => {
+//     setForm({ ...form, [e.target.name]: e.target.value });
+//   };
+
+//   useEffect(() => {
+//     if (successMessage || errorMessage) {
+//       const timer = setTimeout(() => {
+//         setSuccessMessage("");
+//         setErrorMessage("");
+//       }, 3000);
+
+//       return () => clearTimeout(timer);
+//     }
+//   }, [successMessage, errorMessage]);
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     setLoading(true);
+//     setSuccessMessage("");
+//     setErrorMessage("");
+
+//     try {
+//       await API.post("/email/send", {
+//         emailType,
+//         ...form,
+//       });
+
+//       setSuccessMessage("Email sent successfully");
+
+//       // Reset form exactly like in Code 2 — clean initial state
+//       setForm(initialFormState);
+
+//       // Optional: keep emailType as is (user can send same type again quickly)
+//       // If you want to reset it too, uncomment the line below:
+//       // setEmailType("refund_request");
+
+//     } catch (err) {
+//       setErrorMessage(err.response?.data?.message || "Failed to send email");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   // Reusable input styles
+//   const inputClass =
+//     "w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200";
+
+//   const labelClass = "text-sm font-medium text-gray-700 mb-2 block";
+
+//   const sectionClass = "bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-2xl shadow-sm border border-gray-200";
+
+//   return (
+
+// <div className="p-4">
+//   <h1 className="text-xl font-bold mb-4">Send Customer Email</h1>
+
+//       <div className="max-w-full mx-auto p-4 sm:p-6">
+//         <div className="bg-white rounded-3xl shadow-xl overflow-hidden ">
+//           <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-8 pt-2 pb-1 ">
+//             <h2 className="text-xl font-bold text-white">Select category and fill details</h2>
+//           </div>
+
+//           <form onSubmit={handleSubmit} className="p-8 space-y-7">
+
+//             {/* Email Category */}
+//             <div>
+//               <label className={labelClass}>Email Category</label>
+//               <select
+//                 value={emailType}
+//                 onChange={(e) => setEmailType(e.target.value)}
+//                 className={`${inputClass} cursor-pointer appearance-none bg-white pr-10 bg-chevron-down bg-no-repeat bg-right-center`}
+//                 style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`, backgroundSize: '12px', backgroundPosition: 'right 1rem center' }}
+//               >
+//                 <option value="new_reservation">New Reservation</option>
+//                 <option value="exchange_ticket">Exchange Ticket</option>
+//                 <option value="flight_cancellation">Flight Cancellation</option>
+//                 <option value="refund_request">Refund Request</option>
+//                 <option value="seat_addons">Seat / Add-ons</option>
+//                 <option value="name_correction">Name Correction</option>
+//                 <option value="add_pet">Add Pet</option>
+//                 <option value="flight_confirmation">Flight Confirmation</option>
+//                 <option value="hotel_booking">Hotel Booking</option>
+//                 <option value="car_rental">Car Rental</option>
+//                 <option value="customer_support">Customer Support</option>
+//               </select>
+//             </div>
+
+//             {/* Customer Information */}
+//             <section className={sectionClass}>
+//               <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
+//                 <span className="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
+//                 Customer Information
+//               </h3>
+//               <div className="grid sm:grid-cols-2 gap-5">
+//                 <div>
+//                   <label className={labelClass}>Customer Name</label>
+//                   <input
+//                     name="customerName"
+//                     placeholder="Enter full name"
+//                     className={inputClass}
+//                     onChange={handleChange}
+//                     value={form.customerName}
+//                     required
+//                   />
+//                 </div>
+//                 <div>
+//                   <label className={labelClass}>Billing Email</label>
+//                   <input
+//                     name="billingEmail"
+//                     type="email"
+//                     placeholder="customer@example.com"
+//                     className={inputClass}
+//                     onChange={handleChange}
+//                     value={form.billingEmail}
+//                     required
+//                   />
+//                 </div>
+//               </div>
+//             </section>
+
+//             {/* Common Booking Info */}
+//             {emailType !== "customer_support" && (
+//               <section className={sectionClass}>
+//                 <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
+//                   <span className="w-2 h-2 bg-indigo-600 rounded-full mr-3"></span>
+//                   Booking Details
+//                 </h3>
+//                 <div className="grid sm:grid-cols-2 gap-5">
+//                   <div>
+//                     <label className={labelClass}>Confirmation Number</label>
+//                     <input
+//                       name="confirmationNumber"
+//                       placeholder="e.g. ABC123"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.confirmationNumber}
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className={labelClass}>Airline</label>
+//                     <input
+//                       name="airline"
+//                       placeholder="e.g. Delta Airlines"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.airline}
+//                     />
+//                   </div>
+//                 </div>
+//               </section>
+//             )}
+
+//             {/* New Reservation Fields */}
+//             {emailType === "new_reservation" && (
+//               <section className={sectionClass}>
+//                 <h3 className="text-lg font-semibold text-gray-800 mb-5">Flight Details</h3>
+//                 <div className="grid sm:grid-cols-2 gap-5">
+//                   <div>
+//                     <label className={labelClass}>Departure</label>
+//                     <input
+//                       name="departure"
+//                       placeholder="Departure City/Airport (e.g. New York - JFK)"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.departure}
+//                       required
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className={labelClass}>Arrival</label>
+//                     <input
+//                       name="arrival"
+//                       placeholder="Arrival City/Airport (e.g. London - LHR)"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.arrival}
+//                       required
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className={labelClass}>Travel Date</label>
+//                     <input
+//                       type="date"
+//                       name="travelDate"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.travelDate}
+//                       required
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className={labelClass}>Booking Amount (USD)</label>
+//                     <input
+//                       type="number"
+//                       step="0.01"
+//                       min="0"
+//                       name="bookingAmount"
+//                       placeholder="0.00"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.bookingAmount}
+//                     />
+//                   </div>
+//                 </div>
+//               </section>
+//             )}
+
+//             {/* Exchange Ticket */}
+//             {emailType === "exchange_ticket" && (
+//               <section className={sectionClass}>
+//                 <h3 className="text-lg font-semibold text-gray-800 mb-5">Date Change Details</h3>
+//                 <div className="grid sm:grid-cols-2 gap-5">
+//                   <div>
+//                     <label className={labelClass}>Original Travel Date</label>
+//                     <input type="date" name="oldTravelDate" className={inputClass} onChange={handleChange} value={form.oldTravelDate} />
+//                   </div>
+//                   <div>
+//                     <label className={labelClass}>New Travel Date</label>
+//                     <input type="date" name="newTravelDate" className={inputClass} onChange={handleChange} value={form.newTravelDate} />
+//                   </div>
+//                   <div>
+//                     <label className={labelClass}>Change Fee (USD)</label>
+//                     <input
+//                       type="number"
+//                       step="0.01"
+//                       min="0"
+//                       name="changeFee"
+//                       placeholder="0.00"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.changeFee}
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className={labelClass}>Fare Difference (USD)</label>
+//                     <input
+//                       type="number"
+//                       step="0.01"
+//                       name="fareDifference"
+//                       placeholder="0.00"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.fareDifference}
+//                     />
+//                   </div>
+//                 </div>
+//               </section>
+//             )}
+
+//             {/* Cancellation */}
+//             {emailType === "flight_cancellation" && (
+//               <section className={sectionClass}>
+//                 <h3 className="text-lg font-semibold text-gray-800 mb-5">Cancellation Date</h3>
+//                 <div className="max-w-md">
+//                   <label className={labelClass}>Date of Cancellation</label>
+//                   <input type="date" name="cancellationDate" className={inputClass} onChange={handleChange} value={form.cancellationDate} />
+//                 </div>
+//               </section>
+//             )}
+
+//             {/* Refund Request */}
+//             {emailType === "refund_request" && (
+//               <section className={sectionClass}>
+//                 <h3 className="text-lg font-semibold text-gray-800 mb-5">Refund Information</h3>
+//                 <div className="grid sm:grid-cols-2 gap-5 max-w-2xl">
+//                   <div>
+//                     <label className={labelClass}>Refund Amount (USD)</label>
+//                     <input
+//                       type="number"
+//                       step="0.01"
+//                       min="0"
+//                       name="refundAmount"
+//                       placeholder="0.00"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.refundAmount}
+//                       required
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className={labelClass}>Cancellation Date (optional)</label>
+//                     <input
+//                       type="date"
+//                       name="cancellationDate"
+//                       className={inputClass}
+//                       onChange={handleChange}
+//                       value={form.cancellationDate}
+//                     />
+//                   </div>
+//                 </div>
+//               </section>
+//             )}
+
+//             {/* Customer Support Message */}
+//             {emailType === "customer_support" && (
+//               <section className={sectionClass}>
+//                 <h3 className="text-lg font-semibold text-gray-800 mb-5">Custom Message</h3>
+//                 <textarea
+//                   name="customMessage"
+//                   rows="6"
+//                   placeholder="Write your detailed message here..."
+//                   className={`${inputClass} resize-none`}
+//                   onChange={handleChange}
+//                   value={form.customMessage}
+//                 />
+//               </section>
+//             )}
+
+//             {/* Success / Error Message */}
+//             {successMessage && (
+//               <div className="p-3 rounded-lg bg-green-100 text-green-700 text-sm font-medium">
+//                 {successMessage}
+//               </div>
+//             )}
+
+//             {errorMessage && (
+//               <div className="p-3 rounded-lg bg-red-100 text-red-700 text-sm font-medium">
+//                 {errorMessage}
+//               </div>
+//             )}
+
+//             {/* Submit Button */}
+//             <div className="pt-4">
+//               <button
+//                 type="submit"
+//                 disabled={loading}
+//                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 !text-white font-semibold py-3 rounded-xl shadow-lg disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
+//               >
+//                 {loading ? (
+//                   <span className="flex items-center justify-center">
+//                     <svg
+//                       className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+//                       xmlns="http://www.w3.org/2000/svg"
+//                       fill="none"
+//                       viewBox="0 0 24 24"
+//                     >
+//                       <circle
+//                         className="opacity-25"
+//                         cx="12"
+//                         cy="12"
+//                         r="10"
+//                         stroke="currentColor"
+//                         strokeWidth="4"
+//                       ></circle>
+//                       <path
+//                         className="opacity-75"
+//                         fill="currentColor"
+//                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+//                       ></path>
+//                     </svg>
+//                     Sending...
+//                   </span>
+//                 ) : (
+//                   "Send Email"
+//                 )}
+//               </button>
+//             </div>
+
+//           </form>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default SendEmail;
+
+//==================with added phn number also=============
+
 import { useState, useEffect } from "react";
-// import API from "../api";
 import API from "../api/axios";
-
-
 
 const SendEmail = () => {
   const [emailType, setEmailType] = useState("refund_request");
@@ -646,6 +1043,7 @@ const SendEmail = () => {
 
   const initialFormState = {
     customerName: "",
+    customerPhone: "",           // ← ADDED
     billingEmail: "",
     confirmationNumber: "",
     airline: "",
@@ -674,7 +1072,6 @@ const SendEmail = () => {
         setSuccessMessage("");
         setErrorMessage("");
       }, 3000);
-
       return () => clearTimeout(timer);
     }
   }, [successMessage, errorMessage]);
@@ -691,15 +1088,8 @@ const SendEmail = () => {
         ...form,
       });
 
-      setSuccessMessage("Email sent successfully");
-
-      // Reset form exactly like in Code 2 — clean initial state
+      setSuccessMessage("Email sent successfully!");
       setForm(initialFormState);
-
-      // Optional: keep emailType as is (user can send same type again quickly)
-      // If you want to reset it too, uncomment the line below:
-      // setEmailType("refund_request");
-
     } catch (err) {
       setErrorMessage(err.response?.data?.message || "Failed to send email");
     } finally {
@@ -707,7 +1097,7 @@ const SendEmail = () => {
     }
   };
 
-  // Reusable input styles
+  // Reusable classes
   const inputClass =
     "w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200";
 
@@ -716,18 +1106,16 @@ const SendEmail = () => {
   const sectionClass = "bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-2xl shadow-sm border border-gray-200";
 
   return (
-
-<div className="p-4">
-  <h1 className="text-xl font-bold mb-4">Send Customer Email</h1>
+    <div className="p-4">
+      <h1 className="text-xl font-bold mb-4">Send Customer Email</h1>
 
       <div className="max-w-full mx-auto p-4 sm:p-6">
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden ">
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-8 pt-2 pb-1 ">
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-8 pt-2 pb-1">
             <h2 className="text-xl font-bold text-white">Select category and fill details</h2>
           </div>
 
           <form onSubmit={handleSubmit} className="p-8 space-y-7">
-
             {/* Email Category */}
             <div>
               <label className={labelClass}>Email Category</label>
@@ -735,7 +1123,11 @@ const SendEmail = () => {
                 value={emailType}
                 onChange={(e) => setEmailType(e.target.value)}
                 className={`${inputClass} cursor-pointer appearance-none bg-white pr-10 bg-chevron-down bg-no-repeat bg-right-center`}
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`, backgroundSize: '12px', backgroundPosition: 'right 1rem center' }}
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`,
+                  backgroundSize: "12px",
+                  backgroundPosition: "right 1rem center",
+                }}
               >
                 <option value="new_reservation">New Reservation</option>
                 <option value="exchange_ticket">Exchange Ticket</option>
@@ -751,15 +1143,15 @@ const SendEmail = () => {
               </select>
             </div>
 
-            {/* Customer Information */}
+            {/* Customer Information - NOW WITH PHONE */}
             <section className={sectionClass}>
               <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
                 <span className="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
                 Customer Information
               </h3>
-              <div className="grid sm:grid-cols-2 gap-5">
+              <div className="grid sm:grid-cols-3 gap-5">
                 <div>
-                  <label className={labelClass}>Customer Name</label>
+                  <label className={labelClass}>Customer Name *</label>
                   <input
                     name="customerName"
                     placeholder="Enter full name"
@@ -770,7 +1162,19 @@ const SendEmail = () => {
                   />
                 </div>
                 <div>
-                  <label className={labelClass}>Billing Email</label>
+                  <label className={labelClass}>Phone Number *</label>
+                  <input
+                    name="customerPhone"
+                    type="tel"
+                    placeholder="+1 555 123 4567"
+                    className={inputClass}
+                    onChange={handleChange}
+                    value={form.customerPhone}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Billing Email *</label>
                   <input
                     name="billingEmail"
                     type="email"
@@ -816,7 +1220,8 @@ const SendEmail = () => {
               </section>
             )}
 
-            {/* New Reservation Fields */}
+            {/* ────────────────────────────────────────────── */}
+            {/* New Reservation */}
             {emailType === "new_reservation" && (
               <section className={sectionClass}>
                 <h3 className="text-lg font-semibold text-gray-800 mb-5">Flight Details</h3>
@@ -825,22 +1230,20 @@ const SendEmail = () => {
                     <label className={labelClass}>Departure</label>
                     <input
                       name="departure"
-                      placeholder="Departure City/Airport (e.g. New York - JFK)"
+                      placeholder="e.g. New York - JFK"
                       className={inputClass}
                       onChange={handleChange}
                       value={form.departure}
-                      required
                     />
                   </div>
                   <div>
                     <label className={labelClass}>Arrival</label>
                     <input
                       name="arrival"
-                      placeholder="Arrival City/Airport (e.g. London - LHR)"
+                      placeholder="e.g. London - LHR"
                       className={inputClass}
                       onChange={handleChange}
                       value={form.arrival}
-                      required
                     />
                   </div>
                   <div>
@@ -851,7 +1254,6 @@ const SendEmail = () => {
                       className={inputClass}
                       onChange={handleChange}
                       value={form.travelDate}
-                      required
                     />
                   </div>
                   <div>
@@ -878,11 +1280,23 @@ const SendEmail = () => {
                 <div className="grid sm:grid-cols-2 gap-5">
                   <div>
                     <label className={labelClass}>Original Travel Date</label>
-                    <input type="date" name="oldTravelDate" className={inputClass} onChange={handleChange} value={form.oldTravelDate} />
+                    <input
+                      type="date"
+                      name="oldTravelDate"
+                      className={inputClass}
+                      onChange={handleChange}
+                      value={form.oldTravelDate}
+                    />
                   </div>
                   <div>
                     <label className={labelClass}>New Travel Date</label>
-                    <input type="date" name="newTravelDate" className={inputClass} onChange={handleChange} value={form.newTravelDate} />
+                    <input
+                      type="date"
+                      name="newTravelDate"
+                      className={inputClass}
+                      onChange={handleChange}
+                      value={form.newTravelDate}
+                    />
                   </div>
                   <div>
                     <label className={labelClass}>Change Fee (USD)</label>
@@ -913,13 +1327,19 @@ const SendEmail = () => {
               </section>
             )}
 
-            {/* Cancellation */}
+            {/* Flight Cancellation */}
             {emailType === "flight_cancellation" && (
               <section className={sectionClass}>
                 <h3 className="text-lg font-semibold text-gray-800 mb-5">Cancellation Date</h3>
                 <div className="max-w-md">
                   <label className={labelClass}>Date of Cancellation</label>
-                  <input type="date" name="cancellationDate" className={inputClass} onChange={handleChange} value={form.cancellationDate} />
+                  <input
+                    type="date"
+                    name="cancellationDate"
+                    className={inputClass}
+                    onChange={handleChange}
+                    value={form.cancellationDate}
+                  />
                 </div>
               </section>
             )}
@@ -930,7 +1350,7 @@ const SendEmail = () => {
                 <h3 className="text-lg font-semibold text-gray-800 mb-5">Refund Information</h3>
                 <div className="grid sm:grid-cols-2 gap-5 max-w-2xl">
                   <div>
-                    <label className={labelClass}>Refund Amount (USD)</label>
+                    <label className={labelClass}>Refund Amount (USD) *</label>
                     <input
                       type="number"
                       step="0.01"
@@ -957,7 +1377,7 @@ const SendEmail = () => {
               </section>
             )}
 
-            {/* Customer Support Message */}
+            {/* Customer Support */}
             {emailType === "customer_support" && (
               <section className={sectionClass}>
                 <h3 className="text-lg font-semibold text-gray-800 mb-5">Custom Message</h3>
@@ -972,7 +1392,7 @@ const SendEmail = () => {
               </section>
             )}
 
-            {/* Success / Error Message */}
+            {/* Messages */}
             {successMessage && (
               <div className="p-3 rounded-lg bg-green-100 text-green-700 text-sm font-medium">
                 {successMessage}
@@ -985,12 +1405,12 @@ const SendEmail = () => {
               </div>
             )}
 
-            {/* Submit Button */}
+            {/* Submit */}
             <div className="pt-4">
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 !text-white font-semibold py-3 rounded-xl shadow-lg disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold py-3 rounded-xl shadow-lg disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer transition-all"
               >
                 {loading ? (
                   <span className="flex items-center justify-center">
@@ -1007,12 +1427,12 @@ const SendEmail = () => {
                         r="10"
                         stroke="currentColor"
                         strokeWidth="4"
-                      ></circle>
+                      />
                       <path
                         className="opacity-75"
                         fill="currentColor"
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
+                      />
                     </svg>
                     Sending...
                   </span>
@@ -1021,7 +1441,6 @@ const SendEmail = () => {
                 )}
               </button>
             </div>
-
           </form>
         </div>
       </div>

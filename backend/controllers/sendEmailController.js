@@ -1624,7 +1624,7 @@ export const sendCustomerEmail = async (req, res) => {
         </p>
         <hr style="border:none; border-top:1px solid #e2e8f0; margin:30px 0;">
         <p style="text-align:center; font-size:12px; color:#94a3b8;">
-          © ${new Date().getFullYear()} FareBuzzer Travel. Prayagraj, UP, India.
+          © ${new Date().getFullYear()} FareBuzzer Travel.
         </p>
       </div>
     `;

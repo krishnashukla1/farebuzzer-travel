@@ -1222,15 +1222,16 @@ const handleSubmit = async (e) => {
   <input
     name="customerPhone"
     type="tel"
-    placeholder="+91 98765 43210 or +1 202 555 0123"
+    // placeholder="+91 98765 43210 or +1 202 555 0123"
+    placeholder="Only numbers, spaces, +, -, () allowed (8–20 characters)"
     className={inputClass}
     onChange={handleChange}
     value={form.customerPhone}
     required
   />
-  <p className="text-xs text-gray-500 mt-1">
+  {/* <p className="text-xs text-gray-500 mt-1">
     Only numbers, spaces, +, -, () allowed (8–20 characters)
-  </p>
+  </p> */}
 </div>
 
                 <div>

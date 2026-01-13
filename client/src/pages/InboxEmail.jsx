@@ -468,17 +468,975 @@
 //     </div>
 //   );
 // }
-//===============
+//===============FULL CORRECT=============
+
+// import { useEffect, useState } from "react";
+// import api from "../api/axios";
+// import { Mail, MailOpen, ChevronLeft, ChevronRight } from "lucide-react";
+
+// const ITEMS_PER_PAGE = 10;
+
+// const formatDate = (dateStr) => {
+//   const date = new Date(dateStr);
+//   return date.toLocaleString("en-IN", {
+//     day: "2-digit",
+//     month: "2-digit",
+//     year: "numeric",
+//     hour: "numeric",
+//     minute: "2-digit",
+//     hour12: true,
+//   });
+//   // Output example: 27/12/2025 03:45 PM
+// };
+
+// export default function Inbox() {
+//   const [emails, setEmails] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [openId, setOpenId] = useState(null);
+
+//   useEffect(() => {
+//     setLoading(true);
+//     api
+//       .get("/email")
+//       .then((res) => {
+//         const sorted = [...res.data].sort(
+//           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+//         );
+//         setEmails(sorted);
+//       })
+//       .catch(console.error)
+//       .finally(() => setLoading(false));
+//   }, []);
+
+//   const totalPages = Math.ceil(emails.length / ITEMS_PER_PAGE);
+//   const start = (currentPage - 1) * ITEMS_PER_PAGE;
+//   const visibleEmails = emails.slice(start, start + ITEMS_PER_PAGE);
+
+//   return (
+//     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6 pb-20">
+//       <div className="max-w-7xl mx-auto">
+//         {/* Header */}
+//         <div className="flex items-center justify-between mb-8">
+//           <div>
+//             <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
+//               Booking Inbox
+//             </h1>
+//             <p className="text-gray-500 mt-1">
+//               {emails.length} {emails.length === 1 ? "conversation" : "conversations"}
+//             </p>
+//           </div>
+//         </div>
+
+//         {loading ? (
+//           <div className="flex justify-center items-center h-64">
+//             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+//           </div>
+//         ) : emails.length === 0 ? (
+//           <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100">
+//             <div className="mx-auto w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+//               <Mail className="w-10 h-10 text-gray-400" />
+//             </div>
+//             <h3 className="text-xl font-semibold text-gray-700 mb-2">
+//               Your inbox is empty
+//             </h3>
+//             <p className="text-gray-500">New booking emails will appear here</p>
+//           </div>
+//         ) : (
+//           <div className="bg-white rounded-2xl shadow-xl border border-gray-100/80 overflow-hidden">
+//             <div className="divide-y divide-gray-100">
+//               {visibleEmails.map((email) => {
+//                 const isOpen = openId === email._id;
+//                 const isUnread = email.isRead === false;
+
+//                 const statusColor =
+//                   email.meta?.status === "refund"
+//                     ? "from-red-500 to-rose-600"
+//                     : email.meta?.status === "cancellation"
+//                     ? "from-amber-500 to-yellow-600"
+//                     : "from-emerald-500 to-teal-600";
+
+//                 return (
+//                   <div
+//                     key={email._id}
+//                     className={`group relative transition-all duration-200 hover:shadow-md ${
+//                       isOpen ? "bg-indigo-50/40" : "hover:bg-gray-50/80"
+//                     }`}
+//                   >
+//                     <div className={`absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b ${statusColor} opacity-90`} />
+
+//                     <div
+//                       className="p-5 pl-8 cursor-pointer"
+//                       onClick={() => setOpenId(isOpen ? null : email._id)}
+//                     >
+//                       <div className="flex items-start justify-between gap-4">
+//                         <div className="flex gap-4 flex-1 min-w-0">
+//                           <div className="mt-1.5">
+//                             {isUnread ? (
+//                               <Mail className="text-indigo-600" size={20} strokeWidth={2.2} />
+//                             ) : (
+//                               <MailOpen className="text-gray-400" size={20} />
+//                             )}
+//                           </div>
+
+//                           <div className="flex-1 min-w-0">
+//                             <div className="flex items-center gap-2.5 mb-1.5">
+//                               <span className="font-semibold text-gray-900 truncate text-base">
+//                                 {email.from || "Customer"}
+//                               </span>
+
+//                               {email.meta?.bookingType && (
+//                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100/80 text-indigo-700 border border-indigo-200/70">
+//                                   {email.meta.bookingType.replace("_", " ").toUpperCase()}
+//                                 </span>
+//                               )}
+//                             </div>
+
+//                             <p className="text-gray-800 font-medium line-clamp-1 mb-2.5">
+//                               {email.subject}
+//                             </p>
+
+//                             <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-gray-600">
+//                               {email.meta?.customerName && (
+//                                 <span>👤 {email.meta.customerName}</span>
+//                               )}
+//                               {email.meta?.confirmationNumber && (
+//                                 <span>🎫 PNR: {email.meta.confirmationNumber}</span>
+//                               )}
+//                               {email.meta?.airline && (
+//                                 <span>✈ {email.meta.airline}</span>
+//                               )}
+//                               {email.meta?.departure && email.meta?.arrival && (
+//                                 <span>🛫 {email.meta.departure} → {email.meta.arrival}</span>
+//                               )}
+//                             </div>
+//                           </div>
+//                         </div>
+
+//                         <div className="flex flex-col items-end gap-1 whitespace-nowrap">
+//                           <span className="text-xs font-medium text-gray-700">
+//                             {formatDate(email.createdAt)}
+//                           </span>
+//                           {isUnread && (
+//                             <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 mt-1"></span>
+//                           )}
+//                         </div>
+//                       </div>
+//                     </div>
+//                   </div>
+//                 );
+//               })}
+//             </div>
+
+//             {/* Modern Pagination */}
+//             {totalPages > 1 && (
+//               <div className="px-6 py-4 border-t bg-gray-50/50 flex items-center justify-between">
+//                 <button
+//                   onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+//                   disabled={currentPage === 1}
+//                   className="cursor-pointer flex items-center gap-1 px-5 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-colors"
+//                 >
+//                   <ChevronLeft size={16} />
+//                   Previous
+//                 </button>
+
+//                 <div className="text-sm font-medium text-gray-700">
+//                   Page <span className="text-indigo-700 font-semibold">{currentPage}</span>
+//                   <span className="text-gray-400 mx-1.5">/</span>
+//                   {totalPages}
+//                 </div>
+
+//                 <button
+//                   onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+//                   disabled={currentPage === totalPages}
+//                   className="cursor-pointer flex items-center gap-1 px-5 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-colors"
+//                 >
+//                   Next
+//                   <ChevronRight size={16} />
+//                 </button>
+//               </div>
+//             )}
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+//==============WITH PROPER CLICKABLE MODAL===========
+
+
+// import { useEffect, useState } from "react";
+// import api from "../api/axios";
+// import { Mail, MailOpen, ChevronLeft, ChevronRight, X, Eye } from "lucide-react";
+
+// const ITEMS_PER_PAGE = 10;
+
+// const formatDate = (dateStr) => {
+//   const date = new Date(dateStr);
+//   return date.toLocaleString("en-IN", {
+//     day: "2-digit",
+//     month: "2-digit",
+//     year: "numeric",
+//     hour: "numeric",
+//     minute: "2-digit",
+//     hour12: true,
+//   });
+// };
+
+// export default function Inbox() {
+//   const [emails, setEmails] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [selectedEmail, setSelectedEmail] = useState(null);
+
+//   useEffect(() => {
+//     setLoading(true);
+//     api
+//       .get("/email")
+//       .then((res) => {
+//         const sorted = [...res.data].sort(
+//           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+//         );
+//         setEmails(sorted);
+//       })
+//       .catch(console.error)
+//       .finally(() => setLoading(false));
+//   }, []);
+
+//   const totalPages = Math.ceil(emails.length / ITEMS_PER_PAGE);
+//   const start = (currentPage - 1) * ITEMS_PER_PAGE;
+//   const visibleEmails = emails.slice(start, start + ITEMS_PER_PAGE);
+
+//   return (
+//     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6 pb-20">
+//       <div className="max-w-7xl mx-auto">
+//         {/* Header */}
+//         <div className="flex items-center justify-between mb-8">
+//           <div>
+//             <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
+//               Booking Inbox
+//             </h1>
+//             <p className="text-gray-500 mt-1">
+//               {emails.length} {emails.length === 1 ? "conversation" : "conversations"}
+//             </p>
+//           </div>
+//         </div>
+
+//         {loading ? (
+//           <div className="flex justify-center items-center h-64">
+//             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+//           </div>
+//         ) : emails.length === 0 ? (
+//           <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100">
+//             <div className="mx-auto w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+//               <Mail className="w-10 h-10 text-gray-400" />
+//             </div>
+//             <h3 className="text-xl font-semibold text-gray-700 mb-2">
+//               Your inbox is empty
+//             </h3>
+//             <p className="text-gray-500">New booking emails will appear here</p>
+//           </div>
+//         ) : (
+//           <div className="bg-white rounded-2xl shadow-xl border border-gray-100/80 overflow-hidden">
+//             <div className="divide-y divide-gray-100">
+//               {visibleEmails.map((email) => {
+//                 const isUnread = email.isRead === false;
+
+//                 const statusColor =
+//                   email.meta?.status === "refund"
+//                     ? "from-red-500 to-rose-600"
+//                     : email.meta?.status === "cancellation"
+//                     ? "from-amber-500 to-yellow-600"
+//                     : "from-emerald-500 to-teal-600";
+
+//                 return (
+//                   <div
+//                     key={email._id}
+//                     className={`group relative transition-all duration-200 hover:shadow-md hover:bg-gray-50/80`}
+//                     onClick={() => setSelectedEmail(email)}
+//                   >
+//                     <div className={`absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b ${statusColor} opacity-90`} />
+
+//                     <div className="p-5 pl-8 cursor-pointer">
+//                       <div className="flex items-start justify-between gap-4">
+//                         <div className="flex gap-4 flex-1 min-w-0">
+//                           <div className="mt-1.5">
+//                             {isUnread ? (
+//                               <Mail className="text-indigo-600" size={20} strokeWidth={2.2} />
+//                             ) : (
+//                               <MailOpen className="text-gray-400" size={20} />
+//                             )}
+//                           </div>
+
+//                           <div className="flex-1 min-w-0">
+//                             <div className="flex items-center gap-2.5 mb-1.5">
+//                               <span className="font-semibold text-gray-900 truncate text-base">
+//                                 {email.from || "Customer"}
+//                               </span>
+
+//                               {email.meta?.bookingType && (
+//                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100/80 text-indigo-700 border border-indigo-200/70">
+//                                   {email.meta.bookingType.replace("_", " ").toUpperCase()}
+//                                 </span>
+//                               )}
+//                             </div>
+
+//                             <p className="text-gray-800 font-medium line-clamp-1 mb-2.5">
+//                               {email.subject}
+//                             </p>
+
+//                             <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-gray-600">
+//                               {email.meta?.customerName && (
+//                                 <span>👤 {email.meta.customerName}</span>
+//                               )}
+//                               {email.meta?.customerPhone && (
+//                                 <span>📞 {email.meta.customerPhone}</span>
+//                               )}
+//                               {email.meta?.confirmationNumber && (
+//                                 <span>🎫 PNR: {email.meta.confirmationNumber}</span>
+//                               )}
+//                               {email.meta?.airline && (
+//                                 <span>✈ {email.meta.airline}</span>
+//                               )}
+//                             </div>
+//                           </div>
+//                         </div>
+
+//                         <div className="flex flex-col items-end gap-1 whitespace-nowrap">
+//                           <span className="text-xs font-medium text-gray-700">
+//                             {formatDate(email.createdAt)}
+//                           </span>
+//                           {isUnread && (
+//                             <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 mt-1"></span>
+//                           )}
+//                         </div>
+//                       </div>
+//                     </div>
+//                   </div>
+//                 );
+//               })}
+//             </div>
+
+//             {/* Pagination */}
+//             {totalPages > 1 && (
+//               <div className="px-6 py-4 border-t bg-gray-50/50 flex items-center justify-between">
+//                 <button
+//                   onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+//                   disabled={currentPage === 1}
+//                   className="cursor-pointer flex items-center gap-1 px-5 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 transition-colors"
+//                 >
+//                   <ChevronLeft size={16} />
+//                   Previous
+//                 </button>
+
+//                 <div className="text-sm font-medium text-gray-700">
+//                   Page <span className="text-indigo-700 font-semibold">{currentPage}</span>
+//                   <span className="text-gray-400 mx-1.5">/</span>
+//                   {totalPages}
+//                 </div>
+
+//                 <button
+//                   onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+//                   disabled={currentPage === totalPages}
+//                   className="cursor-pointer flex items-center gap-1 px-5 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 transition-colors"
+//                 >
+//                   Next
+//                   <ChevronRight size={16} />
+//                 </button>
+//               </div>
+//             )}
+//           </div>
+//         )}
+
+//         {/* ====================== MODAL ====================== */}
+//         {selectedEmail && (
+//           <div 
+//             className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+//             onClick={(e) => {
+//               if (e.target === e.currentTarget) setSelectedEmail(null);
+//             }}
+//           >
+//             <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[92vh] overflow-hidden flex flex-col">
+//               {/* Modal Header */}
+//               <div className="p-5 border-b flex items-center justify-between bg-gradient-to-r from-indigo-50 to-blue-50">
+//                 <div>
+//                   <h2 className="text-xl font-bold text-gray-800">
+//                     {selectedEmail.subject}
+//                   </h2>
+//                   <p className="text-sm text-gray-600 mt-1">
+//                     To: {selectedEmail.to} • {formatDate(selectedEmail.createdAt)}
+//                   </p>
+//                 </div>
+//                 <button
+//                   onClick={() => setSelectedEmail(null)}
+//                   className="p-2 rounded-full hover:bg-gray-200 transition-colors"
+//                 >
+//                   <X size={24} className="text-gray-600" />
+//                 </button>
+//               </div>
+
+//               {/* Modal Body */}
+//               <div className="flex-1 overflow-auto p-6 flex flex-col md:flex-row gap-6">
+//                 {/* Email Preview */}
+//                 <div className="flex-1 border rounded-xl overflow-hidden bg-white shadow-inner">
+//                   <div className="bg-gray-50 px-4 py-2 border-b text-xs text-gray-600 font-medium">
+//                     Original Email as Customer Received
+//                   </div>
+//                   <div 
+//                     className="p-6 prose prose-sm sm:prose-base max-w-none"
+//                     dangerouslySetInnerHTML={{ __html: selectedEmail.html || "<p>No content available</p>" }}
+//                   />
+//                 </div>
+
+//                 {/* Meta Information */}
+//                 <div className="w-full md:w-80 bg-gray-50 rounded-xl p-5 border shrink-0">
+//                   <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+//                     <Eye size={18} /> Booking Details
+//                   </h3>
+
+//                   <div className="space-y-3 text-sm">
+//                     {selectedEmail.meta?.customerName && (
+//                       <div>
+//                         <span className="text-gray-500 block">Customer Name</span>
+//                         <span className="font-medium">{selectedEmail.meta.customerName}</span>
+//                       </div>
+//                     )}
+//                     {selectedEmail.meta?.customerPhone && (
+//                       <div>
+//                         <span className="text-gray-500 block">Phone Number</span>
+//                         <span className="font-medium">{selectedEmail.meta.customerPhone}</span>
+//                       </div>
+//                     )}
+//                     {selectedEmail.meta?.billingEmail && (
+//                       <div>
+//                         <span className="text-gray-500 block">Billing Email</span>
+//                         <span className="font-medium">{selectedEmail.meta.billingEmail}</span>
+//                       </div>
+//                     )}
+//                     {selectedEmail.meta?.confirmationNumber && (
+//                       <div>
+//                         <span className="text-gray-500 block">Confirmation No</span>
+//                         <span className="font-medium">{selectedEmail.meta.confirmationNumber}</span>
+//                       </div>
+//                     )}
+
+//                     {/* Show all other meta fields dynamically */}
+//                     {Object.entries(selectedEmail.meta || {})
+//                       .filter(([key]) => 
+//                         !["customerName", "customerPhone", "billingEmail", "confirmationNumber"].includes(key)
+//                       )
+//                       .map(([key, value]) => {
+//                         if (!value) return null;
+//                         return (
+//                           <div key={key}>
+//                             <span className="text-gray-500 block capitalize">
+//                               {key.replace(/([A-Z])/g, " $1")}
+//                             </span>
+//                             <span className="font-medium">{value}</span>
+//                           </div>
+//                         );
+//                       })}
+//                   </div>
+//                 </div>
+//               </div>
+
+//               {/* Modal Footer */}
+//               <div className="p-4 border-t bg-gray-50 flex justify-end">
+//                 <button
+//                   onClick={() => setSelectedEmail(null)}
+//                   className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+//                 >
+//                   Close
+//                 </button>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+//=========================
+
+
+// import { useEffect, useState } from "react";
+// import api from "../api/axios";
+// import { Mail, MailOpen, ChevronLeft, ChevronRight, X, Eye } from "lucide-react";
+// const ITEMS_PER_PAGE = 10;
+// const formatDate = (dateStr) => {
+//   const date = new Date(dateStr);
+//   return date.toLocaleString("en-IN", {
+//     day: "2-digit",
+//     month: "2-digit",
+//     year: "numeric",
+//     hour: "numeric",
+//     minute: "2-digit",
+//     hour12: true,
+//   });
+// };
+// export default function Inbox() {
+//   const [emails, setEmails] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [selectedEmail, setSelectedEmail] = useState(null);
+//   useEffect(() => {
+//     setLoading(true);
+//     api
+//       .get("/email")
+//       .then((res) => {
+//         const sorted = [...res.data].sort(
+//           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+//         );
+//         setEmails(sorted);
+//       })
+//       .catch(console.error)
+//       .finally(() => setLoading(false));
+//   }, []);
+//   const totalPages = Math.ceil(emails.length / ITEMS_PER_PAGE);
+//   const start = (currentPage - 1) * ITEMS_PER_PAGE;
+//   const visibleEmails = emails.slice(start, start + ITEMS_PER_PAGE);
+//   return (
+//     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6 pb-20">
+//       <div className="max-w-7xl mx-auto">
+//         {/* Header */}
+//         <div className="flex items-center justify-between mb-8">
+//           <div>
+//             <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
+//               Booking Inbox
+//             </h1>
+//             <p className="text-gray-500 mt-1">
+//               {emails.length} {emails.length === 1 ? "conversation" : "conversations"}
+//             </p>
+//           </div>
+//         </div>
+//         {loading ? (
+//           <div className="flex justify-center items-center h-64">
+//             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+//           </div>
+//         ) : emails.length === 0 ? (
+//           <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100">
+//             <div className="mx-auto w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+//               <Mail className="w-10 h-10 text-gray-400" />
+//             </div>
+//             <h3 className="text-xl font-semibold text-gray-700 mb-2">
+//               Your inbox is empty
+//             </h3>
+//             <p className="text-gray-500">New booking emails will appear here</p>
+//           </div>
+//         ) : (
+//           <div className="bg-white rounded-2xl shadow-xl border border-gray-100/80 overflow-hidden">
+//             <div className="divide-y divide-gray-100">
+//               {visibleEmails.map((email) => {
+//                 const isUnread = email.isRead === false;
+//                 const statusColor =
+//                   email.meta?.status === "refund"
+//                     ? "from-red-500 to-rose-600"
+//                     : email.meta?.status === "cancellation"
+//                     ? "from-amber-500 to-yellow-600"
+//                     : "from-emerald-500 to-teal-600";
+//                 return (
+//                   <div
+//                     key={email._id}
+//                     className={`group relative transition-all duration-200 hover:shadow-md hover:bg-gray-50/80`}
+//                     onClick={() => setSelectedEmail(email)}
+//                   >
+//                     <div className={`absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b ${statusColor} opacity-90`} />
+//                     <div className="p-5 pl-8 cursor-pointer">
+//                       <div className="flex items-start justify-between gap-4">
+//                         <div className="flex gap-4 flex-1 min-w-0">
+//                           <div className="mt-1.5">
+//                             {isUnread ? (
+//                               <Mail className="text-indigo-600" size={20} strokeWidth={2.2} />
+//                             ) : (
+//                               <MailOpen className="text-gray-400" size={20} />
+//                             )}
+//                           </div>
+//                           <div className="flex-1 min-w-0">
+//                             <div className="flex items-center gap-2.5 mb-1.5">
+//                               <span className="font-semibold text-gray-900 truncate text-base">
+//                                 {email.from || "Customer"}
+//                               </span>
+//                               {email.meta?.bookingType && (
+//                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100/80 text-indigo-700 border border-indigo-200/70">
+//                                   {email.meta.bookingType.replace("_", " ").toUpperCase()}
+//                                 </span>
+//                               )}
+//                             </div>
+//                             <p className="text-gray-800 font-medium line-clamp-1 mb-2.5">
+//                               {email.subject}
+//                             </p>
+//                             <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-gray-600">
+//                               {email.meta?.customerName && (
+//                                 <span>👤 {email.meta.customerName}</span>
+//                               )}
+//                               {email.meta?.customerPhone && (
+//                                 <span>📞 {email.meta.customerPhone}</span>
+//                               )}
+//                               {email.meta?.confirmationNumber && (
+//                                 <span>🎫 PNR: {email.meta.confirmationNumber}</span>
+//                               )}
+//                               {email.meta?.airline && (
+//                                 <span>✈ {email.meta.airline}</span>
+//                               )}
+//                             </div>
+//                           </div>
+//                         </div>
+//                         <div className="flex flex-col items-end gap-1 whitespace-nowrap">
+//                           <span className="text-xs font-medium text-gray-700">
+//                             {formatDate(email.createdAt)}
+//                           </span>
+//                           {isUnread && (
+//                             <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 mt-1"></span>
+//                           )}
+//                         </div>
+//                       </div>
+//                     </div>
+//                   </div>
+//                 );
+//               })}
+//             </div>
+//             {/* Pagination */}
+//             {totalPages > 1 && (
+//               <div className="px-6 py-4 border-t bg-gray-50/50 flex items-center justify-between">
+//                 <button
+//                   onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+//                   disabled={currentPage === 1}
+//                   className="cursor-pointer flex items-center gap-1 px-5 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 transition-colors"
+//                 >
+//                   <ChevronLeft size={16} />
+//                   Previous
+//                 </button>
+//                 <div className="text-sm font-medium text-gray-700">
+//                   Page <span className="text-indigo-700 font-semibold">{currentPage}</span>
+//                   <span className="text-gray-400 mx-1.5">/</span>
+//                   {totalPages}
+//                 </div>
+//                 <button
+//                   onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+//                   disabled={currentPage === totalPages}
+//                   className="cursor-pointer flex items-center gap-1 px-5 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 transition-colors"
+//                 >
+//                   Next
+//                   <ChevronRight size={16} />
+//                 </button>
+//               </div>
+//             )}
+//           </div>
+//         )}
+//         {/* ====================== MODAL ====================== */}
+//         {selectedEmail && (
+//           <div
+//             className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+//             onClick={(e) => {
+//               if (e.target === e.currentTarget) setSelectedEmail(null);
+//             }}
+//           >
+//             <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[92vh] overflow-hidden flex flex-col">
+//               {/* Modal Header */}
+//               <div className="p-5 border-b flex items-center justify-between bg-gradient-to-r from-indigo-50 to-blue-50">
+//                 <div>
+//                   <h2 className="text-xl font-bold text-gray-800">
+//                     {selectedEmail.subject}
+//                   </h2>
+//                   <p className="text-sm text-gray-600 mt-1">
+//                     To: {selectedEmail.to} • {formatDate(selectedEmail.createdAt)}
+//                   </p>
+//                 </div>
+//                 <button
+//                   onClick={() => setSelectedEmail(null)}
+//                   className="p-2 rounded-full hover:bg-gray-200 transition-colors"
+//                 >
+//                   <X size={24} className="text-gray-600" />
+//                 </button>
+//               </div>
+//               {/* Modal Body */}
+//               <div className="flex-1 overflow-auto p-6 flex flex-col md:flex-row gap-6">
+//                 {/* Email Preview */}
+//                 <div className="flex-1 border rounded-xl overflow-hidden bg-white shadow-inner">
+//                   <div className="bg-gray-50 px-4 py-2 border-b text-xs text-gray-600 font-medium">
+//                     Original Email as Customer Received
+//                   </div>
+//                   <div
+//                     className="p-6 prose prose-sm sm:prose-base max-w-none"
+//                     dangerouslySetInnerHTML={{ __html: selectedEmail.html || "<p>No content available</p>" }}
+//                   />
+//                 </div>
+//                 {/* Meta Information */}
+//                 <div className="w-full md:w-80 bg-gray-50 rounded-xl p-5 border shrink-0">
+//                   <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+//                     <Eye size={18} /> Booking Details
+//                   </h3>
+//                   <div className="space-y-3 text-sm">
+//                     {selectedEmail.meta?.customerName && (
+//                       <div>
+//                         <span className="text-gray-500 block">Customer Name</span>
+//                         <span className="font-medium">{selectedEmail.meta.customerName}</span>
+//                       </div>
+//                     )}
+//                     {selectedEmail.meta?.customerPhone && (
+//                       <div>
+//                         <span className="text-gray-500 block">Phone Number</span>
+//                         <span className="font-medium">{selectedEmail.meta.customerPhone}</span>
+//                       </div>
+//                     )}
+//                     {selectedEmail.meta?.billingEmail && (
+//                       <div>
+//                         <span className="text-gray-500 block">Billing Email</span>
+//                         <span className="font-medium">{selectedEmail.meta.billingEmail}</span>
+//                       </div>
+//                     )}
+//                     {selectedEmail.meta?.confirmationNumber && (
+//                       <div>
+//                         <span className="text-gray-500 block">Confirmation No</span>
+//                         <span className="font-medium">{selectedEmail.meta.confirmationNumber}</span>
+//                       </div>
+//                     )}
+//                     {/* Show all other meta fields dynamically */}
+//                     {Object.entries(selectedEmail.meta || {})
+//                       .filter(([key]) =>
+//                         !["customerName", "customerPhone", "billingEmail", "confirmationNumber"].includes(key)
+//                       )
+//                       .map(([key, value]) => {
+//                         if (!value) return null;
+//                         return (
+//                           <div key={key}>
+//                             <span className="text-gray-500 block capitalize">
+//                               {key.replace(/([A-Z])/g, " $1")}
+//                             </span>
+//                             <span className="font-medium">{value}</span>
+//                           </div>
+//                         );
+//                       })}
+//                   </div>
+//                 </div>
+//               </div>
+//               {/* Modal Footer */}
+//               <div className="p-4 border-t bg-gray-50 flex justify-end">
+//                 <button
+//                   onClick={() => setSelectedEmail(null)}
+//                   className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+//                 >
+//                   Close
+//                 </button>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+// import { useEffect, useState } from "react";
+// import api from "../api/axios";
+// import {
+//   Mail,
+//   MailOpen,
+//   ChevronLeft,
+//   ChevronRight,
+//   X,
+//   Eye,
+// } from "lucide-react";
+
+// const ITEMS_PER_PAGE = 10;
+
+// const formatDate = (dateStr) => {
+//   if (!dateStr) return "—";
+//   const date = new Date(dateStr);
+//   return date.toLocaleString("en-IN", {
+//     day: "2-digit",
+//     month: "short",
+//     year: "numeric",
+//     hour: "numeric",
+//     minute: "2-digit",
+//     hour12: true,
+//   });
+// };
+
+// export default function Inbox() {
+//   const [emails, setEmails] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [selectedEmail, setSelectedEmail] = useState(null);
+
+//   useEffect(() => {
+//     api
+//       .get("/email")
+//       .then((res) => {
+//         const sorted = [...res.data].sort(
+//           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+//         );
+//         setEmails(sorted);
+//       })
+//       .finally(() => setLoading(false));
+//   }, []);
+
+//   const totalPages = Math.ceil(emails.length / ITEMS_PER_PAGE);
+//   const start = (currentPage - 1) * ITEMS_PER_PAGE;
+//   const visibleEmails = emails.slice(start, start + ITEMS_PER_PAGE);
+
+//   return (
+//     <div className="min-h-screen bg-gray-50 p-6">
+//       <div className="mx-auto max-w-7xl">
+//         <h1 className="text-3xl font-bold text-gray-900 mb-6">
+//           Booking Communications
+//         </h1>
+
+//         {loading ? (
+//           <div className="h-60 flex items-center justify-center">
+//             <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+//           </div>
+//         ) : (
+//           <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+//             {visibleEmails.map((email) => {
+//               const isUnread = email.isRead === false;
+//               return (
+//                 <div
+//                   key={email._id}
+//                   onClick={() => setSelectedEmail(email)}
+//                   className={`cursor-pointer px-6 py-4 border-b hover:bg-gray-50 ${
+//                     isUnread ? "bg-indigo-50" : ""
+//                   }`}
+//                 >
+//                   <div className="flex justify-between gap-4">
+//                     <div className="flex gap-4 min-w-0">
+//                       {isUnread ? (
+//                         <Mail className="text-indigo-600" />
+//                       ) : (
+//                         <MailOpen className="text-gray-400" />
+//                       )}
+//                       <div className="min-w-0">
+//                         <p className="font-semibold truncate">
+//                           {email.subject}
+//                         </p>
+//                         <p className="text-sm text-gray-600 truncate">
+//                           {email.meta?.customerName} •{" "}
+//                           {email.meta?.confirmationNumber}
+//                         </p>
+//                       </div>
+//                     </div>
+//                     <span className="text-xs text-gray-500 whitespace-nowrap">
+//                       {formatDate(email.createdAt)}
+//                     </span>
+//                   </div>
+//                 </div>
+//               );
+//             })}
+//           </div>
+//         )}
+
+//         {/* ================= MODAL ================= */}
+//         {selectedEmail && (
+//           <div
+//             className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+//             onClick={(e) =>
+//               e.target === e.currentTarget && setSelectedEmail(null)
+//             }
+//           >
+//             <div className="w-full max-w-6xl h-[92vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+//               {/* Header */}
+//               <div className="flex justify-between items-center px-6 py-4 border-b bg-indigo-50">
+//                 <div>
+//                   <h2 className="text-xl font-bold">
+//                     {selectedEmail.subject}
+//                   </h2>
+//                   <p className="text-sm text-gray-600">
+//                     {formatDate(selectedEmail.createdAt)}
+//                   </p>
+//                 </div>
+//                 <button
+//                   onClick={() => setSelectedEmail(null)}
+//                   className="p-2 rounded-full hover:bg-gray-200"
+//                 >
+//                   <X />
+//                 </button>
+//               </div>
+
+//               {/* Content */}
+//               <div className="flex flex-1 overflow-hidden">
+//                 {/* Email Body */}
+//                 <div className="flex-1 overflow-y-auto border-r">
+//                   <div
+//                     className="prose max-w-none p-6 break-words"
+//                     dangerouslySetInnerHTML={{
+//                       __html:
+//                         selectedEmail.html ||
+//                         "<p>No email content available</p>",
+//                     }}
+//                   />
+//                 </div>
+
+//                 {/* Sidebar */}
+//                 <div className="w-96 bg-gray-50 border-l overflow-y-auto p-6">
+//                   <div className="flex items-center gap-2 mb-4">
+//                     <Eye className="text-indigo-600" size={18} />
+//                     <h3 className="font-semibold">Booking Details</h3>
+//                   </div>
+
+//                   <div className="space-y-4 text-sm">
+//                     <DetailItem label="Customer" value={selectedEmail.meta?.customerName} />
+//                     <DetailItem label="Phone" value={selectedEmail.meta?.customerPhone} />
+//                     <DetailItem label="Billing Email" value={selectedEmail.meta?.billingEmail} />
+//                     <DetailItem label="Confirmation No" value={selectedEmail.meta?.confirmationNumber} />
+//                     <DetailItem label="Airline" value={selectedEmail.meta?.airline} />
+//                     <DetailItem label="Old Travel Date" value={selectedEmail.meta?.oldTravelDate} />
+//                     <DetailItem label="New Travel Date" value={selectedEmail.meta?.newTravelDate} />
+//                     <DetailItem label="Change Fee" value={`₹${selectedEmail.meta?.changeFee || "0"}`} />
+//                     <DetailItem label="Fare Difference" value={`₹${selectedEmail.meta?.fareDifference || "0"}`} />
+//                   </div>
+//                 </div>
+//               </div>
+
+//               {/* Footer */}
+//               <div className="border-t px-6 py-4 flex justify-end bg-gray-50">
+//                 <button
+//                   onClick={() => setSelectedEmail(null)}
+//                   className="px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+//                 >
+//                   Close
+//                 </button>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+// function DetailItem({ label, value }) {
+//   return (
+//     <div className="break-words">
+//       <p className="text-gray-500">{label}</p>
+//       <p className="font-medium text-gray-900">
+//         {value || "—"}
+//       </p>
+//     </div>
+//   );
+// }
+
+
 
 import { useEffect, useState } from "react";
 import api from "../api/axios";
-import { Mail, MailOpen, ChevronLeft, ChevronRight } from "lucide-react";
-
-const ITEMS_PER_PAGE = 10;
+import {
+  Mail,
+  MailOpen,
+  User,
+  Phone,
+  Ticket,
+  Plane,
+  X,
+  Eye,
+} from "lucide-react";
 
 const formatDate = (dateStr) => {
-  const date = new Date(dateStr);
-  return date.toLocaleString("en-IN", {
+  if (!dateStr) return "—";
+  return new Date(dateStr).toLocaleString("en-IN", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -486,179 +1444,207 @@ const formatDate = (dateStr) => {
     minute: "2-digit",
     hour12: true,
   });
-  // Output example: 27/12/2025 03:45 PM
 };
 
 export default function Inbox() {
   const [emails, setEmails] = useState([]);
+  const [selectedEmail, setSelectedEmail] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [openId, setOpenId] = useState(null);
 
   useEffect(() => {
-    setLoading(true);
-    api
-      .get("/email")
-      .then((res) => {
-        const sorted = [...res.data].sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-        setEmails(sorted);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    api.get("/email").then((res) => {
+      const sorted = [...res.data].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setEmails(sorted);
+      setLoading(false);
+    });
   }, []);
 
-  const totalPages = Math.ceil(emails.length / ITEMS_PER_PAGE);
-  const start = (currentPage - 1) * ITEMS_PER_PAGE;
-  const visibleEmails = emails.slice(start, start + ITEMS_PER_PAGE);
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6 pb-20">
+    <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
-              Booking Inbox
-            </h1>
-            <p className="text-gray-500 mt-1">
-              {emails.length} {emails.length === 1 ? "conversation" : "conversations"}
-            </p>
-          </div>
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">Booking Inbox</h1>
+          <p className="text-gray-500 mt-1">
+            {emails.length} conversations
+          </p>
         </div>
 
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-          </div>
-        ) : emails.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100">
-            <div className="mx-auto w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-              <Mail className="w-10 h-10 text-gray-400" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">
-              Your inbox is empty
-            </h3>
-            <p className="text-gray-500">New booking emails will appear here</p>
-          </div>
-        ) : (
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100/80 overflow-hidden">
-            <div className="divide-y divide-gray-100">
-              {visibleEmails.map((email) => {
-                const isOpen = openId === email._id;
-                const isUnread = email.isRead === false;
+        {/* List */}
+        <div className="rounded-2xl bg-white shadow-sm border overflow-hidden">
+          {loading ? (
+            <div className="p-12 text-center text-gray-500">Loading...</div>
+          ) : (
+            emails.map((email) => {
+              const unread = email.isRead === false;
 
-                const statusColor =
-                  email.meta?.status === "refund"
-                    ? "from-red-500 to-rose-600"
-                    : email.meta?.status === "cancellation"
-                    ? "from-amber-500 to-yellow-600"
-                    : "from-emerald-500 to-teal-600";
+              return (
+                <div
+                  key={email._id}
+                  onClick={() => setSelectedEmail(email)}
+                  className={`relative cursor-pointer border-b px-6 py-5 hover:bg-gray-50 transition ${
+                    unread ? "bg-white" : "bg-gray-50/30"
+                  }`}
+                >
+                  {/* Left green bar */}
+                  <span className="absolute left-0 top-0 h-full w-1 bg-emerald-500" />
 
-                return (
-                  <div
-                    key={email._id}
-                    className={`group relative transition-all duration-200 hover:shadow-md ${
-                      isOpen ? "bg-indigo-50/40" : "hover:bg-gray-50/80"
-                    }`}
-                  >
-                    <div className={`absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b ${statusColor} opacity-90`} />
+                  <div className="flex items-start justify-between gap-6">
+                    {/* Left content */}
+                    <div className="flex gap-4 min-w-0">
+                      <div className="mt-1">
+                        {unread ? (
+                          <Mail className="text-indigo-600" />
+                        ) : (
+                          <MailOpen className="text-gray-400" />
+                        )}
+                      </div>
 
-                    <div
-                      className="p-5 pl-8 cursor-pointer"
-                      onClick={() => setOpenId(isOpen ? null : email._id)}
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex gap-4 flex-1 min-w-0">
-                          <div className="mt-1.5">
-                            {isUnread ? (
-                              <Mail className="text-indigo-600" size={20} strokeWidth={2.2} />
-                            ) : (
-                              <MailOpen className="text-gray-400" size={20} />
-                            )}
-                          </div>
+                      <div className="min-w-0">
+                        {/* From */}
+                        <p className="font-semibold text-gray-900 truncate">
+                          {email.from || "customer@email.com"}
+                        </p>
 
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2.5 mb-1.5">
-                              <span className="font-semibold text-gray-900 truncate text-base">
-                                {email.from || "Customer"}
-                              </span>
+                        {/* Subject */}
+                        <p className="text-lg font-medium text-gray-800 mt-1">
+                          {email.subject}
+                        </p>
 
-                              {email.meta?.bookingType && (
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100/80 text-indigo-700 border border-indigo-200/70">
-                                  {email.meta.bookingType.replace("_", " ").toUpperCase()}
-                                </span>
-                              )}
-                            </div>
+                        {/* Meta row */}
+                        <div className="mt-2 flex flex-wrap gap-6 text-sm text-gray-600">
+                          {email.meta?.customerName && (
+                            <span className="flex items-center gap-1">
+                              <User size={14} />
+                              {email.meta.customerName}
+                            </span>
+                          )}
 
-                            <p className="text-gray-800 font-medium line-clamp-1 mb-2.5">
-                              {email.subject}
-                            </p>
+                          {email.meta?.customerPhone && (
+                            <span className="flex items-center gap-1">
+                              <Phone size={14} />
+                              {email.meta.customerPhone}
+                            </span>
+                          )}
 
-                            <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-gray-600">
-                              {email.meta?.customerName && (
-                                <span>👤 {email.meta.customerName}</span>
-                              )}
-                              {email.meta?.confirmationNumber && (
-                                <span>🎫 PNR: {email.meta.confirmationNumber}</span>
-                              )}
-                              {email.meta?.airline && (
-                                <span>✈ {email.meta.airline}</span>
-                              )}
-                              {email.meta?.departure && email.meta?.arrival && (
-                                <span>🛫 {email.meta.departure} → {email.meta.arrival}</span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
+                          {email.meta?.confirmationNumber && (
+                            <span className="flex items-center gap-1">
+                              <Ticket size={14} />
+                              PNR: {email.meta.confirmationNumber}
+                            </span>
+                          )}
 
-                        <div className="flex flex-col items-end gap-1 whitespace-nowrap">
-                          <span className="text-xs font-medium text-gray-700">
-                            {formatDate(email.createdAt)}
-                          </span>
-                          {isUnread && (
-                            <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 mt-1"></span>
+                          {email.meta?.airline && (
+                            <span className="flex items-center gap-1">
+                              <Plane size={14} />
+                              {email.meta.airline}
+                            </span>
                           )}
                         </div>
                       </div>
                     </div>
+
+                    {/* Right */}
+                    <div className="flex flex-col items-end gap-2">
+                      <span className="text-sm text-gray-500 whitespace-nowrap">
+                        {formatDate(email.createdAt)}
+                      </span>
+
+                      {unread && (
+                        <span className="h-3 w-3 rounded-full bg-indigo-600" />
+                      )}
+                    </div>
                   </div>
-                );
-              })}
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      {/* ================= MODAL (UNCHANGED – WORKING) ================= */}
+      {selectedEmail && (
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={(e) =>
+            e.target === e.currentTarget && setSelectedEmail(null)
+          }
+        >
+          <div className="w-full max-w-6xl h-[92vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+            {/* Header */}
+            <div className="flex justify-between items-center px-6 py-4 border-b bg-indigo-50">
+              <div>
+                <h2 className="text-xl font-bold">
+                  {selectedEmail.subject}
+                </h2>
+                <p className="text-sm text-gray-600">
+                  {formatDate(selectedEmail.createdAt)}
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedEmail(null)}
+                className="p-2 rounded-full hover:bg-gray-200 cursor-pointer "
+              >
+                <X />
+              </button>
             </div>
 
-            {/* Modern Pagination */}
-            {totalPages > 1 && (
-              <div className="px-6 py-4 border-t bg-gray-50/50 flex items-center justify-between">
-                <button
-                  onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
-                  disabled={currentPage === 1}
-                  className="cursor-pointer flex items-center gap-1 px-5 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-colors"
-                >
-                  <ChevronLeft size={16} />
-                  Previous
-                </button>
+            <div className="flex flex-1 overflow-hidden">
+              {/* Email Body */}
+              <div className="flex-1 overflow-y-auto border-r">
+                <div
+                  className="prose max-w-none p-6 break-words"
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      selectedEmail.html ||
+                      "<p>No email content available</p>",
+                  }}
+                />
+              </div>
 
-                <div className="text-sm font-medium text-gray-700">
-                  Page <span className="text-indigo-700 font-semibold">{currentPage}</span>
-                  <span className="text-gray-400 mx-1.5">/</span>
-                  {totalPages}
+              {/* Sidebar */}
+              <div className="w-96 bg-gray-50 border-l overflow-y-auto p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Eye size={18} className="text-indigo-600" />
+                  <h3 className="font-semibold">Booking Details</h3>
                 </div>
 
-                <button
-                  onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className="cursor-pointer flex items-center gap-1 px-5 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-colors"
-                >
-                  Next
-                  <ChevronRight size={16} />
-                </button>
+                <Detail label="Customer" value={selectedEmail.meta?.customerName} />
+                <Detail label="Phone" value={selectedEmail.meta?.customerPhone} />
+                <Detail label="Email" value={selectedEmail.meta?.billingEmail} />
+                <Detail label="PNR" value={selectedEmail.meta?.confirmationNumber} />
+                <Detail label="Airline" value={selectedEmail.meta?.airline} />
+                <Detail label="Old Travel Date" value={selectedEmail.meta?.oldTravelDate} />
+                <Detail label="New Travel Date" value={selectedEmail.meta?.newTravelDate} />
+                <Detail label="Change Fee" value={`₹${selectedEmail.meta?.changeFee || 0}`} />
+                <Detail label="Fare Difference" value={`₹${selectedEmail.meta?.fareDifference || 0}`} />
               </div>
-            )}
+            </div>
+
+            <div className="border-t px-6 py-4 flex justify-end bg-gray-50">
+              <button
+                onClick={() => setSelectedEmail(null)}
+                className="cursor-pointer px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+              >
+                Close
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Detail({ label, value }) {
+  return (
+    <div className="mb-4">
+      <p className="text-gray-500 text-sm">{label}</p>
+      <p className="font-medium text-gray-900 break-words">
+        {value || "—"}
+      </p>
     </div>
   );
 }

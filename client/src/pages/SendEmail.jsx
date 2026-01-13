@@ -1161,7 +1161,7 @@ const SendEmail = () => {
                     required
                   />
                 </div>
-                <div>
+                {/* <div>
                   <label className={labelClass}>Phone Number *</label>
                   <input
                     name="customerPhone"
@@ -1172,7 +1172,24 @@ const SendEmail = () => {
                     value={form.customerPhone}
                     required
                   />
+                </div> */}
+
+                <div>
+                  <label className={labelClass}>Phone Number *</label>
+                  <input
+                    name="customerPhone"
+                    type="tel"                                      // ← Good for mobile keyboards
+                    placeholder="+1 555 123 4567"
+                    pattern="[+]{0,1}[0-9\s()-]{8,20}"               // ← HTML5 validation
+                    // title="Enter a valid phone number (e.g. +1234567890 or 123-456-7890)"
+                    title="Enter a valid phone number (8-20 digits, spaces, +, -, () allowed)"
+                    className={inputClass}
+                    onChange={handleChange}
+                    value={form.customerPhone}
+                    required
+                  />
                 </div>
+
                 <div>
                   <label className={labelClass}>Billing Email *</label>
                   <input

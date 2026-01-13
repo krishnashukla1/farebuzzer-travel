@@ -1599,11 +1599,16 @@ export const sendCustomerEmail = async (req, res) => {
         </div>
         <h2 style="color:#1e293b; margin:20px 0 10px 0;">${subject}</h2>
         <p style="font-size:16px; margin-bottom:10px;"><strong>Dear ${customerName},</strong></p>
+        <p style="margin-bottom:20px;">
+      Thank you for your enquiry regarding the Kashmir / Manali / Goa package / flight / Hotel or any other thing.
+    </p>
         ${message}
         <br/>
         <div style="margin-top:30px; padding:20px; background:#f8fafc; border-radius:8px; border-left:4px solid #10b981;">
           <p style="margin:0 0 10px 0; font-weight:500;">Contact Us:</p>
-          <p style="margin:0; color:#64748b;">📧 <strong>support@farebuzzer.com</strong> | 📞 <strong>+1-800-FAREBUZ</strong></p>
+          
+          <p style="margin:0; color:#64748b;">📧 <strong>enquiry@farebuzzertravel.com</strong> | 📞 <strong>844 784 3676</strong></p>
+
         </div>
         <p style="margin-top:30px; color:#64748b; font-size:14px;">
           Regards,<br/>

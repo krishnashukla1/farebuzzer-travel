@@ -1076,28 +1076,70 @@ const SendEmail = () => {
     }
   }, [successMessage, errorMessage]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setSuccessMessage("");
-    setErrorMessage("");
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   setSuccessMessage("");
+  //   setErrorMessage("");
 
-    try {
-      await API.post("/email/send", {
-        emailType,
-        ...form,
-      });
+  //   try {
+  //     await API.post("/email/send", {
+  //       emailType,
+  //       ...form,
+  //     });
 
-      setSuccessMessage("Email sent successfully!");
-      setForm(initialFormState);
-    } catch (err) {
-      setErrorMessage(err.response?.data?.message || "Failed to send email");
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setSuccessMessage("Email sent successfully!");
+  //     setForm(initialFormState);
+  //   } catch (err) {
+  //     setErrorMessage(err.response?.data?.message || "Failed to send email");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // Reusable classes
+ 
+ 
+ 
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const phone = (form.customerPhone || "").trim();
+
+  // ── Real working regex for phone ─────────────────────────────
+  const phoneRegex = /^[+0-9\s\-\(\)]{8,20}$/;
+
+  if (phone === "") {
+    setErrorMessage("Phone number is required");
+    return;
+  }
+
+  if (!phoneRegex.test(phone)) {
+    setErrorMessage(
+      "Invalid phone number format. Use only numbers, spaces, +, -, () (8–20 characters)"
+    );
+    return;
+  }
+
+  setLoading(true);
+  setSuccessMessage("");
+  setErrorMessage("");
+
+  try {
+    await API.post("/email/send", {
+      emailType,
+      ...form,
+    });
+
+    setSuccessMessage("Email sent successfully!");
+    setForm(initialFormState);
+  } catch (err) {
+    setErrorMessage(err.response?.data?.message || "Failed to send email");
+  } finally {
+    setLoading(false);
+  }
+};
+ 
   const inputClass =
     "w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200";
 
@@ -1174,21 +1216,22 @@ const SendEmail = () => {
                   />
                 </div> */}
 
-                <div>
-                  <label className={labelClass}>Phone Number *</label>
-                  <input
-                    name="customerPhone"
-                    type="tel"                                      // ← Good for mobile keyboards
-                    placeholder="+1 555 123 4567"
-                    pattern="[+]{0,1}[0-9\s()-]{8,20}"               // ← HTML5 validation
-                    // title="Enter a valid phone number (e.g. +1234567890 or 123-456-7890)"
-                    title="Enter a valid phone number (8-20 digits, spaces, +, -, () allowed)"
-                    className={inputClass}
-                    onChange={handleChange}
-                    value={form.customerPhone}
-                    required
-                  />
-                </div>
+              {/* Phone Input */}
+<div>
+  <label className={labelClass}>Phone Number *</label>
+  <input
+    name="customerPhone"
+    type="tel"
+    placeholder="+91 98765 43210 or +1 202 555 0123"
+    className={inputClass}
+    onChange={handleChange}
+    value={form.customerPhone}
+    required
+  />
+  <p className="text-xs text-gray-500 mt-1">
+    Only numbers, spaces, +, -, () allowed (8–20 characters)
+  </p>
+</div>
 
                 <div>
                   <label className={labelClass}>Billing Email *</label>

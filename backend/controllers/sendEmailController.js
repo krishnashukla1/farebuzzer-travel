@@ -1449,6 +1449,14 @@ export const sendCustomerEmail = async (req, res) => {
         message: "Customer name, phone number, and billing email are required"
       });
     }
+    const phoneRegex = /^[+]?[0-9\s\-\(\)]{8,20}$/;
+    
+    if (!phoneRegex.test(customerPhone.trim())) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid phone number format. Use 8-20 digits, spaces, +, -, () allowed (example: +919876543210 or 2025550123)"
+      });
+    }
 
     /* ---------------- SUBJECT MAP ---------------- */
     const subjectMap = {

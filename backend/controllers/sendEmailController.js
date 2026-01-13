@@ -1371,6 +1371,7 @@ export const sendCustomerEmail = async (req, res) => {
       // replyTo: "farebuzzertravel1@gmail.com",
 
        replyTo: "besttripmakers@gmail.com",
+      //  replyTo: "FareBuzzer Support",
       subject,
       html
     });

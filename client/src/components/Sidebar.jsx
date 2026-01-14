@@ -1487,14 +1487,38 @@ const Sidebar = () => {
       <div className="relative z-10 flex flex-col h-full">
         {/* LOGO */}
         <div className="h-16 flex items-center justify-center bg-teal-600/20 border-b border-teal-500/30">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-teal-600 rounded-lg shadow-lg">
+          {/* <div className="flex items-center gap-3">
+         <div className="p-2 bg-teal-600 rounded-lg shadow-lg">
               <Plane size={24} />
+            </div> 
+
+            <div className="p-2 bg-teal-600 rounded-lg shadow-lg">
+              <img
+                src="/d2.png"
+                alt="Plane"
+                className="w-6 h-6 object-contain"
+              />
             </div>
+
             <h1 className="text-xl font-bold tracking-tight">
               FareBuzzer CRM
             </h1>
-          </div>
+          </div> */}
+
+
+
+          <div className="flex items-center gap-3">
+  <img
+    src="/d2.png"
+    alt="FareBuzzer Logo"
+    className="w-7 h-7 object-contain"
+  />
+
+  <h1 className="text-xl font-bold tracking-tight">
+    FareBuzzer CRM
+  </h1>
+</div>
+
         </div>
 
         {/* MENU */}

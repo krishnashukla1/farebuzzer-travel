@@ -23,6 +23,8 @@ import ProjectPage from './components2/ProjectPage'
 import SendEmail from './pages/SendEmail'
 import InboxEmail from "./pages/InboxEmail";
 
+import FlightSearch from './components1/FlightSearch'
+
 
 
 
@@ -77,6 +79,8 @@ const App = () => {
                       <Route path="/enquiries" element={<Enquiries />} />
                       <Route path="/add-enquiry" element={<AddEnquiry />} />
                       <Route path="/send-email" element={<SendEmail />} />
+                       
+        <Route path="/flight-search" element={<FlightSearch />} />
                       {/* <Route path="/weekly-off" element={<WeeklyOff />} /> */}
                       <Route path="/apply-leave" element={<ApplyLeave />} />
                       <Route path="/my-leaves" element={<MyLeaves />} />

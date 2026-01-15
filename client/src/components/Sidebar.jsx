@@ -1508,16 +1508,16 @@ const Sidebar = () => {
 
 
           <div className="flex items-center gap-3">
-  <img
-    src="/d2.png"
-    alt="FareBuzzer Logo"
-    className="w-7 h-7 object-contain"
-  />
+            <img
+              src="/d2.png"
+              alt="FareBuzzer Logo"
+              className="w-7 h-7 object-contain"
+            />
 
-  <h1 className="text-xl font-bold tracking-tight">
-    FareBuzzer CRM
-  </h1>
-</div>
+            <h1 className="text-xl font-bold tracking-tight">
+              FareBuzzer CRM
+            </h1>
+          </div>
 
         </div>
 
@@ -1584,6 +1584,11 @@ const Sidebar = () => {
           <NavLink to="/send-email" className={linkClass}>
             <Mail size={20} />
             <span>Send Email</span>
+          </NavLink>
+
+          <NavLink to="/flight-search" className={linkClass}>
+            <Plane size={20} />
+            <span>Flight Search</span>
           </NavLink>
 
           {/* EMPLOYEE ONLY */}

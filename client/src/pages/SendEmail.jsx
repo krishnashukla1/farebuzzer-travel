@@ -4245,7 +4245,7 @@ const SendEmail = () => {
                   <button
                     type="button"
                     onClick={() => setShowTemplateModal(true)}
-                    className="text-sm bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-4 py-2 rounded-lg font-medium transition-all"
+                    className="cursor-pointer text-sm bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-4 py-2 rounded-lg font-medium transition-all"
                   >
                     Save Current as Template
                   </button>
@@ -4886,7 +4886,7 @@ const SendEmail = () => {
               <button
                 type="button"
                 onClick={() => setShowTemplateModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-all"
+                className="cursor-pointer px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-all"
               >
                 Cancel
               </button>
@@ -4894,7 +4894,7 @@ const SendEmail = () => {
                 type="button"
                 onClick={saveAsTemplate}
                 disabled={isSavingTemplate || !newTemplateName.trim()}
-                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-medium disabled:opacity-70 transition-all"
+                className="cursor-pointer px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-medium disabled:opacity-70 transition-all"
               >
                 {isSavingTemplate ? "Saving..." : "Save Template"}
               </button>

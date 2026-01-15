@@ -65,6 +65,10 @@ import weeklyOffRoutes from './routes/weeklyOffRoutes.js'
 import leaveRoutes from './routes/leaveRoutes.js'
 
 
+import flightStatusRoutes from "./routes/flightStatusRoutes.js";
+
+
+
 dotenv.config();
 
 // Connect DB
@@ -105,6 +109,9 @@ app.use("/api/attendance", attendanceRoutes);
 app.use("/api/login-hours", loginHourRoutes);
 app.use("/api/weekly-off", weeklyOffRoutes);
 app.use("/api/leaves", leaveRoutes);
+
+app.use("/api", flightStatusRoutes);
+
 
 
 // ✅ Proper PORT handling

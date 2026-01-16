@@ -19,17 +19,24 @@ router.post("/send", sendCustomerEmail);
 // });
 
 // GET /api/email?type=received
+// GET /api/email?type=received
 router.get("/", async (req, res) => {
   try {
     const type = req.query.type; // 'received' or 'sent'
     const filter = type ? { type } : {};
-    const emails = await Email.find(filter).sort({ createdAt: -1 });
+
+    // Use limit for safer queries
+    const emails = await Email.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(100); // fetch latest 100 emails only
+
     res.json(emails);
   } catch (err) {
     console.error("Error fetching emails:", err);
     res.status(500).json({ status: "error", message: err.message });
   }
 });
+
 
 
 

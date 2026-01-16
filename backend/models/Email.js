@@ -158,5 +158,6 @@ const emailSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+emailSchema.index({ type: 1, createdAt: -1 });
 
 export default mongoose.model("Email", emailSchema);

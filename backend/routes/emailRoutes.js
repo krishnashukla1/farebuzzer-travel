@@ -9,37 +9,14 @@ const router = express.Router();
 router.post("/send", sendCustomerEmail);
 
 // GET /emails → fetch inbox for frontend
-// router.get("/", async (req, res) => {
-//   try {
-//     const emails = await Email.find().sort({ receivedAt: -1 }); // latest first
-//     res.json(emails);
-//   } catch (err) {
-//     res.status(500).json({ status: "error", message: err.message });
-//   }
-// });
-
 router.get("/", async (req, res) => {
   try {
-    const { type } = req.query;
-
-    const filter = {};
-    if (type) {
-      filter.type = type; // "received" or "sent"
-    }
-
-    const emails = await Email.find(filter).sort({ createdAt: -1 });
-
+    const emails = await Email.find().sort({ receivedAt: -1 }); // latest first
     res.json(emails);
   } catch (err) {
-    console.error("❌ Email fetch error:", err);
-    res.status(500).json({
-      message: "Failed to fetch emails",
-      error: err.message,
-    });
+    res.status(500).json({ status: "error", message: err.message });
   }
 });
-
-
 
 router.post("/receive", async (req, res) => {
   try {
@@ -136,6 +113,4 @@ npm install imap-simple mailparser node-cron
 imap-simple → Gmail inbox se connect
 mailparser → email ka subject, body, sender nikalne ke liye
 node-cron → auto sync ke liye (har 1–2 min)
-
-
  */

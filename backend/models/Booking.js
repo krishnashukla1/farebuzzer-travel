@@ -54,7 +54,6 @@
 
 
 //==================
-
 import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema(
@@ -73,34 +72,19 @@ const bookingSchema = new mongoose.Schema(
     airline: String,
     pnr: String,
 
-    amount: {
+    // 🧾 Pricing
+    grossPrice: {
       type: Number,
-      default: 0,
+      required: true, // actual flight cost
     },
 
-    commission: {
+    sellingPrice: {
       type: Number,
-      default: 0,
+      required: true, // customer paid
     },
 
-    mco: {
-      type: Number,
-      default: 0,
-    },
-
-    discount: {
-      type: Number,
-      default: 0,
-    },
-
-    // 🆕 Net Amount (auto)
-    netAmount: {
-      type: Number,
-      default: 0,
-    },
-
-    // 🆕 Net Profit (auto)
-    netProfit: {
+    // 💰 Sales Profit (MCO / Gross Profit)
+    salesProfit: {
       type: Number,
       default: 0,
     },
@@ -122,13 +106,10 @@ const bookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// 🔥 AUTO CALCULATION (Single Source of Truth)
 bookingSchema.pre("save", function (next) {
-  // Net Amount = Amount - Discount
-  this.netAmount = (this.amount || 0) - (this.discount || 0);
-
-  // Net Profit = Commission + MCO
-  this.netProfit = (this.commission || 0) + (this.mco || 0);
-
+  // Sales Profit = Selling Price – Gross Price
+  this.salesProfit = (this.sellingPrice || 0) - (this.grossPrice || 0);
   next();
 });
 

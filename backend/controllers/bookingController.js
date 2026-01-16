@@ -138,13 +138,10 @@
 // };
 
 //=================================================================
-
-
 import Booking from "../models/Booking.js";
 
 /**
  * GET /api/bookings
- * with search + pagination
  */
 export const getBookings = async (req, res) => {
   try {
@@ -154,7 +151,6 @@ export const getBookings = async (req, res) => {
 
     const query = {};
 
-    // 🔍 Filters
     if (req.query.customerName) {
       query.customerName = { $regex: req.query.customerName, $options: "i" };
     }
@@ -190,47 +186,39 @@ export const getBookings = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: "Failed to fetch bookings" });
   }
 };
 
 /**
  * POST /api/bookings
- * CREATE BOOKING
  */
 export const createBooking = async (req, res) => {
   try {
     const booking = new Booking(req.body);
-    await booking.save(); // ✅ pre-save runs (netAmount & netProfit)
+    await booking.save(); // ✅ auto salesProfit
 
     res.status(201).json(booking);
   } catch (err) {
-    console.error(err);
     res.status(400).json({ message: "Failed to create booking" });
   }
 };
 
 /**
  * PUT /api/bookings/:id/status
- * UPDATE ONLY STATUS (ADMIN)
  */
 export const updateBookingStatus = async (req, res) => {
   try {
-    const { status } = req.body;
-
     const booking = await Booking.findById(req.params.id);
-
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
 
-    booking.status = status;
-    await booking.save(); // safe & future-proof
+    booking.status = req.body.status;
+    await booking.save();
 
     res.json(booking);
   } catch (err) {
-    console.error(err);
     res.status(400).json({ message: "Failed to update status" });
   }
 };
@@ -241,14 +229,12 @@ export const updateBookingStatus = async (req, res) => {
 export const deleteBooking = async (req, res) => {
   try {
     const booking = await Booking.findByIdAndDelete(req.params.id);
-
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
 
     res.json({ message: "Booking deleted successfully" });
   } catch (err) {
-    console.error(err);
     res.status(400).json({ message: "Failed to delete booking" });
   }
 };

@@ -1419,7 +1419,237 @@
 //   );
 // }
 
+//============================correct======================================
 
+// import { useEffect, useState } from "react";
+// import api from "../api/axios";
+// import {
+//   Mail,
+//   MailOpen,
+//   User,
+//   Phone,
+//   Ticket,
+//   Plane,
+//   X,
+//   Eye,
+// } from "lucide-react";
+
+// const formatDate = (dateStr) => {
+//   if (!dateStr) return "—";
+//   return new Date(dateStr).toLocaleString("en-IN", {
+//     day: "2-digit",
+//     month: "2-digit",
+//     year: "numeric",
+//     hour: "numeric",
+//     minute: "2-digit",
+//     hour12: true,
+//   });
+// };
+
+// export default function Inbox() {
+//   const [emails, setEmails] = useState([]);
+//   const [selectedEmail, setSelectedEmail] = useState(null);
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     api.get("/email").then((res) => {
+//       const sorted = [...res.data].sort(
+//         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+//       );
+//       setEmails(sorted);
+//       setLoading(false);
+//     });
+//   }, []);
+
+//   return (
+//     <div className="min-h-screen bg-gray-50 p-8">
+//       <div className="max-w-7xl mx-auto">
+//         {/* Header */}
+//         <div className="mb-6">
+//           <h1 className="text-3xl font-bold text-gray-900">Booking Inbox</h1>
+//           <p className="text-gray-500 mt-1">
+//             {emails.length} conversations
+//           </p>
+//         </div>
+
+//         {/* List */}
+//         <div className="rounded-2xl bg-white shadow-sm border overflow-hidden">
+//           {loading ? (
+//             <div className="p-12 text-center text-gray-500">Loading...</div>
+//           ) : (
+//             emails.map((email) => {
+//               const unread = email.isRead === false;
+
+//               return (
+//                 <div
+//                   key={email._id}
+//                   onClick={() => setSelectedEmail(email)}
+//                   className={`relative cursor-pointer border-b px-6 py-5 hover:bg-gray-50 transition ${
+//                     unread ? "bg-white" : "bg-gray-50/30"
+//                   }`}
+//                 >
+//                   {/* Left green bar */}
+//                   <span className="absolute left-0 top-0 h-full w-1 bg-emerald-500" />
+
+//                   <div className="flex items-start justify-between gap-6">
+//                     {/* Left content */}
+//                     <div className="flex gap-4 min-w-0">
+//                       <div className="mt-1">
+//                         {unread ? (
+//                           <Mail className="text-indigo-600" />
+//                         ) : (
+//                           <MailOpen className="text-gray-400" />
+//                         )}
+//                       </div>
+
+//                       <div className="min-w-0">
+//                         {/* From */}
+//                         <p className="font-semibold text-gray-900 truncate">
+//                           {email.from || "customer@email.com"}
+//                         </p>
+
+//                         {/* Subject */}
+//                         <p className="text-lg font-medium text-gray-800 mt-1">
+//                           {email.subject}
+//                         </p>
+
+//                         {/* Meta row */}
+//                         <div className="mt-2 flex flex-wrap gap-6 text-sm text-gray-600">
+//                           {email.meta?.customerName && (
+//                             <span className="flex items-center gap-1">
+//                               <User size={14} />
+//                               {email.meta.customerName}
+//                             </span>
+//                           )}
+
+//                           {email.meta?.customerPhone && (
+//                             <span className="flex items-center gap-1">
+//                               <Phone size={14} />
+//                               {email.meta.customerPhone}
+//                             </span>
+//                           )}
+
+//                           {email.meta?.confirmationNumber && (
+//                             <span className="flex items-center gap-1">
+//                               <Ticket size={14} />
+//                               PNR: {email.meta.confirmationNumber}
+//                             </span>
+//                           )}
+
+//                           {email.meta?.airline && (
+//                             <span className="flex items-center gap-1">
+//                               <Plane size={14} />
+//                               {email.meta.airline}
+//                             </span>
+//                           )}
+//                         </div>
+//                       </div>
+//                     </div>
+
+//                     {/* Right */}
+//                     <div className="flex flex-col items-end gap-2">
+//                       <span className="text-sm text-gray-500 whitespace-nowrap">
+//                         {formatDate(email.createdAt)}
+//                       </span>
+
+//                       {unread && (
+//                         <span className="h-3 w-3 rounded-full bg-indigo-600" />
+//                       )}
+//                     </div>
+//                   </div>
+//                 </div>
+//               );
+//             })
+//           )}
+//         </div>
+//       </div>
+
+//       {/* ================= MODAL (UNCHANGED – WORKING) ================= */}
+//       {selectedEmail && (
+//         <div
+//           className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+//           onClick={(e) =>
+//             e.target === e.currentTarget && setSelectedEmail(null)
+//           }
+//         >
+//           <div className="w-full max-w-6xl h-[92vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+//             {/* Header */}
+//             <div className="flex justify-between items-center px-6 py-4 border-b bg-indigo-50">
+//               <div>
+//                 <h2 className="text-xl font-bold">
+//                   {selectedEmail.subject}
+//                 </h2>
+//                 <p className="text-sm text-gray-600">
+//                   {formatDate(selectedEmail.createdAt)}
+//                 </p>
+//               </div>
+//               <button
+//                 onClick={() => setSelectedEmail(null)}
+//                 className="p-2 rounded-full hover:bg-gray-200 cursor-pointer "
+//               >
+//                 <X />
+//               </button>
+//             </div>
+
+//             <div className="flex flex-1 overflow-hidden">
+//               {/* Email Body */}
+//               <div className="flex-1 overflow-y-auto border-r">
+//                 <div
+//                   className="prose max-w-none p-6 break-words"
+//                   dangerouslySetInnerHTML={{
+//                     __html:
+//                       selectedEmail.html ||
+//                       "<p>No email content available</p>",
+//                   }}
+//                 />
+//               </div>
+
+//               {/* Sidebar */}
+//               <div className="w-96 bg-gray-50 border-l overflow-y-auto p-6">
+//                 <div className="flex items-center gap-2 mb-4">
+//                   <Eye size={18} className="text-indigo-600" />
+//                   <h3 className="font-semibold">Booking Details</h3>
+//                 </div>
+
+//                 <Detail label="Customer" value={selectedEmail.meta?.customerName} />
+//                 <Detail label="Phone" value={selectedEmail.meta?.customerPhone} />
+//                 <Detail label="Email" value={selectedEmail.meta?.billingEmail} />
+//                 <Detail label="PNR" value={selectedEmail.meta?.confirmationNumber} />
+//                 <Detail label="Airline" value={selectedEmail.meta?.airline} />
+//                 <Detail label="Old Travel Date" value={selectedEmail.meta?.oldTravelDate} />
+//                 <Detail label="New Travel Date" value={selectedEmail.meta?.newTravelDate} />
+//                 <Detail label="Change Fee" value={`₹${selectedEmail.meta?.changeFee || 0}`} />
+//                 <Detail label="Fare Difference" value={`₹${selectedEmail.meta?.fareDifference || 0}`} />
+//               </div>
+//             </div>
+
+//             <div className="border-t px-6 py-4 flex justify-end bg-gray-50">
+//               <button
+//                 onClick={() => setSelectedEmail(null)}
+//                 className="cursor-pointer px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+//               >
+//                 Close
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+// function Detail({ label, value }) {
+//   return (
+//     <div className="mb-4">
+//       <p className="text-gray-500 text-sm">{label}</p>
+//       <p className="font-medium text-gray-900 break-words">
+//         {value || "—"}
+//       </p>
+//     </div>
+//   );
+// }
+
+//=======================
 
 import { useEffect, useState } from "react";
 import api from "../api/axios";
@@ -1451,15 +1681,37 @@ export default function Inbox() {
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // 🔹 Fetch only RECEIVED emails
   useEffect(() => {
-    api.get("/email").then((res) => {
-      const sorted = [...res.data].sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
-      setEmails(sorted);
-      setLoading(false);
-    });
+    api
+      .get("/email?type=received")
+      .then((res) => {
+        const sorted = [...res.data].sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setEmails(sorted);
+      })
+      .catch(() => alert("Failed to load inbox"))
+      .finally(() => setLoading(false));
   }, []);
+
+  // 🔹 Open email + mark as read
+  const openEmail = async (email) => {
+    setSelectedEmail(email);
+
+    if (!email.isRead) {
+      try {
+        await api.put(`/email/${email._id}/read`);
+        setEmails((prev) =>
+          prev.map((e) =>
+            e._id === email._id ? { ...e, isRead: true } : e
+          )
+        );
+      } catch (err) {
+        console.error("Failed to mark email as read");
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -1472,10 +1724,14 @@ export default function Inbox() {
           </p>
         </div>
 
-        {/* List */}
+        {/* Inbox List */}
         <div className="rounded-2xl bg-white shadow-sm border overflow-hidden">
           {loading ? (
             <div className="p-12 text-center text-gray-500">Loading...</div>
+          ) : emails.length === 0 ? (
+            <div className="p-12 text-center text-gray-500">
+              No emails found
+            </div>
           ) : (
             emails.map((email) => {
               const unread = email.isRead === false;
@@ -1483,16 +1739,18 @@ export default function Inbox() {
               return (
                 <div
                   key={email._id}
-                  onClick={() => setSelectedEmail(email)}
+                  onClick={() => openEmail(email)}
                   className={`relative cursor-pointer border-b px-6 py-5 hover:bg-gray-50 transition ${
-                    unread ? "bg-white" : "bg-gray-50/30"
+                    unread ? "bg-white" : "bg-gray-50/40"
                   }`}
                 >
-                  {/* Left green bar */}
-                  <span className="absolute left-0 top-0 h-full w-1 bg-emerald-500" />
+                  {/* Left indicator */}
+                  {unread && (
+                    <span className="absolute left-0 top-0 h-full w-1 bg-emerald-500" />
+                  )}
 
                   <div className="flex items-start justify-between gap-6">
-                    {/* Left content */}
+                    {/* Left */}
                     <div className="flex gap-4 min-w-0">
                       <div className="mt-1">
                         {unread ? (
@@ -1503,17 +1761,14 @@ export default function Inbox() {
                       </div>
 
                       <div className="min-w-0">
-                        {/* From */}
                         <p className="font-semibold text-gray-900 truncate">
                           {email.from || "customer@email.com"}
                         </p>
 
-                        {/* Subject */}
-                        <p className="text-lg font-medium text-gray-800 mt-1">
-                          {email.subject}
+                        <p className="text-lg font-medium text-gray-800 mt-1 truncate">
+                          {email.subject || "No subject"}
                         </p>
 
-                        {/* Meta row */}
                         <div className="mt-2 flex flex-wrap gap-6 text-sm text-gray-600">
                           {email.meta?.customerName && (
                             <span className="flex items-center gap-1">
@@ -1564,7 +1819,7 @@ export default function Inbox() {
         </div>
       </div>
 
-      {/* ================= MODAL (UNCHANGED – WORKING) ================= */}
+      {/* ================= MODAL ================= */}
       {selectedEmail && (
         <div
           className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
@@ -1585,21 +1840,21 @@ export default function Inbox() {
               </div>
               <button
                 onClick={() => setSelectedEmail(null)}
-                className="p-2 rounded-full hover:bg-gray-200 cursor-pointer "
+                className="p-2 rounded-full hover:bg-gray-200"
               >
                 <X />
               </button>
             </div>
 
             <div className="flex flex-1 overflow-hidden">
-              {/* Email Body */}
+              {/* Email body */}
               <div className="flex-1 overflow-y-auto border-r">
                 <div
                   className="prose max-w-none p-6 break-words"
                   dangerouslySetInnerHTML={{
                     __html:
                       selectedEmail.html ||
-                      "<p>No email content available</p>",
+                      `<pre>${selectedEmail.text || "No content"}</pre>`,
                   }}
                 />
               </div>
@@ -1626,7 +1881,7 @@ export default function Inbox() {
             <div className="border-t px-6 py-4 flex justify-end bg-gray-50">
               <button
                 onClick={() => setSelectedEmail(null)}
-                className="cursor-pointer px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+                className="px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
               >
                 Close
               </button>
@@ -1648,4 +1903,5 @@ function Detail({ label, value }) {
     </div>
   );
 }
+
 

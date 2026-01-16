@@ -18,22 +18,19 @@ router.post("/send", sendCustomerEmail);
 //   }
 // });
 
+// GET /api/email?type=received
 router.get("/", async (req, res) => {
   try {
-    const { type } = req.query; // e.g., type=received
-    const filter = {};
-
-    if (type) {
-      filter.type = type; // "sent" or "received"
-    }
-
-    const emails = await Email.find(filter).sort({ createdAt: -1 }); // ✅ sort by createdAt
+    const type = req.query.type; // 'received' or 'sent'
+    const filter = type ? { type } : {};
+    const emails = await Email.find(filter).sort({ createdAt: -1 });
     res.json(emails);
   } catch (err) {
-    console.error("❌ Email fetch error:", err);
+    console.error("Error fetching emails:", err);
     res.status(500).json({ status: "error", message: err.message });
   }
 });
+
 
 
 router.post("/receive", async (req, res) => {

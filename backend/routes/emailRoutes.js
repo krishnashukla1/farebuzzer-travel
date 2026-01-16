@@ -20,12 +20,25 @@ router.post("/send", sendCustomerEmail);
 
 router.get("/", async (req, res) => {
   try {
-    const emails = await Email.find().sort({ createdAt: -1 });
+    const { type } = req.query;
+
+    const filter = {};
+    if (type) {
+      filter.type = type; // "received" or "sent"
+    }
+
+    const emails = await Email.find(filter).sort({ createdAt: -1 });
+
     res.json(emails);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("❌ Email fetch error:", err);
+    res.status(500).json({
+      message: "Failed to fetch emails",
+      error: err.message,
+    });
   }
 });
+
 
 
 router.post("/receive", async (req, res) => {

@@ -9,14 +9,32 @@ const router = express.Router();
 router.post("/send", sendCustomerEmail);
 
 // GET /emails → fetch inbox for frontend
+// router.get("/", async (req, res) => {
+//   try {
+//     const emails = await Email.find().sort({ receivedAt: -1 }); // latest first
+//     res.json(emails);
+//   } catch (err) {
+//     res.status(500).json({ status: "error", message: err.message });
+//   }
+// });
+
 router.get("/", async (req, res) => {
   try {
-    const emails = await Email.find().sort({ receivedAt: -1 }); // latest first
+    const { type } = req.query; // e.g., type=received
+    const filter = {};
+
+    if (type) {
+      filter.type = type; // "sent" or "received"
+    }
+
+    const emails = await Email.find(filter).sort({ createdAt: -1 }); // ✅ sort by createdAt
     res.json(emails);
   } catch (err) {
+    console.error("❌ Email fetch error:", err);
     res.status(500).json({ status: "error", message: err.message });
   }
 });
+
 
 router.post("/receive", async (req, res) => {
   try {

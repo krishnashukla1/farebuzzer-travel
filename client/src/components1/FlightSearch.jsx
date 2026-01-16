@@ -2268,8 +2268,8 @@ export default function FlightStatusChecker() {
                     { value: "airport", label: "Airport", icon: <Navigation className="w-4 h-4" /> },
                     { value: "flight", label: "Flight", icon: <Plane className="w-4 h-4" /> },
                     { value: "city", label: "City", icon: <Building className="w-4 h-4" /> },
-                    { value: "board", label: "Board", icon: <Filter className="w-4 h-4" /> },
-                    { value: "time", label: "Time", icon: <Clock className="w-4 h-4" /> },
+                    // { value: "board", label: "Board", icon: <Filter className="w-4 h-4" /> },
+                    // { value: "time", label: "Time", icon: <Clock className="w-4 h-4" /> },
                   ].map((option) => (
                     <button
                       key={option.value}
@@ -2669,7 +2669,9 @@ export default function FlightStatusChecker() {
                         <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
                           <Clock className="w-5 h-5 text-blue-600" />
                         </div>
-                        <p className="text-xs text-gray-600">Time-based</p>
+                        {/* <p className="text-xs text-gray-600">Time-based</p> */}
+                        <p className="text-xs text-gray-600">City Search</p>
+
                       </div>
                     </div>
                   </div>

@@ -106,7 +106,7 @@ https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-sta
 
 https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=flight&fnum=AI101&date=2026-01-20
 https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=flight&fnum=6E2341&date=2026-01-16
-https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=flight&fnum=UK827&date=2026-01-15
+https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=flight&fnum=UK827&date=2026-02-15
 
 
 Required: type=flight, fnum, date
@@ -118,7 +118,7 @@ Recommended format for date: YYYY-MM-DD
 
 https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=airport&dep=DEL&arr=DXB&date=2026-01-20
 https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=airport&dep=BOM&arr=BKK&date=2026-01-18
-https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=airport&dep=BLR&arr=DXB&date=2026-01-16
+https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=airport&dep=BLR&arr=DXB&date=2026-02-16
 
 Required: type=airport, dep (departure IATA), arr (arrival IATA), date
 
@@ -133,9 +133,9 @@ Required: type=city, depcity, arrcity, date
 
 4. Full Airport Board — Departures or Arrivals (type=board)
 
-https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=board&airport=DEL&status=departure&date=2026-01-20
-https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=board&airport=BOM&status=arrival&date=2026-01-16&page=1&perpage=30
-https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=board&airport=DXB&status=departure&date=2026-01-15&page=2&perpage=20
+https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=board&airport=DEL&status=departure&date=2026-02-20
+https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=board&airport=BOM&status=arrival&date=2026-02-16&page=1&perpage=30
+https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=board&airport=DXB&status=departure&date=2026-02-20&page=2&perpage=20
 
 Required: type=board, airport (IATA code), status (usually departure or arrival), date
 Optional: page (default 1), perpage (default 20, try 30–50)
@@ -143,8 +143,8 @@ Optional: page (default 1), perpage (default 20, try 30–50)
 5. Airport Board in Specific Time Window (type=time) — Best for "flights in next 3 hours" type features
 
 https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=time&airport=DEL&status=departure&date=2026-01-20&startAt=0600&endAt=1200
-https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=time&airport=BLR&status=arrival&date=2026-01-16&startAt=0900&endAt=1800&page=1&perpage=25
-https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=time&airport=DXB&status=departure&date=2026-01-15&startAt=0000&endAt=2359
+https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=time&airport=BLR&status=arrival&date=2026-01-20&startAt=0900&endAt=1800&page=1&perpage=25
+https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/flight-status?type=time&airport=DXB&status=departure&date=2026-01-20&startAt=0000&endAt=2359
 
 Required: type=time, airport, status, date, startAt, endAt
 

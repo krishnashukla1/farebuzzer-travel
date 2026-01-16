@@ -895,9 +895,35 @@ const CreateBooking = () => {
           </Section>
 
           {/* FLIGHT */}
+          
           <Section title="FLIGHT DETAILS">
-            <Input icon={Plane} label="Airline" name="airline" value={form.airline} onChange={handleChange} />
-          </Section>
+  <div className="grid md:grid-cols-2 gap-4">
+    <Input
+      icon={Plane}
+      label="Airline"
+      name="airline"
+      value={form.airline}
+      onChange={handleChange}
+    />
+
+    <Select
+      label="Booking Status"
+      name="status"
+      value={form.status}
+      onChange={handleChange}
+      options={[
+        "FRESH",
+        "FOLLOW_UP",
+        "TICKETING",
+        "TICKETED",
+        "CANCELLED",
+        "CHARGEBACK",
+        "AUTH_FORM_LOSS",
+      ]}
+    />
+  </div>
+</Section>
+
 
           {/* PRICES */}
           <Section title="PRICING">
@@ -957,6 +983,23 @@ const ReadOnly = ({ icon: Icon, label, value, highlight }) => (
     </div>
   </div>
 );
+const Select = ({ label, options, ...props }) => (
+  <div>
+    <label className="text-sm font-medium text-gray-600">{label}</label>
+    <select
+      {...props}
+      className="cursor-pointer mt-1 w-full border rounded-lg px-3 py-2 bg-gray-50 focus:ring-2 focus:ring-teal-500"
+    >
+      {options.map((s) => (
+        <option key={s} value={s}>
+          {s.replace("_", " ")}
+        </option>
+      ))}
+    </select>
+  </div>
+);
+
+
 
 export default CreateBooking;
 

@@ -66,6 +66,7 @@ import leaveRoutes from './routes/leaveRoutes.js'
 
 
 import flightStatusRoutes from "./routes/flightStatusRoutes.js";
+import "./services/emailCron.js";
 
 
 

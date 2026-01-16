@@ -452,7 +452,9 @@ const Bookings = () => {
                   <th className="px-6 py-4 text-left">Customer</th>
                   <th className="px-6 py-4 text-center">PNR</th>
                   <th className="px-6 py-4 text-center">Airline</th>
-                  <th className="px-6 py-4 text-center">Amount</th>
+                  {/* <th className="px-6 py-4 text-center">Amount</th> */}
+                  <th className="px-6 py-4 text-center">MCO / Profit</th>
+
                   <th className="px-6 py-4 text-center">Date (IST)</th>
                   <th className="px-6 py-4 text-center">Status</th>
                   <th className="px-6 py-4 text-center">Action</th>
@@ -481,7 +483,13 @@ const Bookings = () => {
                     <td className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-1 font-bold text-gray-900">
                         <IndianRupee size={16} />
-                        {Number(b.amount || 0).toLocaleString("en-IN")}
+                        {/* {Number(b.amount || 0).toLocaleString("en-IN")} */}
+                        {(
+                          Number(b.sellingPrice || 0) -
+                          Number(b.costPrice || 0) -
+                          Number(b.otherExpense || 0)
+                        ).toLocaleString("en-IN")}
+
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center text-sm">

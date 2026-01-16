@@ -106,3 +106,13 @@ router.delete('/templates/:id', async (req, res) => {
 
 
 export default router;
+
+/**
+npm install imap-simple mailparser node-cron
+
+imap-simple → Gmail inbox se connect
+mailparser → email ka subject, body, sender nikalne ke liye
+node-cron → auto sync ke liye (har 1–2 min)
+
+
+ */

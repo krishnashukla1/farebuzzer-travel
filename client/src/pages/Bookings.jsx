@@ -192,12 +192,13 @@ import API from "../api/axios";
 import {
   Plane,
   User,
-  IndianRupee,
+  // IndianRupee,
   Ticket,
   Calendar,
   Trash2,
   Filter,
   X,
+  DollarSign,
 } from "lucide-react";
 
 const statusConfig = {
@@ -482,7 +483,9 @@ const Bookings = () => {
                     </td>
                     <td className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-1 font-bold text-gray-900">
-                        <IndianRupee size={16} />
+                        {/* <IndianRupee size={16} /> */}
+                        <DollarSign size={16} />
+
                         {/* {Number(b.amount || 0).toLocaleString("en-IN")} */}
                         {(
                           Number(b.sellingPrice || 0) -

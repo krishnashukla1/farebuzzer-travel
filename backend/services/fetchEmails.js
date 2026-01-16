@@ -61,6 +61,74 @@
 //======================================
 
 
+// import imaps from "imap-simple";
+// import { simpleParser } from "mailparser";
+// import imapConfig from "../config/imapConfig.js";
+// import Email from "../models/Email.js";
+
+// const fetchEmails = async () => {
+//   try {
+//     const connection = await imaps.connect(imapConfig);
+//     await connection.openBox("INBOX");
+
+//     const searchCriteria = ["UNSEEN"];
+//     const fetchOptions = {
+//       bodies: [""],
+//       markSeen: true, // 👈 VERY IMPORTANT
+//     };
+
+//     const messages = await connection.search(searchCriteria, fetchOptions);
+
+//     console.log("📨 New Emails:", messages.length);
+
+//     for (const item of messages) {
+//       const part = item.parts[0];
+//       const parsed = await simpleParser(part.body);
+
+//       const fromEmail =
+//         parsed.from?.value?.[0]?.address || parsed.from?.text;
+
+//       const subject = parsed.subject || "No Subject";
+//       const text = parsed.text || "";
+//       const html = parsed.html || null;
+
+//       // 🔁 DUPLICATE CHECK (IMPORTANT)
+//       const alreadyExists = await Email.findOne({
+//         from: fromEmail,
+//         subject,
+//         text,
+//       });
+
+//       if (alreadyExists) continue;
+
+//       await Email.create({
+//         type: "received",
+//         emailType: "customer_support",
+
+//         from: fromEmail,
+//         to: "besttripmakers@gmail.com",
+//         subject,
+
+//         text,
+//         html,
+
+//         meta: {
+//           billingEmail: fromEmail,
+//         },
+
+//         isRead: false,
+//       });
+//     }
+
+//     connection.end();
+//   } catch (error) {
+//     console.error("❌ IMAP ERROR:", error.message);
+//   }
+// };
+
+// export default fetchEmails;
+
+//==========================
 import imaps from "imap-simple";
 import { simpleParser } from "mailparser";
 import imapConfig from "../config/imapConfig.js";
@@ -71,46 +139,38 @@ const fetchEmails = async () => {
     const connection = await imaps.connect(imapConfig);
     await connection.openBox("INBOX");
 
-    const searchCriteria = ["UNSEEN"];
-    const fetchOptions = {
-      bodies: [""],
-      markSeen: true, // 👈 VERY IMPORTANT
-    };
-
-    const messages = await connection.search(searchCriteria, fetchOptions);
+    const messages = await connection.search(
+      ["UNSEEN"],
+      { bodies: [""], markSeen: true }
+    );
 
     console.log("📨 New Emails:", messages.length);
 
     for (const item of messages) {
-      const part = item.parts[0];
-      const parsed = await simpleParser(part.body);
+      const parsed = await simpleParser(item.parts[0].body);
 
-      const fromEmail =
-        parsed.from?.value?.[0]?.address || parsed.from?.text;
-
+      const fromEmail = parsed.from?.value?.[0]?.address;
       const subject = parsed.subject || "No Subject";
       const text = parsed.text || "";
       const html = parsed.html || null;
+      const messageId = parsed.messageId;
 
-      // 🔁 DUPLICATE CHECK (IMPORTANT)
-      const alreadyExists = await Email.findOne({
-        from: fromEmail,
-        subject,
-        text,
-      });
+      if (!messageId) continue;
 
-      if (alreadyExists) continue;
+      const exists = await Email.findOne({ messageId });
+      if (exists) continue;
 
       await Email.create({
         type: "received",
         emailType: "customer_support",
 
         from: fromEmail,
-        to: "besttripmakers@gmail.com",
+        to: process.env.GMAIL_USER,
         subject,
 
         text,
         html,
+        messageId,
 
         meta: {
           billingEmail: fromEmail,
@@ -121,8 +181,8 @@ const fetchEmails = async () => {
     }
 
     connection.end();
-  } catch (error) {
-    console.error("❌ IMAP ERROR:", error.message);
+  } catch (err) {
+    console.error("❌ IMAP ERROR:", err);
   }
 };
 

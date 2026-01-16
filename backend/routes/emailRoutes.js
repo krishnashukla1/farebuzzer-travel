@@ -9,14 +9,24 @@ const router = express.Router();
 router.post("/send", sendCustomerEmail);
 
 // GET /emails → fetch inbox for frontend
+// router.get("/", async (req, res) => {
+//   try {
+//     const emails = await Email.find().sort({ receivedAt: -1 }); // latest first
+//     res.json(emails);
+//   } catch (err) {
+//     res.status(500).json({ status: "error", message: err.message });
+//   }
+// });
+
 router.get("/", async (req, res) => {
   try {
-    const emails = await Email.find().sort({ receivedAt: -1 }); // latest first
+    const emails = await Email.find().sort({ createdAt: -1 });
     res.json(emails);
   } catch (err) {
-    res.status(500).json({ status: "error", message: err.message });
+    res.status(500).json({ message: err.message });
   }
 });
+
 
 router.post("/receive", async (req, res) => {
   try {

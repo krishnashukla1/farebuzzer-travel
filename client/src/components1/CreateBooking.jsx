@@ -808,7 +808,7 @@ import {
   User,
   Plane,
   Hash,
-  IndianRupee,
+  IndianRupee,DollarSign,
   MessageSquare,
   Calculator,
   Wallet
@@ -879,7 +879,7 @@ const CreateBooking = () => {
           <h1 className="text-3xl font-bold text-gray-800">
             Create New Booking
           </h1>
-          <p className="text-gray-600">Profit / MCO Calculation</p>
+          {/* <p className="text-gray-600">Profit / MCO Calculation</p> */}
         </div>
       </div>
 
@@ -890,7 +890,7 @@ const CreateBooking = () => {
           <Section title="CUSTOMER INFORMATION">
             <div className="grid md:grid-cols-2 gap-4">
               <Input icon={User} label="Customer Name" name="customerName" value={form.customerName} onChange={handleChange} required />
-              <Input icon={Hash} label="PNR" name="pnr" value={form.pnr} onChange={handleChange} required />
+              <Input icon={Wallet} label="PNR" name="pnr" value={form.pnr} onChange={handleChange} required />
             </div>
           </Section>
 
@@ -928,8 +928,8 @@ const CreateBooking = () => {
           {/* PRICES */}
           <Section title="PRICING">
             <div className="grid md:grid-cols-2 gap-4">
-              <Input icon={IndianRupee} label="Cost Price" name="costPrice" type="number" value={form.costPrice} onChange={handleChange} required />
-              <Input icon={IndianRupee} label="Selling Price" name="sellingPrice" type="number" value={form.sellingPrice} onChange={handleChange} required />
+              <Input icon={DollarSign} label="Cost Price" name="costPrice" type="number" value={form.costPrice} onChange={handleChange} required />
+              <Input icon={DollarSign} label="Selling Price" name="sellingPrice" type="number" value={form.sellingPrice} onChange={handleChange} required />
             </div>
           </Section>
 
@@ -937,17 +937,17 @@ const CreateBooking = () => {
           <Section title="ANY OTHER EXPENSE">
             <div className="grid md:grid-cols-2 gap-4">
               <Input icon={Wallet} label="Expense Category" name="expenseCategory" value={form.expenseCategory} onChange={handleChange} />
-              <Input icon={IndianRupee} label="Expense Amount" name="otherExpense" type="number" value={form.otherExpense} onChange={handleChange} />
+              <Input icon={DollarSign} label="Expense Amount" name="otherExpense" type="number" value={form.otherExpense} onChange={handleChange} />
             </div>
           </Section>
 
           {/* PROFIT */}
           <Section title="AUTO CALCULATED">
-            <ReadOnly icon={Calculator} label="PROFIT / MCO" value={`₹ ${profit}`} highlight />
+            <ReadOnly icon={Calculator} label="PROFIT / MCO" value={`$ ${profit}`} highlight />
           </Section>
 
           <div className="flex justify-end pt-4 border-t">
-            <button disabled={loading} className="bg-teal-600 text-white px-6 py-2 rounded-lg">
+            <button disabled={loading} className="cursor-pointer bg-teal-600 text-white px-6 py-2 rounded-lg">
               {loading ? "Saving..." : "Create Booking"}
             </button>
           </div>

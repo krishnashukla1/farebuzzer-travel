@@ -202,7 +202,7 @@
 
 // export default CreateBooking;
 
-//================
+//================19
 
 import { useState, useMemo } from "react";
 import API from "../api/axios";
@@ -240,14 +240,32 @@ const CreateBooking = () => {
   };
 
   // 🔢 LIVE PROFIT PREVIEW (now including CB Fees)
+  // const profit = useMemo(() => {
+  //   return (
+  //     (Number(form.sellingPrice) || 0) -
+  //     (Number(form.costPrice) || 0) -
+  //     (Number(form.otherExpense) || 0) -
+  //     (Number(form.cbFees) || 0)           // ← Chargeback subtracted
+  //   );
+  // }, [form]);
+
   const profit = useMemo(() => {
-    return (
-      (Number(form.sellingPrice) || 0) -
-      (Number(form.costPrice) || 0) -
-      (Number(form.otherExpense) || 0) -
-      (Number(form.cbFees) || 0)           // ← Chargeback subtracted
-    );
-  }, [form]);
+  const sp = Number(form.sellingPrice) || 0;
+  const cp = Number(form.costPrice) || 0;
+  const oe = Number(form.otherExpense) || 0;
+  const cb = Number(form.cbFees) || 0;
+
+  switch (form.status) {
+    case "REFUND":
+      return -(sp - cp - oe - cb); // Loss → negative
+    case "VOID":
+    case "AMENDMENT":
+      return sp - cp - oe - cb;    // Benefit → positive
+    default:
+      return sp - cp - oe - cb;
+  }
+}, [form]);
+
 
   const profitColor = profit > 0 ? "text-emerald-700" : 
                       profit < 0 ? "text-red-700" : 
@@ -373,7 +391,10 @@ const handleSubmit = async (e) => {
                   "SEND_TO_TICKETING",
                   "CANCELLED",
                   "CHARGEBACK",
-                  "AUTH_FORM_LOSS",
+                    "REFUND",
+    "VOID",
+    "AMENDMENT",
+                  "LOSS",
                 ]}
               />
             </div>

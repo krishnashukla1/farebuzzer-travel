@@ -242,7 +242,7 @@
 //   }
 // };
 
-//=====================
+//=====================19 jan
 
 
 import Booking from "../models/Booking.js";
@@ -390,8 +390,8 @@ export const updateBookingStatus = async (req, res) => {
 
     // Optional: validate status
     const validStatuses = [
-      "FRESH", "FOLLOW_UP", "TICKETING", "TICKETED",
-      "CANCELLED", "CHARGEBACK", "AUTH_FORM_LOSS"
+      "FRESH", "FOLLOW_UP", "TICKETING", "SEND_TO_TICKETING",
+      "CANCELLED", "CHARGEBACK", "LOSS",  "REFUND", "VOID", "AMENDMENT"
     ];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ message: "Invalid status value" });

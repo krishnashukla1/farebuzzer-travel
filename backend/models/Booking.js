@@ -169,24 +169,83 @@
 
 // export default mongoose.model("Booking", bookingSchema);
 
-//=============
+//=============19 jan=====
+
+
+// import mongoose from "mongoose";
+
+// const bookingSchema = new mongoose.Schema(
+//   {
+//     customerName: { type: String, required: true, trim: true },
+//      customerId: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: "User",
+//     },
+//     pnr: { type: String, required: true, trim: true, unique: false, uppercase: true }, // ← unique PNR
+//     airline: { type: String, trim: true },
+//     status: {
+//       type: String,
+//       enum: ["FRESH", "FOLLOW_UP", "TICKETING", "SEND_TO_TICKETING", "CANCELLED", "CHARGEBACK", "AUTH_FORM_LOSS"],
+//       default: "FRESH",
+//     },
+                 
+
+//     costPrice: { type: Number, required: true, min: 0 },
+//     sellingPrice: { type: Number, required: true, min: 0 },
+//     cbFees: { type: Number, default: 0, min: 0 },
+//     otherExpense: { type: Number, default: 0, min: 0 },
+//     expenseCategory: { type: String, trim: true },
+
+//     profit: { type: Number, default: 0 },
+//   },
+//   { timestamps: true }
+// );
+
+// // Safe profit calculation — handles undefined safely
+// bookingSchema.pre("save", function (next) {
+//   try {
+//     const sp = Number(this.sellingPrice) || 0;
+//     const cp = Number(this.costPrice) || 0;
+//     const oe = Number(this.otherExpense) || 0;
+//     const cb = Number(this.cbFees) || 0;
+
+//     this.profit = sp - cp - oe - cb;
+//     next();
+//   } catch (err) {
+//     next(err); // Pass error to save() → will be caught in controller
+//   }
+// });
+
+// export default mongoose.model("Booking", bookingSchema);
+
+//=================add refund,void,amendment=============
 import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema(
   {
     customerName: { type: String, required: true, trim: true },
-     customerId: {
+    customerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    pnr: { type: String, required: true, trim: true, unique: false, uppercase: true }, // ← unique PNR
+    pnr: { type: String, required: true, trim: true, unique: false, uppercase: true },
     airline: { type: String, trim: true },
     status: {
       type: String,
-      enum: ["FRESH", "FOLLOW_UP", "TICKETING", "SEND_TO_TICKETING", "CANCELLED", "CHARGEBACK", "AUTH_FORM_LOSS"],
+      enum: [
+        "FRESH",
+        "FOLLOW_UP",
+        "TICKETING",
+        "SEND_TO_TICKETING",
+        "CANCELLED",
+        "CHARGEBACK",
+        "LOSS",
+        "REFUND",
+        "VOID",
+        "AMENDMENT"
+      ],
       default: "FRESH",
     },
-                 
 
     costPrice: { type: Number, required: true, min: 0 },
     sellingPrice: { type: Number, required: true, min: 0 },
@@ -199,7 +258,7 @@ const bookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Safe profit calculation — handles undefined safely
+// Profit calculation based on status
 bookingSchema.pre("save", function (next) {
   try {
     const sp = Number(this.sellingPrice) || 0;
@@ -207,10 +266,24 @@ bookingSchema.pre("save", function (next) {
     const oe = Number(this.otherExpense) || 0;
     const cb = Number(this.cbFees) || 0;
 
-    this.profit = sp - cp - oe - cb;
+    switch (this.status) {
+      case "REFUND":
+        // Refund = negative profit (loss)
+        this.profit = -(cp + oe + cb - sp); // OR just sp - cp - oe - cb negative
+        break;
+      case "VOID":
+      case "AMENDMENT":
+        // Void/Amendment = positive benefit
+        this.profit = sp - cp - oe - cb;
+        break;
+      default:
+        // Other statuses normal calculation
+        this.profit = sp - cp - oe - cb;
+    }
+
     next();
   } catch (err) {
-    next(err); // Pass error to save() → will be caught in controller
+    next(err);
   }
 });
 

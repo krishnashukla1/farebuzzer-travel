@@ -190,7 +190,7 @@ const Dashboard = () => {
               {/* <StatCard title="MCO" value={stats.mco ?? 0} icon={DollarSign} color="green" /> */}
               <StatCard title="MCO" value={`$${stats.mco ?? 0}`} icon={DollarSign} color="green" />
 
-              <StatCard title="AUTH FORM - LOSS BOOKING" value={stats.authLoss ?? 0} icon={AlertCircle} color="red" />
+              <StatCard title="LOSS BOOKING" value={stats.authLoss ?? 0} icon={AlertCircle} color="red" />
             </div>
 
             {/* Middle Row */}

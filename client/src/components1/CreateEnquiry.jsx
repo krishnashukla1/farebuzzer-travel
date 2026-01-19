@@ -1,50 +1,4 @@
-// import { useState } from "react";
-// import API from "../api/axios";
 
-// const CreateEnquiry = () => {
-//   const [form, setForm] = useState({
-//     name: "",
-//     email: "",
-//     phone: "",
-//     message: "",
-//   });
-
-//   const handleChange = (e) => {
-//     setForm({ ...form, [e.target.name]: e.target.value });
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     try {
-//       await API.post("/enquiries", form);
-//       alert("Enquiry submitted successfully");
-//       setForm({ name: "", email: "", phone: "", message: "" });
-//     } catch (err) {
-//       alert("Failed to submit enquiry");
-//     }
-//   };
-
-//   return (
-//     <div className="max-w-xl bg-white p-6 rounded-xl shadow">
-//       <h2 className="text-xl font-bold mb-4">Create Enquiry</h2>
-
-//       <form onSubmit={handleSubmit} className="space-y-4">
-//         <input name="name" placeholder="Name" value={form.name} onChange={handleChange} className="w-full border p-2 rounded" required />
-//         <input name="email" placeholder="Email" value={form.email} onChange={handleChange} className="w-full border p-2 rounded" required />
-//         <input name="phone" placeholder="Phone" value={form.phone} onChange={handleChange} className="w-full border p-2 rounded" required />
-//         <textarea name="message" placeholder="Message" value={form.message} onChange={handleChange} className="w-full border p-2 rounded" required />
-
-//         <button className="bg-teal-600 text-white px-4 py-2 rounded">
-//           Create Enquiry
-//         </button>
-//       </form>
-//     </div>
-//   );
-// };
-
-// export default CreateEnquiry;
-
-//==============stylsih===============
 import { useState } from "react";
 import API from "../api/axios";
 import {
@@ -127,7 +81,7 @@ const CreateEnquiry = () => {
                 name="name"
                 value={form.name}
                 onChange={handleChange}
-                placeholder="Hero Shukla"
+                placeholder="John Doe"
                 required
               />
 
@@ -138,7 +92,7 @@ const CreateEnquiry = () => {
                 type="email"
                 value={form.email}
                 onChange={handleChange}
-                placeholder="hero@gmail.com"
+                placeholder="johndoe@gmail.com"
                 required
               />
             </div>

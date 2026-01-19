@@ -116,16 +116,70 @@
 // export default mongoose.model("Booking", bookingSchema);
 
 //====================
+
+
+// import mongoose from "mongoose";
+
+// const bookingSchema = new mongoose.Schema(
+//   {
+//     customerName: { type: String, required: true },
+//      customerId: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: "User",
+//     },
+//     pnr: String,
+//     airline: String,
+//     status: {
+//       type: String,
+//       enum: [
+//         "FRESH",
+//         "FOLLOW_UP",
+//         "TICKETING",
+//         "TICKETED",
+//         "CANCELLED",
+//         "CHARGEBACK",
+//         "AUTH_FORM_LOSS",
+//       ],
+//       default: "FRESH",
+//     },
+
+//     // 💰 Prices
+//     costPrice: { type: Number, required: true },     // COST OF GOODS
+//     sellingPrice: { type: Number, required: true },  // SOLD PRICE
+
+//     // 💸 Other Expense
+//     expenseCategory: String,
+//     otherExpense: { type: Number, default: 0 },
+
+//     // 🧮 Auto Calculated
+//     profit: { type: Number, default: 0 },
+//   },
+//   { timestamps: true }
+// );
+
+// // 🔥 FINAL PROFIT LOGIC
+// bookingSchema.pre("save", function (next) {
+//   this.profit =
+//     (this.sellingPrice || 0) -
+//     (this.costPrice || 0) -
+//     (this.otherExpense || 0);
+
+//   next();
+// });
+
+// export default mongoose.model("Booking", bookingSchema);
+
+//=============
 import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema(
   {
     customerName: { type: String, required: true },
-     customerId: {
+    customerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    pnr: String,
+    pnr: { type: String, required: true },  // Made required to match frontend
     airline: String,
     status: {
       type: String,
@@ -145,6 +199,9 @@ const bookingSchema = new mongoose.Schema(
     costPrice: { type: Number, required: true },     // COST OF GOODS
     sellingPrice: { type: Number, required: true },  // SOLD PRICE
 
+    // 💸 Chargeback Fees (new field)
+    cbFees: { type: Number, default: 0 },            // Chargeback fees (deducted from profit)
+
     // 💸 Other Expense
     expenseCategory: String,
     otherExpense: { type: Number, default: 0 },
@@ -155,12 +212,13 @@ const bookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// 🔥 FINAL PROFIT LOGIC
+// 🔥 FINAL PROFIT LOGIC (now includes chargeback deduction)
 bookingSchema.pre("save", function (next) {
   this.profit =
     (this.sellingPrice || 0) -
     (this.costPrice || 0) -
-    (this.otherExpense || 0);
+    (this.otherExpense || 0) -
+    (this.cbFees || 0);  // Subtract chargeback fees
 
   next();
 });

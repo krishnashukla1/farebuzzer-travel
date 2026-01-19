@@ -192,7 +192,6 @@ import API from "../api/axios";
 import {
   Plane,
   User,
-  // IndianRupee,
   Ticket,
   Calendar,
   Trash2,
@@ -453,9 +452,10 @@ const Bookings = () => {
                   <th className="px-6 py-4 text-left">Customer</th>
                   <th className="px-6 py-4 text-center">PNR</th>
                   <th className="px-6 py-4 text-center">Airline</th>
-                  {/* <th className="px-6 py-4 text-center">Amount</th> */}
-                  <th className="px-6 py-4 text-center">MCO / Profit</th>
 
+                  <th className="px-6 py-4 text-center">Amount</th>        
+                  <th className="px-6 py-4 text-center">CB Fees</th>        
+                  <th className="px-6 py-4 text-center">MCO / Profit</th>
                   <th className="px-6 py-4 text-center">Date (IST)</th>
                   <th className="px-6 py-4 text-center">Status</th>
                   <th className="px-6 py-4 text-center">Action</th>
@@ -463,66 +463,143 @@ const Bookings = () => {
               </thead>
               <tbody>
                 {bookings.map((b) => (
-                  <tr
-                    key={b._id}
-                    className="border-b hover:bg-gray-50 transition"
-                  >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <User size={20} className="text-gray-500" />
-                        <span className="font-medium text-gray-800">
-                          {b.customerName}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-center font-mono text-gray-700 uppercase">
-                      {b.pnr || "-"}
-                    </td>
-                    <td className="px-6 py-4 text-center text-gray-700">
-                      {b.airline || "-"}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex items-center justify-center gap-1 font-bold text-gray-900">
-                        {/* <IndianRupee size={16} /> */}
-                        <DollarSign size={16} />
+                  // <tr
+                  //   key={b._id}
+                  //   className="border-b hover:bg-gray-50 transition"
+                  // >
+                  //   <td className="px-6 py-4">
+                  //     <div className="flex items-center gap-3">
+                  //       <User size={20} className="text-gray-500" />
+                  //       <span className="font-medium text-gray-800">
+                  //         {b.customerName}
+                  //       </span>
+                  //     </div>
+                  //   </td>
+                  //   <td className="px-6 py-4 text-center font-mono text-gray-700 uppercase">
+                  //     {b.pnr || "-"}
+                  //   </td>
+                  //   <td className="px-6 py-4 text-center text-gray-700">
+                  //     {b.airline || "-"}
+                  //   </td>
+                  //   <td className="px-6 py-4 text-center">
+                  //     <div className="flex items-center justify-center gap-1 font-bold text-gray-900">
+                  //       {/* <IndianRupee size={16} /> */}
+                  //       <DollarSign size={16} />
 
-                        {/* {Number(b.amount || 0).toLocaleString("en-IN")} */}
-                        {(
-                          Number(b.sellingPrice || 0) -
-                          Number(b.costPrice || 0) -
-                          Number(b.otherExpense || 0)
-                        ).toLocaleString("en-IN")}
+                  //       {/* {Number(b.amount || 0).toLocaleString("en-IN")} */}
+                  //       {(
+                  //         Number(b.sellingPrice || 0) -
+                  //         Number(b.costPrice || 0) -
+                  //         Number(b.otherExpense || 0)
+                  //       ).toLocaleString("en-IN")}
 
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-center text-sm">
-                      <div className="flex items-center justify-center gap-2 text-gray-600">
-                        <Calendar size={16} />
-                        {formatDateInIST(b.createdAt)}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <select
-                        value={b.status}
-                        onChange={(e) => updateStatus(b._id, e.target.value)}
-                        className={`px-4 py-2 rounded-lg text-xs font-bold border cursor-pointer transition ${statusConfig[b.status]}`}
-                      >
-                        {Object.keys(statusConfig).map((s) => (
-                          <option key={s} value={s}>
-                            {s.replace("_", " ")}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <button
-                        onClick={() => deleteBooking(b._id)}
-                        className="cursor-pointer p-2 rounded-lg hover:bg-red-100 transition"
-                      >
-                        <Trash2 size={18} className="text-red-600" />
-                      </button>
-                    </td>
-                  </tr>
+                  //     </div>
+                  //   </td>
+                  //   <td className="px-6 py-4 text-center text-sm">
+                  //     <div className="flex items-center justify-center gap-2 text-gray-600">
+                  //       <Calendar size={16} />
+                  //       {formatDateInIST(b.createdAt)}
+                  //     </div>
+                  //   </td>
+                  //   <td className="px-6 py-4 text-center">
+                  //     <select
+                  //       value={b.status}
+                  //       onChange={(e) => updateStatus(b._id, e.target.value)}
+                  //       className={`px-4 py-2 rounded-lg text-xs font-bold border cursor-pointer transition ${statusConfig[b.status]}`}
+                  //     >
+                  //       {Object.keys(statusConfig).map((s) => (
+                  //         <option key={s} value={s}>
+                  //           {s.replace("_", " ")}
+                  //         </option>
+                  //       ))}
+                  //     </select>
+                  //   </td>
+                  //   <td className="px-6 py-4 text-center">
+                  //     <button
+                  //       onClick={() => deleteBooking(b._id)}
+                  //       className="cursor-pointer p-2 rounded-lg hover:bg-red-100 transition"
+                  //     >
+                  //       <Trash2 size={18} className="text-red-600" />
+                  //     </button>
+                  //   </td>
+                  // </tr>
+
+
+
+                  <tr key={b._id} className="border-b hover:bg-gray-50 transition">
+  <td className="px-6 py-4">
+    <div className="flex items-center gap-3">
+      <User size={20} className="text-gray-500" />
+      <span className="font-medium text-gray-800">{b.customerName}</span>
+    </div>
+  </td>
+  <td className="px-6 py-4 text-center font-mono text-gray-700 uppercase">
+    {b.pnr || "-"}
+  </td>
+  <td className="px-6 py-4 text-center text-gray-700">
+    {b.airline || "-"}
+  </td>
+
+  {/* NEW - Amount column */}
+  <td className="px-6 py-4 text-center">
+    <div className="flex items-center justify-center gap-1 font-medium text-gray-800">
+      <DollarSign size={16} className="text-emerald-600" />
+      {Number(b.sellingPrice || 0).toLocaleString("en-IN")}
+    </div>
+  </td>
+
+  {/* NEW - CB Fees column */}
+  <td className="px-6 py-4 text-center">
+    <div className="flex items-center justify-center gap-1 font-medium text-rose-600">
+      <DollarSign size={16} />
+      {Number(b.cbFees || 0).toLocaleString("en-IN")}
+    </div>
+  </td>
+
+  <td className="px-6 py-4 text-center">
+    <div className="flex items-center justify-center gap-1 font-bold text-gray-900">
+      <DollarSign size={16} />
+      {(
+        Number(b.sellingPrice || 0) -
+        Number(b.costPrice || 0) -
+        Number(b.otherExpense || 0) -
+        Number(b.cbFees || 0)
+      ).toLocaleString("en-IN")}
+    </div>
+  </td>
+
+  <td className="px-6 py-4 text-center text-sm">
+    <div className="flex items-center justify-center gap-2 text-gray-600">
+      <Calendar size={16} />
+      {formatDateInIST(b.createdAt)}
+    </div>
+  </td>
+
+  <td className="px-6 py-4 text-center">
+    <select
+      value={b.status}
+      onChange={(e) => updateStatus(b._id, e.target.value)}
+      className={`px-4 py-2 rounded-lg text-xs font-bold border cursor-pointer transition ${statusConfig[b.status]}`}
+    >
+      {Object.keys(statusConfig).map((s) => (
+        <option key={s} value={s}>
+          {s.replace("_", " ")}
+        </option>
+      ))}
+    </select>
+  </td>
+
+  <td className="px-6 py-4 text-center">
+    <button
+      onClick={() => deleteBooking(b._id)}
+      className="cursor-pointer p-2 rounded-lg hover:bg-red-100 transition"
+    >
+      <Trash2 size={18} className="text-red-600" />
+    </button>
+  </td>
+</tr>
+
+
                 ))}
               </tbody>
             </table>

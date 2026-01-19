@@ -183,9 +183,10 @@ const bookingSchema = new mongoose.Schema(
     airline: { type: String, trim: true },
     status: {
       type: String,
-      enum: ["FRESH", "FOLLOW_UP", "TICKETING", "TICKETED", "CANCELLED", "CHARGEBACK", "AUTH_FORM_LOSS"],
+      enum: ["FRESH", "FOLLOW_UP", "TICKETING", "SEND_TO_TICKETING", "CANCELLED", "CHARGEBACK", "AUTH_FORM_LOSS"],
       default: "FRESH",
     },
+                 
 
     costPrice: { type: Number, required: true, min: 0 },
     sellingPrice: { type: Number, required: true, min: 0 },

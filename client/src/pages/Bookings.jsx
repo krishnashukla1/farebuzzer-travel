@@ -204,7 +204,7 @@ const statusConfig = {
   FRESH: "bg-blue-100 text-blue-700",
   FOLLOW_UP: "bg-yellow-100 text-yellow-700",
   TICKETING: "bg-purple-100 text-purple-700",
-  TICKETED: "bg-green-100 text-green-700",
+  SEND_TO_TICKETING: "bg-green-100 text-green-700",
   CANCELLED: "bg-red-100 text-red-700",
   CHARGEBACK: "bg-gray-200 text-gray-800",
 };
@@ -214,7 +214,7 @@ const statusOptions = [
   { value: "FRESH", label: "FRESH" },
   { value: "FOLLOW_UP", label: "FOLLOW_UP" },
   { value: "TICKETING", label: "TICKETING" },
-  { value: "TICKETED", label: "TICKETED" },
+  { value: "SEND_TO_TICKETING", label: "SEND_TO_TICKETING" },
   { value: "CANCELLED", label: "CANCELLED" },
   { value: "CHARGEBACK", label: "CHARGEBACK" },
 ];

@@ -362,8 +362,8 @@ const handleSubmit = async (e) => {
           {/* CUSTOMER */}
           <Section title="CUSTOMER INFORMATION">
             <div className="grid md:grid-cols-2 gap-4">
-              <Input icon={User} label="Customer Name" name="customerName" value={form.customerName} onChange={handleChange} required />
-              <Input icon={Wallet} label="PNR" name="pnr" value={form.pnr} onChange={handleChange} required />
+              <Input icon={User} label="Customer Name" name="customerName" placeholder="Customer Full Name" value={form.customerName} onChange={handleChange} required />
+              <Input icon={Wallet} label="PNR" name="pnr"  placeholder="PNR should be unique"value={form.pnr} onChange={handleChange} required />
             </div>
           </Section>
 
@@ -373,7 +373,7 @@ const handleSubmit = async (e) => {
               <Input
                 icon={Plane}
                 label="Airline"
-                name="airline"
+                name="airline" placeholder="ABC123"
                 value={form.airline}
                 onChange={handleChange}
               />
@@ -442,6 +442,9 @@ const handleSubmit = async (e) => {
                 icon={Wallet} 
                 label="Expense Category" 
                 name="expenseCategory" 
+                placeholder="Expense category (Airfare, Taxes & Fees, Baggage Charges, Service Charges)"
+                //  placeholder="Expense category (Airfare, Taxes & Fees, Baggage Charges, Service Charges, Travel Insurance, Agent Commission, Payment Gateway Fee)"
+
                 value={form.expenseCategory} 
                 onChange={handleChange} 
               />

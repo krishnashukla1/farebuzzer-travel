@@ -175,7 +175,11 @@ import mongoose from "mongoose";
 const bookingSchema = new mongoose.Schema(
   {
     customerName: { type: String, required: true, trim: true },
-    pnr: { type: String, required: true, trim: true, unique: true, uppercase: true }, // ← unique PNR
+     customerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    pnr: { type: String, required: true, trim: true, unique: false, uppercase: true }, // ← unique PNR
     airline: { type: String, trim: true },
     status: {
       type: String,

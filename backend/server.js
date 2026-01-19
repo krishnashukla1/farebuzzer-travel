@@ -57,7 +57,7 @@ import reportRoutes from "./routes/reportRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import financeRoutes from "./routes/financeRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
-// import emailRoutes from "./routes/emailRoutes.js";
+import emailRoutes from "./routes/emailRoutes.js";
 // import attendanceRoutes from "./routes/attendanceRoutes.js";
 
 import attendanceRoutes from './routes/attendanceRoutes.js'
@@ -104,7 +104,7 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/finance", financeRoutes);
 app.use("/api/projects", projectRoutes);
-// app.use("/api/email", emailRoutes);
+app.use("/api/email", emailRoutes);
 
 
 app.use("/api/attendance", attendanceRoutes);

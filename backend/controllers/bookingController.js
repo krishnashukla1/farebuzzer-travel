@@ -335,8 +335,22 @@ export const getBookings = async (req, res) => {
 //   }
 // };
 
+// export const createBooking = async (req, res) => {
+//   try {
+//     const booking = new Booking(req.body);
+//     await booking.save(); // ✅ auto salesProfit
+
+//     res.status(201).json(booking);
+//   } catch (err) {
+//     res.status(400).json({ message: "Failed to create booking" });
+//   }
+// };
+
+
 export const createBooking = async (req, res) => {
   try {
+    console.log("Incoming booking payload:", req.body);
+
     const booking = new Booking(req.body);
     await booking.save();
 
@@ -345,27 +359,34 @@ export const createBooking = async (req, res) => {
       data: booking,
     });
   } catch (err) {
-    console.error("Create booking error:", err);
+    console.error("🔥 CREATE BOOKING FAILED");
+    console.error(err); // ← THIS WILL SHOW REAL CAUSE
 
-    // Duplicate PNR error
     if (err.code === 11000) {
       return res.status(400).json({
-        message: "PNR already exists. Please use a unique PNR.",
+        message: "PNR already exists. Use a unique PNR.",
       });
     }
 
-    // Validation error
     if (err.name === "ValidationError") {
       return res.status(400).json({
         message: err.message,
       });
     }
 
+    if (err.name === "CastError") {
+      return res.status(400).json({
+        message: "Invalid data format sent to server",
+      });
+    }
+
     res.status(500).json({
-      message: "Server error while creating booking",
+      message: "Internal server error",
+      error: err.message,
     });
   }
 };
+
 
 
 /**

@@ -253,31 +253,77 @@ const CreateBooking = () => {
                       profit < 0 ? "text-red-700" : 
                       "text-gray-700";
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
 
-    try {
-      await API.post("/bookings", form);
-      alert("Booking created successfully ✅");
+  //   try {
+  //     await API.post("/bookings", form);
+  //     alert("Booking created successfully ✅");
 
-      setForm({
-        customerName: "",
-        pnr: "",
-        airline: "",
-        status: "FRESH",
-        costPrice: "",
-        sellingPrice: "",
-        cbFees: "",                      // reset new field
-        expenseCategory: "",
-        otherExpense: "",
-      });
-    } catch {
-      alert("Failed to create booking ❌");
-    } finally {
-      setLoading(false);
-    }
+  //     setForm({
+  //       customerName: "",
+  //       pnr: "",
+  //       airline: "",
+  //       status: "FRESH",
+  //       costPrice: "",
+  //       sellingPrice: "",
+  //       cbFees: "",                      // reset new field
+  //       expenseCategory: "",
+  //       otherExpense: "",
+  //     });
+  //   } catch {
+  //     alert("Failed to create booking ❌");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+
+  // Clean & convert all numeric fields (very important!)
+  const cleanedData = {
+    customerName: form.customerName.trim(),
+    pnr: form.pnr.trim().toUpperCase(),
+    airline: form.airline.trim(),
+    status: form.status,
+
+    costPrice: Number(form.costPrice) || 0,           // ← never send ""
+    sellingPrice: Number(form.sellingPrice) || 0,     // ← never send ""
+    cbFees: Number(form.cbFees) || 0,
+    otherExpense: Number(form.otherExpense) || 0,
+    expenseCategory: form.expenseCategory.trim(),
   };
+
+  try {
+    const response = await API.post("/bookings", cleanedData);
+    alert("Booking created successfully ✅");
+
+    // Reset form
+    setForm({
+      customerName: "",
+      pnr: "",
+      airline: "",
+      status: "FRESH",
+      costPrice: "",
+      sellingPrice: "",
+      cbFees: "",
+      expenseCategory: "",
+      otherExpense: "",
+    });
+  } catch (err) {
+    console.error("Create booking error:", err);
+    // Show better error message
+    alert(
+      err.response?.data?.message || 
+      "Failed to create booking. Check if all required fields are filled."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="max-w-full mx-auto">

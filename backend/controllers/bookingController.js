@@ -310,25 +310,53 @@ export const getBookings = async (req, res) => {
 /**
  * POST /api/bookings
  */
+// export const createBooking = async (req, res) => {
+//   try {
+//     const booking = new Booking(req.body);
+//     await booking.save();
+
+//     // Optional: return populated version
+//     const populated = await Booking.findById(booking._id)
+//       // .populate("customerId", "name email")
+//       .lean();
+
+//     res.status(201).json({
+//       success: true,
+//       data: populated || booking,
+//     });
+//   } catch (err) {
+//     res.status(400).json({
+//       success: false,
+//       message: "Failed to create booking",
+//       error: err.message,
+//     });
+//   }
+// };
+
 export const createBooking = async (req, res) => {
   try {
     const booking = new Booking(req.body);
     await booking.save();
 
-    // Optional: return populated version
-    const populated = await Booking.findById(booking._id)
-      // .populate("customerId", "name email")
-      .lean();
-
     res.status(201).json({
       success: true,
-      data: populated || booking,
+      data: booking,
     });
   } catch (err) {
-    res.status(400).json({
+    // Very important: detailed validation error
+    if (err.name === "ValidationError") {
+      const errors = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors,
+      });
+    }
+
+    console.error("Create booking error:", err);
+    res.status(500).json({
       success: false,
-      message: "Failed to create booking",
-      error: err.message,
+      message: "Server error while creating booking",
     });
   }
 };

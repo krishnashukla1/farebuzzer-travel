@@ -102,6 +102,67 @@
 
 //============template====
 
+// import mongoose from "mongoose";
+
+// const emailSchema = new mongoose.Schema(
+//   {
+//     type: {
+//       type: String,
+//       enum: ["sent", "received"],
+//       required: true,
+//     },
+
+//     emailType: {
+//       type: String,
+//       default: "customer_support",
+//     },
+
+//     from: String,
+//     to: String,
+//     subject: String,
+
+//     text: String,
+//     html: String,
+
+//     templateUsed: { // ADD THIS FIELD
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: 'Template',
+//       default: null
+//     },
+
+//     meta: {
+//       customerName: String,
+//       customerPhone: {
+//         type: String,
+//       },
+//       billingEmail: String,
+//       confirmationNumber: String,
+//       airline: String,
+//       departure: String,
+//       arrival: String,
+//       travelDate: String,
+//       bookingAmount: String,
+//       refundAmount: String,
+//       oldTravelDate: String,
+//       newTravelDate: String,
+//       changeFee: String,
+//       fareDifference: String,
+//       cancellationDate: String,
+//       customMessage: String,
+//     },
+
+//     isRead: {
+//       type: Boolean,
+//       default: false,
+//     },
+//   },
+//   { timestamps: true }
+// );
+// emailSchema.index({ type: 1, createdAt: -1 });
+
+// export default mongoose.model("Email", emailSchema);
+
+//=========19 jan---------
 import mongoose from "mongoose";
 
 const emailSchema = new mongoose.Schema(
@@ -121,20 +182,23 @@ const emailSchema = new mongoose.Schema(
     to: String,
     subject: String,
 
-    text: String,
-    html: String,
+    // ✅ ONLY TEXT / SNIPPET
+    text: {
+      type: String,
+      maxlength: 2000, // safety
+    },
 
-    templateUsed: { // ADD THIS FIELD
+    // ❌ html REMOVED COMPLETELY
+
+    templateUsed: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Template',
-      default: null
+      ref: "Template",
+      default: null,
     },
 
     meta: {
       customerName: String,
-      customerPhone: {
-        type: String,
-      },
+      customerPhone: String,
       billingEmail: String,
       confirmationNumber: String,
       airline: String,
@@ -158,6 +222,8 @@ const emailSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// performance
 emailSchema.index({ type: 1, createdAt: -1 });
 
 export default mongoose.model("Email", emailSchema);

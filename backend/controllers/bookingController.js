@@ -243,6 +243,8 @@
 // };
 
 //=====================
+
+
 import Booking from "../models/Booking.js";
 
 /**
@@ -336,13 +338,35 @@ export const getBookings = async (req, res) => {
 export const createBooking = async (req, res) => {
   try {
     const booking = new Booking(req.body);
-    await booking.save(); // ✅ auto salesProfit
+    await booking.save();
 
-    res.status(201).json(booking);
+    res.status(201).json({
+      success: true,
+      data: booking,
+    });
   } catch (err) {
-    res.status(400).json({ message: "Failed to create booking" });
+    console.error("Create booking error:", err);
+
+    // Duplicate PNR error
+    if (err.code === 11000) {
+      return res.status(400).json({
+        message: "PNR already exists. Please use a unique PNR.",
+      });
+    }
+
+    // Validation error
+    if (err.name === "ValidationError") {
+      return res.status(400).json({
+        message: err.message,
+      });
+    }
+
+    res.status(500).json({
+      message: "Server error while creating booking",
+    });
   }
 };
+
 
 /**
  * PUT /api/bookings/:id/status

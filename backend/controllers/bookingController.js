@@ -349,7 +349,9 @@ export const getBookings = async (req, res) => {
 
 export const createBooking = async (req, res) => {
   try {
-    console.log("Incoming booking payload:", req.body);
+    if (!req.body.pnr || !req.body.pnr.trim()) {
+      return res.status(400).json({ message: "PNR is required" });
+    }
 
     const booking = new Booking(req.body);
     await booking.save();
@@ -359,12 +361,11 @@ export const createBooking = async (req, res) => {
       data: booking,
     });
   } catch (err) {
-    console.error("🔥 CREATE BOOKING FAILED");
-    console.error(err); // ← THIS WILL SHOW REAL CAUSE
+    console.error(err);
 
     if (err.code === 11000) {
       return res.status(400).json({
-        message: "PNR already exists. Use a unique PNR.",
+        message: "PNR already exists",
       });
     }
 
@@ -374,20 +375,11 @@ export const createBooking = async (req, res) => {
       });
     }
 
-    if (err.name === "CastError") {
-      return res.status(400).json({
-        message: "Invalid data format sent to server",
-      });
-    }
-
     res.status(500).json({
       message: "Internal server error",
-      error: err.message,
     });
   }
 };
-
-
 
 /**
  * PUT /api/bookings/:id/status

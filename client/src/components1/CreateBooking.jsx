@@ -394,7 +394,7 @@ const handleSubmit = async (e) => {
                     "REFUND",
     "VOID",
     "AMENDMENT",
-                  "LOSS",
+                  // "LOSS",
                 ]}
               />
             </div>
@@ -520,7 +520,8 @@ const Select = ({ label, options, ...props }) => (
     >
       {options.map((s) => (
         <option key={s} value={s}>
-          {s.replace("_", " ")}
+          {/* {s.replace("_", " ")} */}
+            {s.replace(/_/g, " ")}
         </option>
       ))}
     </select>

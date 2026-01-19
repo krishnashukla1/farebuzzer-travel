@@ -574,7 +574,7 @@ const Bookings = () => {
 </td>
 
 
-                    <td className="px-6 py-4 text-center">
+                    {/* <td className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-1 font-bold text-gray-900">
                         <DollarSign size={16} />
                         {(
@@ -584,7 +584,7 @@ const Bookings = () => {
                           Number(b.cbFees || 0)
                         ).toLocaleString("en-IN")}
                       </div>
-                    </td>
+                    </td> */}
 
                     <td className="px-6 py-4 text-center text-sm">
                       <div className="flex items-center justify-center gap-2 text-gray-600">

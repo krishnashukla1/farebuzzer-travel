@@ -174,53 +174,39 @@ import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema(
   {
-    customerName: { type: String, required: true },
-    customerId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-    pnr: { type: String, required: true },  // Made required to match frontend
-    airline: String,
+    customerName: { type: String, required: true, trim: true },
+    pnr: { type: String, required: true, trim: true, unique: true, uppercase: true }, // ← unique PNR
+    airline: { type: String, trim: true },
     status: {
       type: String,
-      enum: [
-        "FRESH",
-        "FOLLOW_UP",
-        "TICKETING",
-        "TICKETED",
-        "CANCELLED",
-        "CHARGEBACK",
-        "AUTH_FORM_LOSS",
-      ],
+      enum: ["FRESH", "FOLLOW_UP", "TICKETING", "TICKETED", "CANCELLED", "CHARGEBACK", "AUTH_FORM_LOSS"],
       default: "FRESH",
     },
 
-    // 💰 Prices
-    costPrice: { type: Number, required: true },     // COST OF GOODS
-    sellingPrice: { type: Number, required: true },  // SOLD PRICE
+    costPrice: { type: Number, required: true, min: 0 },
+    sellingPrice: { type: Number, required: true, min: 0 },
+    cbFees: { type: Number, default: 0, min: 0 },
+    otherExpense: { type: Number, default: 0, min: 0 },
+    expenseCategory: { type: String, trim: true },
 
-    // 💸 Chargeback Fees (new field)
-    cbFees: { type: Number, default: 0 },            // Chargeback fees (deducted from profit)
-
-    // 💸 Other Expense
-    expenseCategory: String,
-    otherExpense: { type: Number, default: 0 },
-
-    // 🧮 Auto Calculated
     profit: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
 
-// 🔥 FINAL PROFIT LOGIC (now includes chargeback deduction)
+// Safe profit calculation — handles undefined safely
 bookingSchema.pre("save", function (next) {
-  this.profit =
-    (this.sellingPrice || 0) -
-    (this.costPrice || 0) -
-    (this.otherExpense || 0) -
-    (this.cbFees || 0);  // Subtract chargeback fees
+  try {
+    const sp = Number(this.sellingPrice) || 0;
+    const cp = Number(this.costPrice) || 0;
+    const oe = Number(this.otherExpense) || 0;
+    const cb = Number(this.cbFees) || 0;
 
-  next();
+    this.profit = sp - cp - oe - cb;
+    next();
+  } catch (err) {
+    next(err); // Pass error to save() → will be caught in controller
+  }
 });
 
 export default mongoose.model("Booking", bookingSchema);

@@ -336,28 +336,11 @@ export const getBookings = async (req, res) => {
 export const createBooking = async (req, res) => {
   try {
     const booking = new Booking(req.body);
-    await booking.save();
+    await booking.save(); // ✅ auto salesProfit
 
-    res.status(201).json({
-      success: true,
-      data: booking,
-    });
+    res.status(201).json(booking);
   } catch (err) {
-    // Very important: detailed validation error
-    if (err.name === "ValidationError") {
-      const errors = Object.values(err.errors).map(e => e.message);
-      return res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errors,
-      });
-    }
-
-    console.error("Create booking error:", err);
-    res.status(500).json({
-      success: false,
-      message: "Server error while creating booking",
-    });
+    res.status(400).json({ message: "Failed to create booking" });
   }
 };
 

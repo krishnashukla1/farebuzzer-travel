@@ -198,237 +198,247 @@
 // export default Enquiries;
 
 //==========stylish============
-import { useEffect, useState } from "react";
-import API from "../api/axios";
-import {
-  MessageSquare,
-  Phone,
-  Mail,
-  User,
-  Calendar,
-  Trash2,
-  ChevronLeft,
-  ChevronRight
-} from "lucide-react";
 
-const statusConfig = {
-  NEW: { color: "bg-blue-100 text-blue-700 border-blue-200", label: "New" },
-  CONTACTED: { color: "bg-yellow-100 text-yellow-700 border-yellow-200", label: "Contacted" },
-  CLOSED: { color: "bg-green-100 text-green-700 border-green-200", label: "Closed" },
-};
 
-const ITEMS_PER_PAGE = 10;
+// import { useEffect, useState } from "react";
+// import API from "../api/axios";
+// import {
+//   MessageSquare,
+//   Phone,
+//   Mail,
+//   User,
+//   Calendar,
+//   Trash2,
+//   ChevronLeft,
+//   ChevronRight
+// } from "lucide-react";
 
-const Enquiries = () => {
-  const [enquiries, setEnquiries] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
+// const statusConfig = {
+//   NEW: { color: "bg-blue-100 text-blue-700 border-blue-200", label: "New" },
+//   CONTACTED: { color: "bg-yellow-100 text-yellow-700 border-yellow-200", label: "Contacted" },
+//   FOLLOW_UP: { color: "bg-yellow-100 text-yellow-700 border-yellow-200", label: "Follow_Up" },
+//   CLOSED: { color: "bg-green-100 text-green-700 border-green-200", label: "Closed" },
+// };
 
-  /* ================= FETCH ================= */
-  const fetchEnquiries = async () => {
-    try {
-      const res = await API.get("/enquiries");
-      setEnquiries(res.data || []);
-    } catch (err) {
-      console.error("Failed to fetch enquiries");
-    } finally {
-      setLoading(false);
-    }
-  };
+// const ITEMS_PER_PAGE = 10;
 
-  useEffect(() => {
-    fetchEnquiries();
-  }, []);
+// const Enquiries = () => {
+//   const [enquiries, setEnquiries] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [currentPage, setCurrentPage] = useState(1);
 
-  /* ================= ACTIONS ================= */
-  const updateStatus = async (id, status) => {
-    try {
-      await API.put(`/enquiries/${id}/status`, { status });
-      fetchEnquiries();
-    } catch {
-      alert("Failed to update status ,you are not allowed");
-    }
-  };
+//   /* ================= FETCH ================= */
+//   const fetchEnquiries = async () => {
+//     try {
+//       const res = await API.get("/enquiries");
+//       setEnquiries(res.data || []);
+//     } catch (err) {
+//       console.error("Failed to fetch enquiries");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  const deleteEnquiry = async (id) => {
-    if (!window.confirm("Delete this enquiry?")) return;
-    try {
-      await API.delete(`/enquiries/${id}`);
-      fetchEnquiries();
-    } catch {
-      alert("Failed to delete enquiry ,you are not allowed");
-    }
-  };
+//   useEffect(() => {
+//     fetchEnquiries();
+//   }, []);
 
-  /* ================= PAGINATION ================= */
-  const totalPages = Math.ceil(enquiries.length / ITEMS_PER_PAGE);
+//   /* ================= ACTIONS ================= */
+//   const updateStatus = async (id, status) => {
+//     try {
+//       await API.put(`/enquiries/${id}/status`, { status });
+//       fetchEnquiries();
+//     } catch {
+//       alert("Failed to update status ,you are not allowed");
+//     }
+//   };
 
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedEnquiries = enquiries.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE
-  );
+//   const deleteEnquiry = async (id) => {
+//     if (!window.confirm("Delete this enquiry?")) return;
+//     try {
+//       await API.delete(`/enquiries/${id}`);
+//       fetchEnquiries();
+//     } catch {
+//       alert("Failed to delete enquiry ,you are not allowed");
+//     }
+//   };
 
-  const handlePrev = () => {
-    if (currentPage > 1) setCurrentPage((p) => p - 1);
-  };
+//   /* ================= PAGINATION ================= */
+//   const totalPages = Math.ceil(enquiries.length / ITEMS_PER_PAGE);
 
-  const handleNext = () => {
-    if (currentPage < totalPages) setCurrentPage((p) => p + 1);
-  };
+//   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+//   const paginatedEnquiries = enquiries.slice(
+//     startIndex,
+//     startIndex + ITEMS_PER_PAGE
+//   );
 
-  /* ================= UI ================= */
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-full mx-auto px-6">
+//   const handlePrev = () => {
+//     if (currentPage > 1) setCurrentPage((p) => p - 1);
+//   };
 
-        {/* HEADER */}
-        <div className="mb-8 flex items-center gap-4">
-          <div className="p-3 bg-teal-600 rounded-xl shadow">
-            <MessageSquare size={28} className="text-white" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">Customer Enquiries</h1>
-            <p className="text-gray-600">Manage travel enquiries efficiently</p>
-          </div>
-        </div>
+//   const handleNext = () => {
+//     if (currentPage < totalPages) setCurrentPage((p) => p + 1);
+//   };
 
-        {/* LOADING */}
-        {loading ? (
-          <div className="h-40 bg-white rounded-xl shadow animate-pulse" />
-        ) : (
-          <>
-            {/* TABLE */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-teal-600 text-white">
-                    <tr>
-                      <th className="px-6 py-4 text-left">Customer</th>
-                      <th className="px-6 py-4 text-left">Contact</th>
-                      <th className="px-6 py-4 text-left">Message</th>
-                      <th className="px-6 py-4 text-left">Date</th>
-                      <th className="px-6 py-4 text-center">Status</th>
-                      <th className="px-6 py-4 text-center">Action</th>
-                    </tr>
-                  </thead>
+//   /* ================= UI ================= */
+//   return (
+//     <div className="min-h-screen bg-gray-50 py-8">
+//       <div className="max-w-full mx-auto px-6">
 
-                  <tbody className="divide-y">
-                    {paginatedEnquiries.length === 0 ? (
-                      <tr>
-                        <td colSpan="6" className="py-16 text-center text-gray-400">
-                          <MessageSquare size={64} className="mx-auto mb-4 opacity-40" />
-                          No enquiries found
-                        </td>
-                      </tr>
-                    ) : (
-                      paginatedEnquiries.map((e) => (
-                        <tr key={e._id} className="hover:bg-gray-50">
-                          {/* CUSTOMER */}
-                          <td className="px-6 py-5">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
-                                <User size={18} className="text-teal-600" />
-                              </div>
-                              <span className="font-medium">{e.name}</span>
-                            </div>
-                          </td>
+//         {/* HEADER */}
+//         <div className="mb-8 flex items-center gap-4">
+//           <div className="p-3 bg-teal-600 rounded-xl shadow">
+//             <MessageSquare size={28} className="text-white" />
+//           </div>
+//           <div>
+//             <h1 className="text-3xl font-bold text-gray-800">Customer Enquiries</h1>
+//             <p className="text-gray-600">Manage travel enquiries efficiently</p>
+//           </div>
+//         </div>
 
-                          {/* CONTACT */}
-                          <td className="px-6 py-5 text-sm text-gray-700">
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-2">
-                                <Mail size={14} /> {e.email}
-                              </div>
-                              {e.phone && (
-                                <div className="flex items-center gap-2">
-                                  <Phone size={14} /> {e.phone}
-                                </div>
-                              )}
-                            </div>
-                          </td>
+//         {/* LOADING */}
+//         {loading ? (
+//           <div className="h-40 bg-white rounded-xl shadow animate-pulse" />
+//         ) : (
+//           <>
+//             {/* TABLE */}
+//             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+//               <div className="overflow-x-auto">
+//                 <table className="w-full">
+//                   <thead className="bg-teal-600 text-white">
+//                     <tr>
+//                       <th className="px-6 py-4 text-left">Customer</th>
+//                       <th className="px-6 py-4 text-left">Contact</th>
+//                       <th className="px-6 py-4 text-left">Message</th>
+//                       <th className="px-6 py-4 text-left">Date</th>
+//                       <th className="px-6 py-4 text-center">Status</th>
+//                       <th className="px-6 py-4 text-center">Action</th>
+//                     </tr>
+//                   </thead>
 
-                          {/* MESSAGE */}
-                          <td className="px-6 py-5 max-w-md text-gray-600">
-                            <p className="line-clamp-2">{e.message}</p>
-                          </td>
+//                   <tbody className="divide-y">
+//                     {paginatedEnquiries.length === 0 ? (
+//                       <tr>
+//                         <td colSpan="6" className="py-16 text-center text-gray-400">
+//                           <MessageSquare size={64} className="mx-auto mb-4 opacity-40" />
+//                           No enquiries found
+//                         </td>
+//                       </tr>
+//                     ) : (
+//                       paginatedEnquiries.map((e) => (
+//                         <tr key={e._id} className="hover:bg-gray-50">
+//                           {/* CUSTOMER */}
+//                           <td className="px-6 py-5">
+//                             <div className="flex items-center gap-3">
+//                               <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
+//                                 <User size={18} className="text-teal-600" />
+//                               </div>
+//                               <span className="font-medium">{e.name}</span>
+//                             </div>
+//                           </td>
 
-                          {/* DATE */}
-                          <td className="px-6 py-5 text-sm text-gray-500">
-                            <div className="flex items-center gap-2">
-                              <Calendar size={14} />
-                              {new Date(e.createdAt).toLocaleDateString("en-IN")}
-                            </div>
-                          </td>
+//                           {/* CONTACT */}
+//                           <td className="px-6 py-5 text-sm text-gray-700">
+//                             <div className="space-y-1">
+//                               <div className="flex items-center gap-2">
+//                                 <Mail size={14} /> {e.email}
+//                               </div>
+//                               {e.phone && (
+//                                 <div className="flex items-center gap-2">
+//                                   <Phone size={14} /> {e.phone}
+//                                 </div>
+//                               )}
+//                             </div>
+//                           </td>
 
-                          {/* STATUS */}
-                          <td className="px-6 py-5 text-center">
-                            <select
-                              value={e.status}
-                              onChange={(ev) => updateStatus(e._id, ev.target.value)}
-                              className={`cursor-pointer px-3 py-1 rounded-full text-xs font-semibold border ${statusConfig[e.status]?.color}`}
-                            >
-                              <option value="NEW">New</option>
-                              <option value="CONTACTED">Contacted</option>
-                              <option value="CLOSED">Closed</option>
-                            </select>
-                          </td>
+//                           {/* MESSAGE */}
+//                           <td className="px-6 py-5 max-w-md text-gray-600">
+//                             <p className="line-clamp-2">{e.message}</p>
+//                           </td>
 
-                          {/* ACTION */}
-                          <td className="px-6 py-5 text-center">
-                            <button
-                              onClick={() => deleteEnquiry(e._id)}
-                              className="cursor-pointer p-2 rounded-lg hover:bg-red-100"
-                            >
-                              <Trash2 size={18} className="text-red-600" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+//                           {/* DATE */}
+//                           <td className="px-6 py-5 text-sm text-gray-500">
+//                             <div className="flex items-center gap-2">
+//                               <Calendar size={14} />
+//                               {new Date(e.createdAt).toLocaleDateString("en-IN")}
+//                             </div>
+//                           </td>
 
-            {/* PAGINATION */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-6">
-                <p className="text-sm text-gray-600">
-                  Showing{" "}
-                  <b>{startIndex + 1}</b> –{" "}
-                  <b>{Math.min(startIndex + ITEMS_PER_PAGE, enquiries.length)}</b>{" "}
-                  of <b>{enquiries.length}</b>
-                </p>
+//                           {/* STATUS */}
+//                           <td className="px-6 py-5 text-center">
+//                             <select
+//                               value={e.status}
+//                               onChange={(ev) => updateStatus(e._id, ev.target.value)}
+//                               className={`cursor-pointer px-3 py-1 rounded-full text-xs font-semibold border ${statusConfig[e.status]?.color}`}
+//                             >
+//                               <option value="NEW">New</option>
+//                               <option value="CONTACTED">Contacted</option>
+//                               <option value="FOLLOW_UP">Follow Up</option>
+//                               <option value="CLOSED">Closed</option>
+//                             </select>
+//                           </td>
 
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={handlePrev}
-                    disabled={currentPage === 1}
-                    className="flex items-center gap-1 px-3 py-2 border rounded-lg disabled:opacity-40"
-                  >
-                    <ChevronLeft size={16} /> Prev
-                  </button>
+//                           {/* ACTION */}
+//                           <td className="px-6 py-5 text-center">
+//                             <button
+//                               onClick={() => deleteEnquiry(e._id)}
+//                               className="cursor-pointer p-2 rounded-lg hover:bg-red-100"
+//                             >
+//                               <Trash2 size={18} className="text-red-600" />
+//                             </button>
+//                           </td>
+//                         </tr>
+//                       ))
+//                     )}
+//                   </tbody>
+//                 </table>
+//               </div>
+//             </div>
 
-                  <span className="text-sm font-semibold">
-                    Page {currentPage} / {totalPages}
-                  </span>
+//             {/* PAGINATION */}
+//             {totalPages > 1 && (
+//               <div className="flex items-center justify-between mt-6">
+//                 <p className="text-sm text-gray-600">
+//                   Showing{" "}
+//                   <b>{startIndex + 1}</b> –{" "}
+//                   <b>{Math.min(startIndex + ITEMS_PER_PAGE, enquiries.length)}</b>{" "}
+//                   of <b>{enquiries.length}</b>
+//                 </p>
 
-                  <button
-                    onClick={handleNext}
-                    disabled={currentPage === totalPages}
-                    className="flex items-center gap-1 px-3 py-2 border rounded-lg disabled:opacity-40"
-                  >
-                    Next <ChevronRight size={16} />
-                  </button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
-  );
-};
+//                 <div className="flex items-center gap-3">
+//                   <button
+//                     onClick={handlePrev}
+//                     disabled={currentPage === 1}
+//                     className="flex items-center gap-1 px-3 py-2 border rounded-lg disabled:opacity-40"
+//                   >
+//                     <ChevronLeft size={16} /> Prev
+//                   </button>
 
-export default Enquiries;
+//                   <span className="text-sm font-semibold">
+//                     Page {currentPage} / {totalPages}
+//                   </span>
+
+//                   <button
+//                     onClick={handleNext}
+//                     disabled={currentPage === totalPages}
+//                     className="flex items-center gap-1 px-3 py-2 border rounded-lg disabled:opacity-40"
+//                   >
+//                     Next <ChevronRight size={16} />
+//                   </button>
+//                 </div>
+//               </div>
+//             )}
+//           </>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Enquiries;
+
+
+
+//=========20 jan==========
+
+

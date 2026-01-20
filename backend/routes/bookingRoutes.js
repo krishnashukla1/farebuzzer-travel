@@ -43,7 +43,7 @@ import {
   getBookings,
   createBooking,
   updateBookingStatus,
-  deleteBooking,
+  deleteBooking,updateFinancialData
 } from "../controllers/bookingController.js";
 
 import authMiddleware from "../middleware/authMiddleware.js";
@@ -62,5 +62,9 @@ router.put("/:id/status", authMiddleware, adminOnly, updateBookingStatus);
 
 // ❌ Delete booking (ADMIN ONLY)
 router.delete("/:id", authMiddleware, adminOnly, deleteBooking);
+
+// Update booking (ADMIN ONLY)
+router.put("/bookings/:id/financial", authMiddleware, adminOnly, updateFinancialData);
+
 
 export default router;

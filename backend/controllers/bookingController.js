@@ -442,3 +442,32 @@ export const deleteBooking = async (req, res) => {
     });
   }
 };
+
+// In your backend routes
+router.put("/bookings/:id/financial", authMiddleware, adminOnly, updateFinancialData);
+
+// In your controller
+export const updateFinancialData = async (req, res) => {
+  try {
+    const { costPrice, otherExpense, sellingPrice, cbFees } = req.body;
+    
+    const booking = await Booking.findByIdAndUpdate(
+      req.params.id,
+      {
+        costPrice: parseFloat(costPrice) || 0,
+        otherExpense: parseFloat(otherExpense) || 0,
+        sellingPrice: parseFloat(sellingPrice) || 0,
+        cbFees: parseFloat(cbFees) || 0
+      },
+      { new: true }
+    );
+
+    res.json({
+      success: true,
+      message: "Financial data updated",
+      booking
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update financial data" });
+  }
+};

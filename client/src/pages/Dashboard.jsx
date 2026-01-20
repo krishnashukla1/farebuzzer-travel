@@ -419,7 +419,19 @@ const Dashboard = () => {
 
 
               {/* <StatCard title="MCO" value={stats.mco ?? 0} icon={DollarSign} color="green" /> */}
-              <StatCard title="MCO" value={`$${stats.mco ?? 0}`} icon={DollarSign} color="green" />
+             {/* <StatCard title="MCO" value={`$${stats.mco ?? 0}`} icon={DollarSign} color="green" /> */}
+
+<StatCard
+  title="MCO / PROFIT"
+  value={`$${(
+    stats.mco ??
+    stats.totalProfit ??
+    stats.profit ??
+    0
+  ).toLocaleString("en-IN")}`}
+  icon={DollarSign}
+  color="green"
+/>
 
               <StatCard title="LOSS BOOKING" value={stats.authLoss ?? 0} icon={AlertCircle} color="red" />
             </div>

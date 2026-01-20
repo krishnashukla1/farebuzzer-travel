@@ -443,8 +443,6 @@ export const deleteBooking = async (req, res) => {
   }
 };
 
-// In your backend routes
-router.put("/bookings/:id/financial", authMiddleware, adminOnly, updateFinancialData);
 
 // In your controller
 export const updateFinancialData = async (req, res) => {

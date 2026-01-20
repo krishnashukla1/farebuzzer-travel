@@ -64,7 +64,6 @@ router.put("/:id/status", authMiddleware, adminOnly, updateBookingStatus);
 router.delete("/:id", authMiddleware, adminOnly, deleteBooking);
 
 // Update booking (ADMIN ONLY)
-router.put("/bookings/:id/financial", authMiddleware, adminOnly, updateFinancialData);
-
+router.put("/:id/financial", authMiddleware, adminOnly, updateFinancialData);
 
 export default router;

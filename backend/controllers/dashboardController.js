@@ -234,23 +234,55 @@ export const getDashboardStats = async (req, res) => {
       0
     );
 
-    // COMMISSION = Profit from AMENDMENT bookings
-    // From your data: Krishna (99) + Krishnah (12) = 111
-    const commission = bookings.reduce(
-      (sum, b) =>
-        b.status === "AMENDMENT" ? sum + (Number(b.profit) || 0) : sum,
+    // RE-CALCULATE PROFIT for each booking to ensure accuracy
+    const calculateProfit = (booking) => {
+      const sp = Number(booking.sellingPrice) || 0;
+      const cp = Number(booking.costPrice) || 0;
+      const oe = Number(booking.otherExpense) || 0;
+      const cb = Number(booking.cbFees) || 0;
+      
+      switch (booking.status) {
+        case "REFUND":
+          return -(cp + oe + cb - sp);
+        case "VOID":
+        case "AMENDMENT":
+          return sp - cp - oe - cb;
+        default:
+          return sp - cp - oe - cb;
+      }
+    };
+
+    // Calculate fresh profit for each booking
+    const bookingsWithProfit = bookings.map(b => ({
+      ...b._doc,
+      freshProfit: calculateProfit(b)
+    }));
+
+    // Commission = Profit from AMENDMENT bookings
+    const commission = bookingsWithProfit.reduce(
+      (sum, b) => b.status === "AMENDMENT" ? sum + (Number(b.freshProfit) || 0) : sum,
       0
     );
 
-    // MCO = Profit from VOID bookings
-    // Since you have no VOID bookings, this will be 0
-    const mco = bookings.reduce(
-      (sum, b) =>
-        b.status === "VOID" ? sum + (Number(b.profit) || 0) : sum,
+    // MCO = Profit from VOID bookings (AND ALSO include AMENDMENT if needed)
+    // Option 1: Only VOID
+    // const mco = bookingsWithProfit.reduce(
+    //   (sum, b) => b.status === "VOID" ? sum + (Number(b.freshProfit) || 0) : sum,
+    //   0
+    // );
+    
+    // Option 2: VOID + AMENDMENT (if you want MCO to show total benefit)
+    const mco = bookingsWithProfit.reduce(
+      (sum, b) => {
+        if (b.status === "VOID" || b.status === "AMENDMENT") {
+          return sum + (Number(b.freshProfit) || 0);
+        }
+        return sum;
+      },
       0
     );
 
-    // LOSS = Count of REFUND + CHARGEBACK + LOSS bookings
+    // LOSS = Count of loss-related statuses
     const authLoss = bookings.filter((b) =>
       ["REFUND", "LOSS", "CHARGEBACK"].includes(b.status)
     ).length;
@@ -273,28 +305,65 @@ export const getDashboardStats = async (req, res) => {
     ).length;
 
     // Commission Today = AMENDMENT profits for today
-    const commissionToday = bookings
+    const commissionToday = bookingsWithProfit
       .filter(
         b =>
           b.status === "AMENDMENT" &&
           toISTDate(b.createdAt).toISOString().startsWith(todayIST)
       )
-      .reduce((sum, b) => sum + (Number(b.profit) || 0), 0);
+      .reduce((sum, b) => sum + (Number(b.freshProfit) || 0), 0);
+
+    // MCO Today = VOID profits for today
+    const mcoToday = bookingsWithProfit
+      .filter(
+        b =>
+          (b.status === "VOID" || b.status === "AMENDMENT") &&
+          toISTDate(b.createdAt).toISOString().startsWith(todayIST)
+      )
+      .reduce((sum, b) => sum + (Number(b.freshProfit) || 0), 0);
+
+    // ===== DEBUG LOGS =====
+    console.log("=== DASHBOARD STATS DEBUG ===");
+    console.log("Total bookings:", totalBookings);
+    console.log("Booking status breakdown:");
+    bookings.forEach(b => {
+      console.log(`- ${b._id}: Status=${b.status}, Profit=${b.profit}, SP=${b.sellingPrice}, CP=${b.costPrice}`);
+    });
+    
+    console.log("AMENDMENT bookings:", 
+      bookings.filter(b => b.status === "AMENDMENT").map(b => ({
+        id: b._id,
+        profit: b.profit,
+        freshProfit: calculateProfit(b)
+      }))
+    );
+    
+    console.log("VOID bookings:", 
+      bookings.filter(b => b.status === "VOID").map(b => ({
+        id: b._id,
+        profit: b.profit,
+        freshProfit: calculateProfit(b)
+      }))
+    );
+    
+    console.log("Calculated commission (AMENDMENT):", commission);
+    console.log("Calculated MCO (VOID + AMENDMENT):", mco);
+    console.log("=== END DEBUG ===");
 
     // ===== RESPONSE =====
-    const result = {
+    res.json({
       totalBookings,
       revenue,           // Amount: $690
-      commission,        // Amendment: $111
-      mco,               // MCO: $0 (no VOID bookings)
+      commission,        // Amendment: $111 (only from AMENDMENT)
+      mco,               // MCO: $111 (from VOID + AMENDMENT) or $0 (only VOID)
       authLoss,          // LOSS BOOKING: 0
 
-      fresh: 3,          // Kbc, Abc, Krishnajjjj
-      airlineFollowUp: 0,
-      sendToTicketing: 0,
-      ticketedCharged: 0,
-      cancelled: 0,
-      chargeBack: 0,
+      fresh,             // 3
+      airlineFollowUp,   // 0
+      sendToTicketing,   // 0
+      ticketedCharged,   // 0
+      cancelled,         // 0
+      chargeBack,        // 0
 
       todayBookings,
 
@@ -305,21 +374,8 @@ export const getDashboardStats = async (req, res) => {
 
       commissionToday,   // Amendment Today
       discountToday: 0,
-    };
-
-    console.log("Dashboard Stats:", {
-      totalBookings,
-      revenue,
-      commission,
-      mco,
-      voidBookings: bookings.filter(b => b.status === "VOID").length,
-      amendmentBookings: bookings.filter(b => b.status === "AMENDMENT").length,
-      amendmentProfits: bookings
-        .filter(b => b.status === "AMENDMENT")
-        .map(b => ({ id: b._id, profit: b.profit }))
+      mcoToday,          // Optional: MCO Today
     });
-
-    res.json(result);
 
   } catch (err) {
     console.error(err);

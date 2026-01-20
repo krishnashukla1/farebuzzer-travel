@@ -1762,14 +1762,24 @@ const Enquiries = () => {
   };
 
   // Format currency
+  // const formatCurrency = (amount) => {
+  //   return new Intl.NumberFormat('en-IN', {
+  //     style: 'currency',
+  //     currency: 'INR',
+  //     minimumFractionDigits: 0,
+  //     maximumFractionDigits: 0
+  //   }).format(amount);
+  // };
+
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(amount);
+};
+
 
   // Pagination
   const totalPages = Math.ceil(filteredEnquiries.length / ITEMS_PER_PAGE);
@@ -1798,7 +1808,7 @@ const Enquiries = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-8xl mx-auto">
         {/* Header */}
         <div className="mb-10">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">

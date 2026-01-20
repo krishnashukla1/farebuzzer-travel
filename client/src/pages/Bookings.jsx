@@ -914,7 +914,7 @@ const Bookings = () => {
                 <span className="text-sm font-medium text-gray-600">Total Profit</span>
               </div>
               <div className="text-2xl font-bold text-emerald-700">
-                ₹{totals.totalProfit.toLocaleString("en-IN")}
+                ${totals.totalProfit.toLocaleString("en-IN")}
               </div>
             </div>
             <div className="text-right">
@@ -932,7 +932,7 @@ const Bookings = () => {
                 <span className="text-sm font-medium text-gray-600">Total Revenue</span>
               </div>
               <div className="text-2xl font-bold text-gray-900">
-                ₹{totals.totalSellingPrice.toLocaleString("en-IN")}
+                ${totals.totalSellingPrice.toLocaleString("en-IN")}
               </div>
             </div>
           </div>
@@ -946,7 +946,7 @@ const Bookings = () => {
                 <span className="text-sm font-medium text-gray-600">Total Cost</span>
               </div>
               <div className="text-2xl font-bold text-amber-700">
-                ₹{totals.totalCostPrice.toLocaleString("en-IN")}
+                ${totals.totalCostPrice.toLocaleString("en-IN")}
               </div>
             </div>
           </div>
@@ -960,7 +960,7 @@ const Bookings = () => {
                 <span className="text-sm font-medium text-gray-600">Total Expenses</span>
               </div>
               <div className="text-2xl font-bold text-rose-700">
-                ₹{totals.totalExpenses.toLocaleString("en-IN")}
+                ${totals.totalExpenses.toLocaleString("en-IN")}
               </div>
             </div>
           </div>
@@ -1127,7 +1127,7 @@ const Bookings = () => {
                       ) : (
                         <div className="flex items-center justify-center gap-1 font-medium text-gray-800">
                           <DollarSign size={16} className="text-emerald-600" />
-                          ₹{Number(b.sellingPrice || 0).toLocaleString("en-IN")}
+                          {Number(b.sellingPrice || 0).toLocaleString("en-IN")}
                         </div>
                       )}
                     </td>
@@ -1150,7 +1150,7 @@ const Bookings = () => {
                       ) : (
                         <div className="flex items-center justify-center gap-1 font-medium text-amber-600">
                           <Package size={16} />
-                          ₹{Number(b.costPrice || 0).toLocaleString("en-IN")}
+                          ${Number(b.costPrice || 0).toLocaleString("en-IN")}
                         </div>
                       )}
                     </td>
@@ -1173,7 +1173,7 @@ const Bookings = () => {
                       ) : (
                         <div className="flex items-center justify-center gap-1 font-medium text-rose-600">
                           <CreditCard size={16} />
-                          ₹{Number(b.otherExpense || 0).toLocaleString("en-IN")}
+                          ${Number(b.otherExpense || 0).toLocaleString("en-IN")}
                         </div>
                       )}
                     </td>
@@ -1196,7 +1196,7 @@ const Bookings = () => {
                       ) : (
                         <div className="flex items-center justify-center gap-1 font-medium text-rose-600">
                           <DollarSign size={16} />
-                          ₹{Number(b.cbFees || 0).toLocaleString("en-IN")}
+                          {Number(b.cbFees || 0).toLocaleString("en-IN")}
                         </div>
                       )}
                     </td>
@@ -1205,7 +1205,7 @@ const Bookings = () => {
                     <td className="px-6 py-4 text-center">
                       <div className={`flex items-center justify-center gap-1 font-bold ${calculateProfit(b) >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
                         <DollarSign size={16} />
-                        ₹{calculateProfit(b).toLocaleString("en-IN")}
+                        {calculateProfit(b).toLocaleString("en-IN")}
                       </div>
                     </td>
 

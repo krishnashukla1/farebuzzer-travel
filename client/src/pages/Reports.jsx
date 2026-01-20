@@ -268,19 +268,34 @@ const Reports = () => {
           API.get("/reports/monthly-revenue"),
         ]);
 
-        setReportData({
-          totalBookings: salesRes.data?.totalBookings || 0,
-          totalAmount: salesRes.data?.totalAmount || 0,
-          amendmentBenefit: salesRes.data?.amendmentBenefit || 0,
-          netProfit: salesRes.data?.netProfit || 0,
+        // setReportData({
+        //   totalBookings: salesRes.data?.totalBookings || 0,
+        //   totalAmount: salesRes.data?.totalAmount || 0,
+        //   amendmentBenefit: salesRes.data?.amendmentBenefit || 0,
+        //   netProfit: salesRes.data?.netProfit || 0,
 
-          monthlyAmount: (monthlyRes.data || []).map((m) => ({
-            month: new Date(0, m._id - 1).toLocaleString("default", {
-              month: "short",
-            }),
-            amount: m.amount || 0,
-          })),
-        });
+        //   monthlyAmount: (monthlyRes.data || []).map((m) => ({
+        //     month: new Date(0, m._id - 1).toLocaleString("default", {
+        //       month: "short",
+        //     }),
+        //     amount: m.amount || 0,
+        //   })),
+        // });
+     
+     
+     setReportData({
+  totalBookings: salesRes.data.totalBookings || 0,
+  totalAmount: salesRes.data.totalAmount || 0,
+  totalAmendment: salesRes.data.amendmentBenefit || 0,
+  totalMCO: salesRes.data.totalMCO || 0,
+  monthlyAmount: monthlyRes.data.map((m) => ({
+    month: new Date(2026, m._id - 1).toLocaleString("default", {
+      month: "short",
+    }),
+    amount: m.amount || 0,
+  })),
+});
+
       } catch (error) {
         console.error("Failed to load reports:", error);
       } finally {

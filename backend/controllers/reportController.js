@@ -81,7 +81,7 @@
 
 import Booking from "../models/Booking.js";
 
-import Booking from "../models/Booking.js";
+
 
 export const salesReport = async (req, res) => {
   try {

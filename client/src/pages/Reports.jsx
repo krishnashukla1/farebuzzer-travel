@@ -229,6 +229,7 @@
 // export default Reports;
 
 //===================20 jan===============
+
 import { useEffect, useState } from "react";
 import API from "../api/axios";
 import StatCard from "../components/StatCard";
@@ -252,9 +253,9 @@ import {
 const Reports = () => {
   const [reportData, setReportData] = useState({
     totalBookings: 0,
-    totalAmount: 0,
-    amendmentBenefit: 0,
-    netProfit: 0,
+    totalAmount: 0,        // revenue
+    amendmentBenefit: 0,   // commission
+    netProfit: 0,          // mco
     monthlyAmount: [],
   });
 
@@ -268,34 +269,19 @@ const Reports = () => {
           API.get("/reports/monthly-revenue"),
         ]);
 
-        // setReportData({
-        //   totalBookings: salesRes.data?.totalBookings || 0,
-        //   totalAmount: salesRes.data?.totalAmount || 0,
-        //   amendmentBenefit: salesRes.data?.amendmentBenefit || 0,
-        //   netProfit: salesRes.data?.netProfit || 0,
+        setReportData({
+          totalBookings: Number(salesRes.data?.totalBookings) || 0,
+          totalAmount: Number(salesRes.data?.revenue) || 0,
+          amendmentBenefit: Number(salesRes.data?.commission) || 0,
+          netProfit: Number(salesRes.data?.mco) || 0,
 
-        //   monthlyAmount: (monthlyRes.data || []).map((m) => ({
-        //     month: new Date(0, m._id - 1).toLocaleString("default", {
-        //       month: "short",
-        //     }),
-        //     amount: m.amount || 0,
-        //   })),
-        // });
-     
-     
-     setReportData({
-  totalBookings: salesRes.data.totalBookings || 0,
-  totalAmount: salesRes.data.totalAmount || 0,
-  totalAmendment: salesRes.data.amendmentBenefit || 0,
-  totalMCO: salesRes.data.totalMCO || 0,
-  monthlyAmount: monthlyRes.data.map((m) => ({
-    month: new Date(2026, m._id - 1).toLocaleString("default", {
-      month: "short",
-    }),
-    amount: m.amount || 0,
-  })),
-});
-
+          monthlyAmount: (monthlyRes.data || []).map((m) => ({
+            month: new Date(0, m._id - 1).toLocaleString("default", {
+              month: "short",
+            }),
+            amount: Number(m.amount) || 0,
+          })),
+        });
       } catch (error) {
         console.error("Failed to load reports:", error);
       } finally {
@@ -347,7 +333,7 @@ const Reports = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
               <StatCard
                 title="Total Amount"
-                value={`₹${Number(reportData.totalAmount).toLocaleString("en-IN")}`}
+                value={`₹${reportData.totalAmount.toLocaleString("en-IN")}`}
                 icon={IndianRupee}
                 color="teal"
               />
@@ -359,21 +345,19 @@ const Reports = () => {
               />
               <StatCard
                 title="Amendment Benefit"
-                value={`₹${Number(reportData.amendmentBenefit).toLocaleString(
-                  "en-IN"
-                )}`}
+                value={`₹${reportData.amendmentBenefit.toLocaleString("en-IN")}`}
                 icon={TrendingUp}
                 color="emerald"
               />
               <StatCard
                 title="Net Profit / MCO"
-                value={`₹${Number(reportData.netProfit).toLocaleString("en-IN")}`}
+                value={`₹${reportData.netProfit.toLocaleString("en-IN")}`}
                 icon={IndianRupee}
                 color="purple"
               />
             </div>
 
-            {/* Charts */}
+            {/* Chart */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
                 <h2 className="text-xl font-semibold text-gray-800 mb-6">
@@ -401,7 +385,6 @@ const Reports = () => {
                 </ResponsiveContainer>
               </div>
 
-              {/* Placeholder */}
               <div className="bg-white rounded-2xl shadow-lg p-6 flex items-center justify-center text-gray-400">
                 Airline distribution coming soon
               </div>

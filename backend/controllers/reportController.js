@@ -93,47 +93,36 @@ export const salesReport = async (req, res) => {
       };
     }
 
-    const result = await Booking.aggregate([
+    const [result] = await Booking.aggregate([
       { $match: match },
-
       {
         $group: {
           _id: null,
-
-          // Total Bookings
           totalBookings: { $sum: 1 },
-
-          // Amount = Gross Amount
           totalAmount: { $sum: "$sellingPrice" },
-
-          // MCO = Net Profit / Loss (ALL statuses)
-          totalMCO: { $sum: "$profit" },
+          amendmentBenefit: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "AMENDMENT"] }, "$profit", 0],
+            },
+          },
+          netProfit: { $sum: "$profit" },
         },
       },
     ]);
 
-    // Amendment = only AMENDMENT profit
-    const amendmentResult = await Booking.aggregate([
-      { $match: { ...match, status: "AMENDMENT" } },
-      {
-        $group: {
-          _id: null,
-          totalAmendment: { $sum: "$profit" },
-        },
-      },
-    ]);
-
-    res.json({
-      totalBookings: result[0]?.totalBookings || 0,
-      amount: result[0]?.totalAmount || 0,
-      amendment: amendmentResult[0]?.totalAmendment || 0,
-      mco: result[0]?.totalMCO || 0,
-    });
-
-  } catch (error) {
-    res.status(500).json({ message: "Sales report failed" });
+    res.json(
+      result || {
+        totalBookings: 0,
+        totalAmount: 0,
+        amendmentBenefit: 0,
+        netProfit: 0,
+      }
+    );
+  } catch (err) {
+    res.status(500).json({ message: "Report failed" });
   }
 };
+
 
 // 📈 BOOKINGS BY STATUS
 export const bookingStatusReport = async (req, res) => {
@@ -142,19 +131,17 @@ export const bookingStatusReport = async (req, res) => {
       {
         $group: {
           _id: "$status",
-          totalBookings: { $sum: 1 },
+          count: { $sum: 1 },
         },
-      },
-      {
-        $sort: { _id: 1 },
       },
     ]);
 
     res.json(report);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch status report" });
+  } catch {
+    res.status(500).json({ message: "Status report failed" });
   }
 };
+
 
 // 📆 MONTHLY REPORT (Charts)
 export const monthlyRevenueReport = async (req, res) => {
@@ -162,35 +149,17 @@ export const monthlyRevenueReport = async (req, res) => {
     const report = await Booking.aggregate([
       {
         $group: {
-          _id: {
-            year: { $year: "$createdAt" },
-            month: { $month: "$createdAt" },
-          },
-
-          // Gross Amount
-          totalAmount: { $sum: "$sellingPrice" },
-
-          // Net Profit / Loss (MCO)
-          totalMCO: { $sum: "$profit" },
-
-          // Amendment Benefit only
-          amendment: {
-            $sum: {
-              $cond: [
-                { $eq: ["$status", "AMENDMENT"] },
-                "$profit",
-                0,
-              ],
-            },
-          },
+          _id: { $month: "$createdAt" },
+          amount: { $sum: "$sellingPrice" },
         },
       },
-      { $sort: { "_id.year": 1, "_id.month": 1 } },
+      { $sort: { _id: 1 } },
     ]);
 
     res.json(report);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch monthly report" });
+  } catch {
+    res.status(500).json({ message: "Monthly report failed" });
   }
 };
+
 

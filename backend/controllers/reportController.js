@@ -81,6 +81,8 @@
 
 import Booking from "../models/Booking.js";
 
+import Booking from "../models/Booking.js";
+
 export const salesReport = async (req, res) => {
   try {
     const { from, to } = req.query;
@@ -93,35 +95,49 @@ export const salesReport = async (req, res) => {
       };
     }
 
-    const [result] = await Booking.aggregate([
-      { $match: match },
-      {
-        $group: {
-          _id: null,
-          totalBookings: { $sum: 1 },
-          totalAmount: { $sum: "$sellingPrice" },
-          amendmentBenefit: {
-            $sum: {
-              $cond: [{ $eq: ["$status", "AMENDMENT"] }, "$profit", 0],
-            },
-          },
-          netProfit: { $sum: "$profit" },
-        },
-      },
-    ]);
+    const bookings = await Booking.find(match);
 
-    res.json(
-      result || {
-        totalBookings: 0,
-        totalAmount: 0,
-        amendmentBenefit: 0,
-        netProfit: 0,
-      }
+    const totalBookings = bookings.length;
+
+    // Amount = Selling Price (ALL)
+    const totalAmount = bookings.reduce(
+      (sum, b) => sum + (Number(b.sellingPrice) || 0),
+      0
     );
+
+    // Amendment = profit where status = AMENDMENT
+    const amendmentBenefit = bookings.reduce(
+      (sum, b) =>
+        b.status === "AMENDMENT" ? sum + (Number(b.profit) || 0) : sum,
+      0
+    );
+
+    // MCO = profit where status = VOID
+    const totalMCO = bookings.reduce(
+      (sum, b) =>
+        b.status === "VOID" ? sum + (Number(b.profit) || 0) : sum,
+      0
+    );
+
+    // Net Profit (optional future use)
+    const netProfit = bookings.reduce(
+      (sum, b) => sum + (Number(b.profit) || 0),
+      0
+    );
+
+    res.json({
+      totalBookings,
+      totalAmount,
+      amendmentBenefit,
+      totalMCO,
+      netProfit,
+    });
   } catch (err) {
-    res.status(500).json({ message: "Report failed" });
+    console.error(err);
+    res.status(500).json({ message: "Sales report error" });
   }
 };
+
 
 
 // 📈 BOOKINGS BY STATUS
@@ -144,6 +160,24 @@ export const bookingStatusReport = async (req, res) => {
 
 
 // 📆 MONTHLY REPORT (Charts)
+// export const monthlyRevenueReport = async (req, res) => {
+//   try {
+//     const report = await Booking.aggregate([
+//       {
+//         $group: {
+//           _id: { $month: "$createdAt" },
+//           amount: { $sum: "$sellingPrice" },
+//         },
+//       },
+//       { $sort: { _id: 1 } },
+//     ]);
+
+//     res.json(report);
+//   } catch {
+//     res.status(500).json({ message: "Monthly report failed" });
+//   }
+// };
+
 export const monthlyRevenueReport = async (req, res) => {
   try {
     const report = await Booking.aggregate([
@@ -157,9 +191,10 @@ export const monthlyRevenueReport = async (req, res) => {
     ]);
 
     res.json(report);
-  } catch {
-    res.status(500).json({ message: "Monthly report failed" });
+  } catch (err) {
+    res.status(500).json({ message: "Monthly report error" });
   }
 };
+
 
 

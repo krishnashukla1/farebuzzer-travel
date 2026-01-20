@@ -229,7 +229,6 @@
 // export default Reports;
 
 //===================20 jan===============
-
 import { useEffect, useState } from "react";
 import API from "../api/axios";
 import StatCard from "../components/StatCard";
@@ -248,20 +247,17 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
 } from "recharts";
 
 const Reports = () => {
   const [reportData, setReportData] = useState({
     totalBookings: 0,
     totalAmount: 0,
-    totalAmendment: 0,
-    totalMCO: 0,
+    amendmentBenefit: 0,
+    netProfit: 0,
     monthlyAmount: [],
   });
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -273,21 +269,20 @@ const Reports = () => {
         ]);
 
         setReportData({
-          totalBookings: salesRes.data.totalBookings,
-          totalAmount: salesRes.data.totalAmount,
-          totalAmendment: salesRes.data.totalAmendment,
-          totalMCO: salesRes.data.totalMCO,
+          totalBookings: salesRes.data?.totalBookings || 0,
+          totalAmount: salesRes.data?.totalAmount || 0,
+          amendmentBenefit: salesRes.data?.amendmentBenefit || 0,
+          netProfit: salesRes.data?.netProfit || 0,
 
-          monthlyAmount: monthlyRes.data.map((m) => ({
-            month: new Date(
-              m._id.year,
-              m._id.month - 1
-            ).toLocaleString("default", { month: "short" }),
-            amount: m.totalAmount,
+          monthlyAmount: (monthlyRes.data || []).map((m) => ({
+            month: new Date(0, m._id - 1).toLocaleString("default", {
+              month: "short",
+            }),
+            amount: m.amount || 0,
           })),
         });
-      } catch (err) {
-        console.error("Failed to fetch reports:", err);
+      } catch (error) {
+        console.error("Failed to load reports:", error);
       } finally {
         setLoading(false);
       }
@@ -349,13 +344,15 @@ const Reports = () => {
               />
               <StatCard
                 title="Amendment Benefit"
-                value={`₹${Number(reportData.totalAmendment).toLocaleString("en-IN")}`}
+                value={`₹${Number(reportData.amendmentBenefit).toLocaleString(
+                  "en-IN"
+                )}`}
                 icon={TrendingUp}
                 color="emerald"
               />
               <StatCard
                 title="Net Profit / MCO"
-                value={`₹${Number(reportData.totalMCO).toLocaleString("en-IN")}`}
+                value={`₹${Number(reportData.netProfit).toLocaleString("en-IN")}`}
                 icon={IndianRupee}
                 color="purple"
               />
@@ -389,7 +386,7 @@ const Reports = () => {
                 </ResponsiveContainer>
               </div>
 
-              {/* Placeholder Pie (future real data) */}
+              {/* Placeholder */}
               <div className="bg-white rounded-2xl shadow-lg p-6 flex items-center justify-center text-gray-400">
                 Airline distribution coming soon
               </div>
@@ -406,4 +403,3 @@ const Reports = () => {
 };
 
 export default Reports;
-

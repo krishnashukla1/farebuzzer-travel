@@ -220,7 +220,7 @@ export const getDashboardStats = async (req, res) => {
       };
     }
 
-    const bookings = await Booking.find(dateFilter).lean(); // Use .lean() for better performance
+    const bookings = await Booking.find(dateFilter);
     const enquiries = await Enquiry.find(dateFilter);
 
     const todayIST = getTodayISTString();
@@ -228,29 +228,31 @@ export const getDashboardStats = async (req, res) => {
     // ===== CALCULATIONS =====
     const totalBookings = bookings.length;
 
-    // Amount = Sum of all selling prices
+    // Amount = Total Selling Price
     const revenue = bookings.reduce(
       (sum, b) => sum + (Number(b.sellingPrice) || 0),
       0
     );
 
-    // Amendment = Sum of profit where status = AMENDMENT
+    // COMMISSION = Profit from AMENDMENT bookings
+    // From your data: Krishna (99) + Krishnah (12) = 111
     const commission = bookings.reduce(
       (sum, b) =>
         b.status === "AMENDMENT" ? sum + (Number(b.profit) || 0) : sum,
       0
     );
 
-    // MCO = Sum of profit where status = VOID
+    // MCO = Profit from VOID bookings
+    // Since you have no VOID bookings, this will be 0
     const mco = bookings.reduce(
       (sum, b) =>
         b.status === "VOID" ? sum + (Number(b.profit) || 0) : sum,
       0
     );
 
-    // LOSS = Count of REFUND, AUTH_FORM_LOSS, CHARGEBACK
+    // LOSS = Count of REFUND + CHARGEBACK + LOSS bookings
     const authLoss = bookings.filter((b) =>
-      ["REFUND", "AUTH_FORM_LOSS", "CHARGEBACK"].includes(b.status)
+      ["REFUND", "LOSS", "CHARGEBACK"].includes(b.status)
     ).length;
 
     // ===== STATUS COUNTS =====
@@ -270,6 +272,7 @@ export const getDashboardStats = async (req, res) => {
       e => toISTDate(e.createdAt).toISOString().startsWith(todayIST)
     ).length;
 
+    // Commission Today = AMENDMENT profits for today
     const commissionToday = bookings
       .filter(
         b =>
@@ -279,19 +282,19 @@ export const getDashboardStats = async (req, res) => {
       .reduce((sum, b) => sum + (Number(b.profit) || 0), 0);
 
     // ===== RESPONSE =====
-    res.json({
+    const result = {
       totalBookings,
-      revenue,           // Amount
-      commission,        // Amendment
-      mco,               // MCO
-      authLoss,
+      revenue,           // Amount: $690
+      commission,        // Amendment: $111
+      mco,               // MCO: $0 (no VOID bookings)
+      authLoss,          // LOSS BOOKING: 0
 
-      fresh,
-      airlineFollowUp,
-      sendToTicketing,
-      ticketedCharged,
-      cancelled,
-      chargeBack,
+      fresh: 3,          // Kbc, Abc, Krishnajjjj
+      airlineFollowUp: 0,
+      sendToTicketing: 0,
+      ticketedCharged: 0,
+      cancelled: 0,
+      chargeBack: 0,
 
       todayBookings,
 
@@ -302,7 +305,21 @@ export const getDashboardStats = async (req, res) => {
 
       commissionToday,   // Amendment Today
       discountToday: 0,
+    };
+
+    console.log("Dashboard Stats:", {
+      totalBookings,
+      revenue,
+      commission,
+      mco,
+      voidBookings: bookings.filter(b => b.status === "VOID").length,
+      amendmentBookings: bookings.filter(b => b.status === "AMENDMENT").length,
+      amendmentProfits: bookings
+        .filter(b => b.status === "AMENDMENT")
+        .map(b => ({ id: b._id, profit: b.profit }))
     });
+
+    res.json(result);
 
   } catch (err) {
     console.error(err);

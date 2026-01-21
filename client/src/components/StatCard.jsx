@@ -1,51 +1,187 @@
 
-import { TrendingUp, TrendingDown } from "lucide-react";
+// import { TrendingUp, TrendingDown } from "lucide-react";
 
-const StatCard = ({ title, value, change, icon: Icon, color = "blue" }) => {
-  const colorVariants = {
-    blue: "from-cyan-500 to-blue-600",       // Total Bookings, Revenue, etc.
-    teal: "from-teal-500 to-teal-600",
-    orange: "from-orange-500 to-amber-600",   // Commission, Follow-up
-    green: "from-green-500 to-emerald-600",   // Mco
-    red: "from-red-500 to-rose-600",          // Loss Booking
-    lightblue: "from-sky-400 to-cyan-500",    // Fresh, Send to Ticketing, etc.
-    gray: "from-gray-400 to-gray-600",        // Charge Back, Users Available
+// const StatCard = ({ title, value, change, icon: Icon, color = "blue" }) => {
+//   const colorVariants = {
+//     blue: "from-cyan-500 to-blue-600",       // Total Bookings, Revenue, etc.
+//     teal: "from-teal-500 to-teal-600",
+//     orange: "from-orange-500 to-amber-600",   // Commission, Follow-up
+//     green: "from-green-500 to-emerald-600",   // Mco
+//     red: "from-red-500 to-rose-600",          // Loss Booking
+//     lightblue: "from-sky-400 to-cyan-500",    // Fresh, Send to Ticketing, etc.
+//     gray: "from-gray-400 to-gray-600",        // Charge Back, Users Available
+//   };
+
+//   const bgGradient = colorVariants[color] || colorVariants.blue;
+
+//   const isPositive = change?.startsWith("+");
+
+//   return (
+//     <div className="group relative overflow-hidden rounded-2xl bg-white shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+//       <div className={`absolute inset-0 bg-gradient-to-br ${bgGradient} opacity-90`}></div>
+
+//       <div className="absolute inset-0 opacity-10">
+//         <div className="h-full w-full bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.3),transparent_50%)]"></div>
+//       </div>
+
+//       <div className="relative p-5 text-white">
+//         {Icon && (
+//           <div className="mb-4 inline-flex rounded-xl bg-white/20 p-3 backdrop-blur-sm">
+//             <Icon size={32} className="text-white" />
+//           </div>
+//         )}
+
+//         <p className="text-4xl font-bold tracking-tight">{value}</p>
+//         <h3 className="mt-2 text-sm font-medium uppercase tracking-wider opacity-90">
+//           {title}
+//         </h3>
+
+//         {change && (
+//           <div className={`mt-3 flex items-center gap-1 text-sm font-medium ${isPositive ? "text-green-200" : "text-red-200"}`}>
+//             {isPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+//             <span>{change}</span>
+//           </div>
+//         )}
+//       </div>
+
+//       <div className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 group-hover:opacity-100">
+//         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent -skew-x-12 translate-x-full animate-shine"></div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default StatCard;
+
+//================21 jan=======
+// components/StatCard.jsx
+import React from 'react';
+
+const StatCard = ({ 
+  title, 
+  value, 
+  icon: Icon, 
+  color, 
+  subtitle, 
+  trend, 
+  highlight = false,
+  compact = false 
+}) => {
+  const colorConfig = {
+    blue: {
+      bg: "bg-blue-50",
+      border: "border-blue-200",
+      text: "text-blue-700",
+      iconBg: "bg-blue-100",
+      iconColor: "text-blue-600"
+    },
+    indigo: {
+      bg: "bg-indigo-50",
+      border: "border-indigo-200",
+      text: "text-indigo-700",
+      iconBg: "bg-indigo-100",
+      iconColor: "text-indigo-600"
+    },
+    green: {
+      bg: "bg-emerald-50",
+      border: "border-emerald-200",
+      text: "text-emerald-700",
+      iconBg: "bg-emerald-100",
+      iconColor: "text-emerald-600"
+    },
+    red: {
+      bg: "bg-red-50",
+      border: "border-red-200",
+      text: "text-red-700",
+      iconBg: "bg-red-100",
+      iconColor: "text-red-600"
+    },
+    orange: {
+      bg: "bg-amber-50",
+      border: "border-amber-200",
+      text: "text-amber-700",
+      iconBg: "bg-amber-100",
+      iconColor: "text-amber-600"
+    },
+    teal: {
+      bg: "bg-teal-50",
+      border: "border-teal-200",
+      text: "text-teal-700",
+      iconBg: "bg-teal-100",
+      iconColor: "text-teal-600"
+    },
+    purple: {
+      bg: "bg-purple-50",
+      border: "border-purple-200",
+      text: "text-purple-700",
+      iconBg: "bg-purple-100",
+      iconColor: "text-purple-600"
+    },
+    lightblue: {
+      bg: "bg-sky-50",
+      border: "border-sky-200",
+      text: "text-sky-700",
+      iconBg: "bg-sky-100",
+      iconColor: "text-sky-600"
+    },
+    gray: {
+      bg: "bg-gray-50",
+      border: "border-gray-200",
+      text: "text-gray-700",
+      iconBg: "bg-gray-100",
+      iconColor: "text-gray-600"
+    }
   };
 
-  const bgGradient = colorVariants[color] || colorVariants.blue;
-
-  const isPositive = change?.startsWith("+");
+  const config = colorConfig[color] || colorConfig.blue;
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl bg-white shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
-      <div className={`absolute inset-0 bg-gradient-to-br ${bgGradient} opacity-90`}></div>
-
-      <div className="absolute inset-0 opacity-10">
-        <div className="h-full w-full bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.3),transparent_50%)]"></div>
-      </div>
-
-      <div className="relative p-5 text-white">
-        {Icon && (
-          <div className="mb-4 inline-flex rounded-xl bg-white/20 p-3 backdrop-blur-sm">
-            <Icon size={32} className="text-white" />
+    <div className={`
+      rounded-2xl border-2 p-${compact ? '4' : '6'} 
+      transition-all duration-300 hover:shadow-lg hover:scale-[1.02] 
+      ${config.bg} ${config.border}
+      ${highlight ? 'ring-2 ring-offset-2 ring-opacity-50' : ''}
+      ${highlight && color === 'green' ? 'ring-emerald-300' : ''}
+      ${highlight && color === 'red' ? 'ring-red-300' : ''}
+    `}>
+      <div className="flex items-center justify-between mb={compact ? '2' : '4'}">
+        <div className="flex items-center gap-3">
+          <div className={`p-2 rounded-lg ${config.iconBg} ${config.iconColor}`}>
+            <Icon size={compact ? 18 : 24} />
           </div>
-        )}
-
-        <p className="text-4xl font-bold tracking-tight">{value}</p>
-        <h3 className="mt-2 text-sm font-medium uppercase tracking-wider opacity-90">
-          {title}
-        </h3>
-
-        {change && (
-          <div className={`mt-3 flex items-center gap-1 text-sm font-medium ${isPositive ? "text-green-200" : "text-red-200"}`}>
-            {isPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-            <span>{change}</span>
+          <div>
+            <h3 className={`font-semibold ${compact ? 'text-sm' : 'text-base'} ${config.text}`}>
+              {title}
+            </h3>
+            {subtitle && (
+              <p className={`text-xs ${compact ? 'mt-0.5' : 'mt-1'} text-gray-500`}>
+                {subtitle}
+              </p>
+            )}
           </div>
+        </div>
+        {trend && (
+          <span className="text-xs font-medium bg-white/80 px-2 py-1 rounded-full text-gray-700">
+            {trend}
+          </span>
         )}
       </div>
-
-      <div className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 group-hover:opacity-100">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent -skew-x-12 translate-x-full animate-shine"></div>
+      
+      <div className={compact ? 'mt-2' : 'mt-4'}>
+        <div className={`font-bold ${compact ? 'text-2xl' : 'text-3xl'} ${config.text}`}>
+          {value}
+        </div>
+        
+        {/* Profit/Loss indicator */}
+        {title.includes("PROFIT") || title.includes("Profit") ? (
+          <div className={`text-xs font-medium px-2 py-1 rounded-full mt-2 inline-block ${
+            value.includes("-") 
+              ? "bg-red-100 text-red-700" 
+              : "bg-emerald-100 text-emerald-700"
+          }`}>
+            {value.includes("-") ? "▼ Loss" : "▲ Profit"}
+          </div>
+        ) : null}
       </div>
     </div>
   );

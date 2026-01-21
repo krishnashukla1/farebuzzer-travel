@@ -464,7 +464,7 @@ function AirportAutocomplete({ label, name, value = "", onChange, placeholder })
               CONTACT INFORMATION
             </h3>
 
-            <div className="grid md:grid-cols-2 gap-5">
+            <div className="grid md:grid-cols-3 gap-5">
               <Input
                 icon={User}
                 label="Full Name"
@@ -485,10 +485,8 @@ function AirportAutocomplete({ label, name, value = "", onChange, placeholder })
                 placeholder="johndoe@gmail.com"
                 required
               />
-            </div>
 
-            <div className="mt-5">
-              <Input
+               <Input
                 icon={Phone}
                 label="Phone Number"
                 name="phone"
@@ -498,6 +496,18 @@ function AirportAutocomplete({ label, name, value = "", onChange, placeholder })
                 required
               />
             </div>
+
+            {/* <div className="mt-5">
+              <Input
+                icon={Phone}
+                label="Phone Number"
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                placeholder="+91 98765 43210"
+                required
+              />
+            </div> */}
           </div>
 
           {/* Travel Details */}

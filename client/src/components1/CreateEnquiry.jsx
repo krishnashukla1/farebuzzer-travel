@@ -12,12 +12,26 @@ import {
 const CreateEnquiry = () => {
   const [loading, setLoading] = useState(false);
 
+  // const [form, setForm] = useState({
+  //   name: "",
+  //   email: "",
+  //   phone: "",
+  //   message: "",
+  // });
+
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-  });
+  name: "",
+  email: "",
+  phone: "",
+  origin: "",
+  destination: "",
+  travelDate: "",
+  passengers: 1,
+  travelType: "FLIGHT",
+  expectedBudget: "",
+  message: "",
+});
+
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -35,7 +49,14 @@ const CreateEnquiry = () => {
         name: "",
         email: "",
         phone: "",
-        message: "",
+        // message: "",
+          origin: "",
+  destination: "",
+  travelDate: "",
+  passengers: 1,
+  travelType: "FLIGHT",
+  expectedBudget: "",
+  message: "",
       });
     } catch {
       alert("Failed to submit enquiry ❌");
@@ -109,6 +130,74 @@ const CreateEnquiry = () => {
               />
             </div>
           </div>
+
+          {/* Travel Details */}
+<div>
+  <h3 className="text-sm font-semibold text-gray-700 mb-3">
+    TRAVEL DETAILS
+  </h3>
+
+  <div className="grid md:grid-cols-2 gap-4">
+    <Input
+      label="Origin (From)"
+      name="origin"
+      value={form.origin}
+      onChange={handleChange}
+      placeholder="Delhi (DEL)"
+    />
+
+    <Input
+      label="Destination (To)"
+      name="destination"
+      value={form.destination}
+      onChange={handleChange}
+      placeholder="Dubai (DXB)"
+    />
+
+    <Input
+      label="Travel Date"
+      name="travelDate"
+      type="date"
+      value={form.travelDate}
+      onChange={handleChange}
+    />
+
+    <Input
+      label="Passengers"
+      name="passengers"
+      type="number"
+      min="1"
+      value={form.passengers}
+      onChange={handleChange}
+    />
+  </div>
+
+  <div className="grid md:grid-cols-2 gap-4 mt-4">
+    <div>
+      <label className="text-sm font-medium text-gray-600">Travel Type</label>
+      <select
+        name="travelType"
+        value={form.travelType}
+        onChange={handleChange}
+        className="w-full border rounded-lg px-3 py-2 bg-gray-50"
+      >
+        <option value="FLIGHT">Flight</option>
+        <option value="HOTEL">Hotel</option>
+        <option value="PACKAGE">Package</option>
+      </select>
+    </div>
+
+    <Input
+      label="Expected Budget (₹)"
+      name="expectedBudget"
+      type="number"
+      value={form.expectedBudget}
+      onChange={handleChange}
+      placeholder="45000"
+    />
+  </div>
+</div>
+
 
           {/* Message */}
           <div>

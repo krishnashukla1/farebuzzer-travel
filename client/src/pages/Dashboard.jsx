@@ -436,6 +436,8 @@ const Dashboard = () => {
               <StatCard title="LOSS BOOKING" value={stats.authLoss ?? 0} icon={AlertCircle} color="red" />
             </div>
 
+            
+
             {/* Middle Row */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-4">
               <StatCard title="FRESH" value={stats.fresh ?? 0} icon={RefreshCw} color="lightblue" />

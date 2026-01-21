@@ -2327,9 +2327,103 @@
 
 //=============21 jan====
 
+// import { useEffect, useState } from "react";
+// import api from "../api/axios";
+// import { Mail, MailOpen, User, Phone, Ticket, Plane, X } from "lucide-react";
+
+// const formatDate = (dateStr) => {
+//   if (!dateStr) return "—";
+//   return new Date(dateStr).toLocaleString("en-IN", {
+//     day: "2-digit",
+//     month: "2-digit",
+//     year: "numeric",
+//     hour: "numeric",
+//     minute: "2-digit",
+//     hour12: true,
+//   });
+// };
+
+// export default function Inbox() {
+//   const [emails, setEmails] = useState([]);
+//   const [selectedEmail, setSelectedEmail] = useState(null);
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     const fetchInbox = async () => {
+//       try {
+//         const res = await api.get("/email/inbox/live");
+//         setEmails(res.data.data.sort((a, b) => new Date(b.date) - new Date(a.date)));
+//       } catch (err) {
+//         alert("Failed to load inbox");
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchInbox();
+//   }, []);
+
+//   return (
+//     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+//       <h1 className="text-2xl font-bold mb-4">Booking Inbox</h1>
+
+//       {loading ? (
+//         <div className="p-12 text-center text-gray-500">Loading...</div>
+//       ) : emails.length === 0 ? (
+//         <div className="p-12 text-center text-gray-500">No emails found</div>
+//       ) : (
+//         <div className="bg-white rounded-2xl shadow overflow-hidden">
+//           {emails.map((email) => (
+//             <div
+//               key={email.id}
+//               onClick={() => setSelectedEmail(email)}
+//               className="cursor-pointer border-b px-4 py-3 hover:bg-gray-50 flex justify-between"
+//             >
+//               <div className="flex gap-3 items-center min-w-0 flex-1">
+//                 {email.isRead ? (
+//                   <MailOpen size={20} className="text-gray-400" />
+//                 ) : (
+//                   <Mail size={20} className="text-indigo-600" />
+//                 )}
+//                 <div className="truncate">
+//                   <p className="font-semibold text-gray-900 truncate">{email.from}</p>
+//                   <p className="text-gray-800 truncate">{email.subject}</p>
+//                 </div>
+//               </div>
+//               <span className="text-gray-500 text-sm">{formatDate(email.date)}</span>
+//             </div>
+//           ))}
+//         </div>
+//       )}
+
+//       {/* Modal */}
+//       {selectedEmail && (
+//         <div
+//           className="fixed inset-0 bg-black/60 flex items-center justify-center p-4"
+//           onClick={(e) => e.target === e.currentTarget && setSelectedEmail(null)}
+//         >
+//           <div className="w-full max-w-4xl bg-white rounded-xl shadow-lg overflow-hidden">
+//             <div className="flex justify-between items-center px-4 py-3 border-b bg-indigo-50">
+//               <h2 className="font-bold truncate">{selectedEmail.subject}</h2>
+//               <button onClick={() => setSelectedEmail(null)}>
+//                 <X size={20} />
+//               </button>
+//             </div>
+//             <div className="p-4 prose max-w-none break-words">
+//               <div dangerouslySetInnerHTML={{ __html: selectedEmail.html || `<pre>${selectedEmail.text}</pre>` }} />
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+
+//============
 import { useEffect, useState } from "react";
 import api from "../api/axios";
-import { Mail, MailOpen, User, Phone, Ticket, Plane, X } from "lucide-react";
+import { Mail, MailOpen, X } from "lucide-react";
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "—";
@@ -2343,24 +2437,36 @@ const formatDate = (dateStr) => {
   });
 };
 
-export default function Inbox() {
+export default function InboxEmail() {
   const [emails, setEmails] = useState([]);
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchInbox = async () => {
-      try {
-        const res = await api.get("/email/inbox/live");
-        setEmails(res.data.data.sort((a, b) => new Date(b.date) - new Date(a.date)));
-      } catch (err) {
-        alert("Failed to load inbox");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchAllEmails = async () => {
+    try {
+      const inboxRes = await api.get("/email/inbox/live"); // Gmail
+      const sentRes = await api.get("/email/inbox/sent");   // CRM sent
 
-    fetchInbox();
+      const combined = [
+        ...inboxRes.data.data,
+        ...sentRes.data.data,
+      ];
+
+      combined.sort(
+        (a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt)
+      );
+
+      setEmails(combined);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to load emails");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllEmails();
   }, []);
 
   return (
@@ -2375,7 +2481,7 @@ export default function Inbox() {
         <div className="bg-white rounded-2xl shadow overflow-hidden">
           {emails.map((email) => (
             <div
-              key={email.id}
+              key={email.id || email._id}
               onClick={() => setSelectedEmail(email)}
               className="cursor-pointer border-b px-4 py-3 hover:bg-gray-50 flex justify-between"
             >
@@ -2390,7 +2496,9 @@ export default function Inbox() {
                   <p className="text-gray-800 truncate">{email.subject}</p>
                 </div>
               </div>
-              <span className="text-gray-500 text-sm">{formatDate(email.date)}</span>
+              <span className="text-gray-500 text-sm">
+                {formatDate(email.date || email.createdAt)}
+              </span>
             </div>
           ))}
         </div>
@@ -2410,7 +2518,11 @@ export default function Inbox() {
               </button>
             </div>
             <div className="p-4 prose max-w-none break-words">
-              <div dangerouslySetInnerHTML={{ __html: selectedEmail.html || `<pre>${selectedEmail.text}</pre>` }} />
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: selectedEmail.html || `<pre>${selectedEmail.text}</pre>`,
+                }}
+              />
             </div>
           </div>
         </div>
@@ -2418,5 +2530,4 @@ export default function Inbox() {
     </div>
   );
 }
-
 

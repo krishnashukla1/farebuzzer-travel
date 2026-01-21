@@ -411,6 +411,21 @@ router.get("/inbox/live", async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+/* ======================================================
+  GET CRM SENT EMAILS
+   GET /api/email/inbox/sent
+====================================================== */
+router.get("/inbox/sent", async (req, res) => {
+  try {
+    const emails = await Email.find({ type: "sent" })
+      .sort({ createdAt: -1 })
+      .limit(100); // latest 100 sent emails
+    res.json({ success: true, data: emails });
+  } catch (err) {
+    console.error("Sent emails fetch error:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch sent emails" });
+  }
+});
 
 /* ======================================================
    SEND EMAIL (Outgoing)

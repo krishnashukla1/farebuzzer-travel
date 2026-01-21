@@ -195,6 +195,7 @@ const fetchEmails = async () => {
         id: parsed.messageId,
         from: fromEmail,
         to: "support@farebuzzer.com",
+        // to: "besttripmakers@gmail.com",
         subject: parsed.subject || "No Subject",
         text: parsed.text || "",
         html: parsed.html || null,

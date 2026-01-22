@@ -66,6 +66,7 @@ import path from "path";
 
 export const generateETicket = async (data) => {
   const tmpDir = path.join(process.cwd(), "tmp");
+  
 
   // ✅ Ensure folder exists
   if (!fs.existsSync(tmpDir)) {

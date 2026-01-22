@@ -2530,6 +2530,13 @@ export const sendCustomerEmail = async (req, res) => {
         message: "Customer name, phone number and email are required"
       });
     }
+    if (!confirmationNumber) {
+  return res.status(400).json({
+    status: "fail",
+    message: "confirmationNumber is required"
+  });
+}
+
 
     const phoneRegex = /^[+]?[0-9\s\-()]{8,20}$/;
     if (!phoneRegex.test(customerPhone.trim())) {

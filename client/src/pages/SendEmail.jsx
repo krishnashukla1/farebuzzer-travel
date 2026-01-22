@@ -5221,178 +5221,389 @@ const SendEmail = () => {
     }
   };
 
-  const input =
-    "w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500";
+  // const input =
+  //   "w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500";
 
-  const section =
-    "bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-4";
+  const input =
+  "w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-800 " +
+  "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 " +
+  "transition-all duration-200 cursor-text";
+
+  const select =
+  "w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-800 " +
+  "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 " +
+  "transition-all duration-200 cursor-pointer";
+
+const section =
+  "bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4";
+
+
+  // const section =
+  //   "bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-4";
+
+  // return (
+  //   <div className="p-6 max-w-7xl mx-auto">
+  //     <h1 className="text-2xl font-bold mb-6">
+  //       ✈️ Send Flight Ticket Email
+  //     </h1>
+
+  //     <form onSubmit={submitHandler} className="space-y-6">
+
+  //       {/* Sender */}
+  //       <section className={section}>
+  //         <h3 className="font-semibold text-lg">
+  //           Sender / Charge Reference
+  //         </h3>
+  //         <select
+  //           value={senderBrand}
+  //           onChange={(e) => setSenderBrand(e.target.value)}
+  //           className={input}
+  //         >
+  //           <option value="airline_desk">Airline Desk</option>
+  //           <option value="american_airlines">American Airlines</option>
+  //           <option value="lowfare_studio">Lowfare Studio</option>
+  //         </select>
+  //       </section>
+
+  //       {/* Customer */}
+  //       <section className={section}>
+  //         <h3 className="font-semibold text-lg">Customer Details</h3>
+  //         <input
+  //           name="customerName"
+  //           placeholder="Customer Name"
+  //           className={input}
+  //           value={form.customerName}
+  //           onChange={handleChange}
+  //           required
+  //         />
+  //         <input
+  //           name="customerPhone"
+  //           placeholder="Phone Number"
+  //           className={input}
+  //           value={form.customerPhone}
+  //           onChange={handleChange}
+  //           required
+  //         />
+  //         <input
+  //           name="billingEmail"
+  //           type="email"
+  //           placeholder="Email Address"
+  //           className={input}
+  //           value={form.billingEmail}
+  //           onChange={handleChange}
+  //           required
+  //         />
+  //       </section>
+
+  //       {/* Flight */}
+  //       <section className={section}>
+  //         <h3 className="font-semibold text-lg">
+  //           Flight Ticket Details
+  //         </h3>
+
+  //         <div className="grid sm:grid-cols-2 gap-4">
+  //           <input
+  //             name="confirmationNumber"
+  //             placeholder="Booking Reference / PNR"
+  //             className={input}
+  //             value={form.confirmationNumber}
+  //             onChange={handleChange}
+  //             required
+  //           />
+  //           <input
+  //             name="airline"
+  //             placeholder="Airline Name"
+  //             className={input}
+  //             value={form.airline}
+  //             onChange={handleChange}
+  //             required
+  //           />
+  //           <input
+  //             name="departure"
+  //             placeholder="From (JFK)"
+  //             className={input}
+  //             value={form.departure}
+  //             onChange={handleChange}
+  //             required
+  //           />
+  //           <input
+  //             name="arrival"
+  //             placeholder="To (LHR)"
+  //             className={input}
+  //             value={form.arrival}
+  //             onChange={handleChange}
+  //             required
+  //           />
+  //           <input
+  //             type="date"
+  //             name="travelDate"
+  //             className={input}
+  //             value={form.travelDate}
+  //             onChange={handleChange}
+  //             required
+  //           />
+  //           <input
+  //             name="cabinClass"
+  //             placeholder="Cabin Class"
+  //             className={input}
+  //             value={form.cabinClass}
+  //             onChange={handleChange}
+  //           />
+  //         </div>
+  //       </section>
+
+  //       {/* Payment */}
+  //       <section className={section}>
+  //         <h3 className="font-semibold text-lg">
+  //           Payment Information
+  //         </h3>
+  //         <input
+  //           name="bookingAmount"
+  //           type="number"
+  //           placeholder="Amount Paid (USD)"
+  //           className={input}
+  //           value={form.bookingAmount}
+  //           onChange={handleChange}
+  //           required
+  //         />
+  //         <p className="text-sm text-gray-600">
+  //           Charges will reflect as <b>LowfareStudio</b> on customer statement.
+  //         </p>
+  //       </section>
+
+  //       {/* Message */}
+  //       <section className={section}>
+  //         <h3 className="font-semibold text-lg">Custom Message</h3>
+  //         <textarea
+  //           name="customMessage"
+  //           rows="4"
+  //           placeholder="Additional notes for customer..."
+  //           className={input}
+  //           value={form.customMessage}
+  //           onChange={handleChange}
+  //         />
+  //       </section>
+
+  //       {/* Alerts */}
+  //       {successMessage && (
+  //         <div className="bg-green-100 text-green-700 p-3 rounded-lg">
+  //           {successMessage}
+  //         </div>
+  //       )}
+  //       {errorMessage && (
+  //         <div className="bg-red-100 text-red-700 p-3 rounded-lg">
+  //           {errorMessage}
+  //         </div>
+  //       )}
+
+  //       {/* Submit */}
+  //       <button
+  //         type="submit"
+  //         disabled={loading}
+  //         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl"
+  //       >
+  //         {loading ? "Sending Ticket..." : "Send Flight Ticket"}
+  //       </button>
+  //     </form>
+  //   </div>
+  // );
+
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">
-        ✈️ Send Flight Ticket Email
-      </h1>
+  <div className="p-6 max-w-7xl mx-auto">
+    <h1 className="text-2xl font-bold mb-6 flex items-center gap-2">
+      ✈️ Send Flight Ticket Email
+    </h1>
 
-      <form onSubmit={submitHandler} className="space-y-6">
+    <form onSubmit={submitHandler} className="space-y-6">
 
-        {/* Sender */}
-        <section className={section}>
-          <h3 className="font-semibold text-lg">
-            Sender / Charge Reference
-          </h3>
-          <select
-            value={senderBrand}
-            onChange={(e) => setSenderBrand(e.target.value)}
-            className={input}
-          >
-            <option value="airline_desk">Airline Desk</option>
-            <option value="american_airlines">American Airlines</option>
-            <option value="lowfare_studio">Lowfare Studio</option>
-          </select>
-        </section>
+      {/* Sender */}
+      <section className={section}>
+        <h3 className="font-semibold text-lg text-gray-800">
+          Sender / Charge Reference
+        </h3>
 
-        {/* Customer */}
-        <section className={section}>
-          <h3 className="font-semibold text-lg">Customer Details</h3>
-          <input
-            name="customerName"
-            placeholder="Customer Name"
-            className={input}
-            value={form.customerName}
-            onChange={handleChange}
-            required
-          />
-          <input
-            name="customerPhone"
-            placeholder="Phone Number"
-            className={input}
-            value={form.customerPhone}
-            onChange={handleChange}
-            required
-          />
-          <input
-            name="billingEmail"
-            type="email"
-            placeholder="Email Address"
-            className={input}
-            value={form.billingEmail}
-            onChange={handleChange}
-            required
-          />
-        </section>
-
-        {/* Flight */}
-        <section className={section}>
-          <h3 className="font-semibold text-lg">
-            Flight Ticket Details
-          </h3>
-
-          <div className="grid sm:grid-cols-2 gap-4">
-            <input
-              name="confirmationNumber"
-              placeholder="Booking Reference / PNR"
-              className={input}
-              value={form.confirmationNumber}
-              onChange={handleChange}
-              required
-            />
-            <input
-              name="airline"
-              placeholder="Airline Name"
-              className={input}
-              value={form.airline}
-              onChange={handleChange}
-              required
-            />
-            <input
-              name="departure"
-              placeholder="From (JFK)"
-              className={input}
-              value={form.departure}
-              onChange={handleChange}
-              required
-            />
-            <input
-              name="arrival"
-              placeholder="To (LHR)"
-              className={input}
-              value={form.arrival}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="date"
-              name="travelDate"
-              className={input}
-              value={form.travelDate}
-              onChange={handleChange}
-              required
-            />
-            <input
-              name="cabinClass"
-              placeholder="Cabin Class"
-              className={input}
-              value={form.cabinClass}
-              onChange={handleChange}
-            />
-          </div>
-        </section>
-
-        {/* Payment */}
-        <section className={section}>
-          <h3 className="font-semibold text-lg">
-            Payment Information
-          </h3>
-          <input
-            name="bookingAmount"
-            type="number"
-            placeholder="Amount Paid (USD)"
-            className={input}
-            value={form.bookingAmount}
-            onChange={handleChange}
-            required
-          />
-          <p className="text-sm text-gray-600">
-            Charges will reflect as <b>LowfareStudio</b> on customer statement.
-          </p>
-        </section>
-
-        {/* Message */}
-        <section className={section}>
-          <h3 className="font-semibold text-lg">Custom Message</h3>
-          <textarea
-            name="customMessage"
-            rows="4"
-            placeholder="Additional notes for customer..."
-            className={input}
-            value={form.customMessage}
-            onChange={handleChange}
-          />
-        </section>
-
-        {/* Alerts */}
-        {successMessage && (
-          <div className="bg-green-100 text-green-700 p-3 rounded-lg">
-            {successMessage}
-          </div>
-        )}
-        {errorMessage && (
-          <div className="bg-red-100 text-red-700 p-3 rounded-lg">
-            {errorMessage}
-          </div>
-        )}
-
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl"
+        <select
+          value={senderBrand}
+          onChange={(e) => setSenderBrand(e.target.value)}
+          className={select}
         >
-          {loading ? "Sending Ticket..." : "Send Flight Ticket"}
-        </button>
-      </form>
-    </div>
-  );
+          <option value="airline_desk">Airline Desk</option>
+          <option value="american_airlines">American Airlines</option>
+          <option value="lowfare_studio">Lowfare Studio</option>
+        </select>
+      </section>
+
+      {/* Customer */}
+      <section className={section}>
+        <h3 className="font-semibold text-lg text-gray-800">
+          Customer Details
+        </h3>
+
+        <input
+          name="customerName"
+          placeholder="Customer Name"
+          className={input}
+          value={form.customerName}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          name="customerPhone"
+          placeholder="Phone Number"
+          className={input}
+          value={form.customerPhone}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          name="billingEmail"
+          type="email"
+          placeholder="Email Address"
+          className={input}
+          value={form.billingEmail}
+          onChange={handleChange}
+          required
+        />
+      </section>
+
+      {/* Flight */}
+      <section className={section}>
+        <h3 className="font-semibold text-lg text-gray-800">
+          Flight Ticket Details
+        </h3>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <input
+            name="confirmationNumber"
+            placeholder="Booking Reference / PNR"
+            className={input}
+            value={form.confirmationNumber}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            name="airline"
+            placeholder="Airline Name"
+            className={input}
+            value={form.airline}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            name="departure"
+            placeholder="From (JFK)"
+            className={input}
+            value={form.departure}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            name="arrival"
+            placeholder="To (LHR)"
+            className={input}
+            value={form.arrival}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            type="date"
+            name="travelDate"
+            className={`${input} cursor-pointer`}
+            value={form.travelDate}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            name="cabinClass"
+            placeholder="Cabin Class (Economy / Business)"
+            className={input}
+            value={form.cabinClass}
+            onChange={handleChange}
+          />
+        </div>
+      </section>
+
+      {/* Payment */}
+      <section className={section}>
+        <h3 className="font-semibold text-lg text-gray-800">
+          Payment Information
+        </h3>
+
+        <input
+          name="bookingAmount"
+          type="number"
+          placeholder="Amount Paid (USD)"
+          className={input}
+          value={form.bookingAmount}
+          onChange={handleChange}
+          required
+        />
+
+        <p className="text-sm text-gray-500">
+          Charges will reflect as{" "}
+          <span className="font-semibold text-gray-800">
+            LowfareStudio
+          </span>{" "}
+          on customer statement.
+        </p>
+      </section>
+
+      {/* Message */}
+      <section className={section}>
+        <h3 className="font-semibold text-lg text-gray-800">
+          Custom Message
+        </h3>
+
+        <textarea
+          name="customMessage"
+          rows="4"
+          placeholder="Additional notes for customer..."
+          className={`${input} resize-none`}
+          value={form.customMessage}
+          onChange={handleChange}
+        />
+      </section>
+
+      {/* Alerts */}
+      {successMessage && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl">
+          {successMessage}
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+          {errorMessage}
+        </div>
+      )}
+
+      {/* Submit */}
+      <button
+        type="submit"
+        disabled={loading}
+        className="
+          w-full py-3 rounded-xl font-semibold text-white
+          bg-blue-600 hover:bg-blue-700
+          transition-all duration-200
+          disabled:opacity-60 disabled:cursor-not-allowed
+          cursor-pointer shadow-md
+        "
+      >
+        {loading ? "Sending Ticket..." : "Send Flight Ticket"}
+      </button>
+
+    </form>
+  </div>
+);
+
 };
 
 export default SendEmail;

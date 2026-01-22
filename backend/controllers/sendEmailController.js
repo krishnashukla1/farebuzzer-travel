@@ -2053,14 +2053,460 @@
 // };
 
 //============with template==========
+
+// import transporter from "../utils/email.js";
+// import Email from "../models/Email.js";
+
+// export const sendCustomerEmail = async (req, res) => {
+//   try {
+//     const {
+//       emailType,
+//       templateUsed, // NEW: Added template reference
+//       customerName,
+//       customerPhone,
+//       billingEmail,
+//       confirmationNumber,
+//       airline,
+//       departure,
+//       arrival,
+//       travelDate,
+//       bookingAmount,
+//       oldTravelDate,
+//       newTravelDate,
+//       changeFee,
+//       fareDifference,
+//       refundAmount,
+//       cancellationDate,
+//       customMessage,
+//       searchQuery,
+//       category,
+//       destination,
+//       // NEW: Package fields
+//       packageName,
+//       packageNights,
+//       packageStartDate,
+//       packageEndDate,
+//       packagePrice,
+//       numberOfPersons,
+//       // NEW: Hotel fields
+//       hotelName,
+//       roomType,
+//       // NEW: Car rental fields
+//       carType,
+//       rentalDays,
+//       // NEW: Insurance fields
+//       insuranceType,
+//       insuranceCoverage
+//     } = req.body;
+
+//     // UPDATED: Added phone validation
+//     if (!customerName || !billingEmail || !customerPhone) {
+//       return res.status(400).json({
+//         status: "fail",
+//         message: "Customer name, phone number, and billing email are required"
+//       });
+//     }
+//     const phoneRegex = /^[+]?[0-9\s\-\(\)]{8,20}$/;
+    
+//     if (!phoneRegex.test(customerPhone.trim())) {
+//       return res.status(400).json({
+//         status: "fail",
+//         message: "Invalid phone number format. Use 8-20 digits, spaces, +, -, () allowed (example: +919876543210 or 2025550123)"
+//       });
+//     }
+
+//     /* ---------------- SUBJECT MAP ---------------- */
+//     const subjectMap = {
+//       new_reservation: "New Flight Reservation Confirmation",
+//       exchange_ticket: "Ticket Exchange Confirmation",
+//       flight_cancellation: "Flight Cancellation Confirmation",
+//       refund_request: "Refund Request Received",
+//       seat_addons: "Seat / Add-ons Confirmation",
+//       name_correction: "Name Correction Request Received",
+//       add_pet: "Pet Addition Confirmation",
+//       flight_confirmation: "Flight Booking Confirmation",
+//       hotel_booking: "Hotel Booking Confirmation",
+//       car_rental: "Car Rental Confirmation",
+//       customer_support: "Customer Support Response",
+//       holiday_package: "Holiday Package Confirmation", // NEW
+//       travel_insurance: "Travel Insurance Confirmation" // NEW
+//     };
+
+//     const subject = subjectMap[emailType] || "FareBuzzer Notification";
+
+//     /* ---------------- DYNAMIC GREETING LOGIC ---------------- */
+//     const getDynamicGreeting = () => {
+//       // Priority: destination > category > searchQuery > default
+      
+//       // If destination is provided (most specific)
+//       if (destination && typeof destination === 'string') {
+//         const dest = destination.trim().toLowerCase();
+//         if (dest.includes('kashmir')) return "regarding the Kashmir package";
+//         if (dest.includes('manali')) return "regarding the Manali package";
+//         if (dest.includes('goa')) return "regarding the Goa package";
+//         if (dest.includes('leh') || dest.includes('ladakh')) return "regarding the Leh-Ladakh package";
+//         if (dest.includes('shimla')) return "regarding the Shimla package";
+//         if (dest.includes('ooty')) return "regarding the Ooty package";
+//         if (dest.includes('maldives')) return "regarding the Maldives package";
+//         if (dest.includes('dubai')) return "regarding the Dubai package";
+//         if (dest.includes('bali')) return "regarding the Bali package";
+//         if (dest.includes('thailand')) return "regarding the Thailand package";
+//         if (dest.includes('singapore')) return "regarding the Singapore package";
+//         return `regarding the ${destination} package`;
+//       }
+      
+//       // If category is provided
+//       if (category && typeof category === 'string') {
+//         const cat = category.trim().toLowerCase();
+//         if (cat.includes('flight')) return "regarding the flight booking";
+//         if (cat.includes('hotel')) return "regarding the hotel booking";
+//         if (cat.includes('car') || cat.includes('rental')) return "regarding the car rental";
+//         if (cat.includes('package') || cat.includes('tour')) return "regarding the holiday package";
+//         if (cat.includes('cruise')) return "regarding the cruise booking";
+//         if (cat.includes('visa')) return "regarding the visa assistance";
+//         if (cat.includes('insurance')) return "regarding the travel insurance";
+//       }
+      
+//       // If search query is provided, extract keywords
+//       if (searchQuery && typeof searchQuery === 'string') {
+//         const query = searchQuery.toLowerCase();
+        
+//         // Check for destinations
+//         const destinations = [
+//           'kashmir', 'manali', 'goa', 'leh', 'ladakh', 'shimla', 'darjeeling',
+//           'munnar', 'kerala', 'rajasthan', 'jaipur', 'udaipur', 'agra', 'varanasi',
+//           'andaman', 'maldives', 'dubai', 'bali', 'thailand', 'singapore', 'malaysia',
+//           'europe', 'usa', 'canada', 'australia', 'new zealand'
+//         ];
+        
+//         for (const dest of destinations) {
+//           if (query.includes(dest)) {
+//             return `regarding the ${dest.charAt(0).toUpperCase() + dest.slice(1)} package`;
+//           }
+//         }
+        
+//         // Check for categories
+//         if (query.includes('flight') || query.includes('air ticket') || query.includes('airline')) {
+//           return "regarding the flight booking";
+//         }
+//         if (query.includes('hotel') || query.includes('accommodation') || query.includes('resort')) {
+//           return "regarding the hotel booking";
+//         }
+//         if (query.includes('car') || query.includes('rental') || query.includes('vehicle')) {
+//           return "regarding the car rental";
+//         }
+//         if (query.includes('package') || query.includes('tour') || query.includes('holiday')) {
+//           return "regarding the holiday package";
+//         }
+//       }
+      
+//       // Default dynamic greeting based on email type
+//       switch(emailType) {
+//         case 'flight_confirmation':
+//         case 'new_reservation':
+//           return "regarding your flight booking";
+//         case 'hotel_booking':
+//           return "regarding your hotel booking";
+//         case 'car_rental':
+//           return "regarding your car rental";
+//         case 'exchange_ticket':
+//           return "regarding your ticket exchange";
+//         case 'flight_cancellation':
+//           return "regarding your flight cancellation";
+//         case 'refund_request':
+//           return "regarding your refund request";
+//         case 'seat_addons':
+//           return "regarding your seat selection";
+//         case 'name_correction':
+//           return "regarding your name correction";
+//         case 'add_pet':
+//           return "regarding your pet addition";
+//         case 'holiday_package':
+//           return "regarding your holiday package";
+//         case 'travel_insurance':
+//           return "regarding your travel insurance";
+//         default:
+//           return "regarding your travel enquiry";
+//       }
+//     };
+
+//     const dynamicGreeting = getDynamicGreeting();
+
+//     /* ---------------- EMAIL BODY (UPDATED: Added phone in all cases) ---------------- */
+//     let message = "";
+
+//     switch (emailType) {
+//       case "new_reservation":
+//         message = `
+//           <p>Your flight reservation has been successfully confirmed.</p>
+//           <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+//           <p><b>Email:</b> ${billingEmail}</p>
+//           <p><b>Airline:</b> ${airline}</p>
+//           <p><b>Route:</b> ${departure} → ${arrival}</p>
+//           <p><b>Travel Date:</b> ${travelDate}</p>
+//           <p><b>Booking Amount:</b> USD ${bookingAmount}</p>
+//           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
+//         `;
+//         break;
+
+//       case "exchange_ticket":
+//         message = `
+//           <p>Your ticket exchange request has been processed.</p>
+//           <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+//           <p><b>Email:</b> ${billingEmail}</p>
+//           <p><b>Original Date:</b> ${oldTravelDate}</p>
+//           <p><b>New Date:</b> ${newTravelDate}</p>
+//           <p><b>Change Fee:</b> USD ${changeFee}</p>
+//           <p><b>Fare Difference:</b> USD ${fareDifference}</p>
+//           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
+//         `;
+//         break;
+
+//       case "flight_cancellation":
+//         message = `
+//           <p>Your flight booking has been cancelled successfully.</p>
+//           <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+//           <p><b>Email:</b> ${billingEmail}</p>
+//           <p><b>Cancellation Date:</b> ${cancellationDate}</p>
+//           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
+//         `;
+//         break;
+
+//       case "refund_request":
+//         message = `
+//           <p>Your refund request has been received and is under processing.</p>
+//           <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+//           <p><b>Email:</b> ${billingEmail}</p>
+//           <p><b>Refund Amount:</b> USD ${refundAmount}</p>
+//           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
+//           <p>Amount will be credited within 5–10 business days.</p>
+//         `;
+//         break;
+
+//       case "seat_addons":
+//         message = `
+//           <p>Your seat selection / add-ons request has been confirmed.</p>
+//           <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+//           <p><b>Email:</b> ${billingEmail}</p>
+//           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
+//         `;
+//         break;
+
+//       case "name_correction":
+//         message = `
+//           <p>Your name correction request has been received.</p>
+//           <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+//           <p><b>Email:</b> ${billingEmail}</p>
+//           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
+//           <p>Our team will verify and update shortly.</p>
+//         `;
+//         break;
+
+//       case "add_pet":
+//         message = `
+//           <p>Your pet addition request has been confirmed.</p>
+//           <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+//           <p><b>Email:</b> ${billingEmail}</p>
+//           <p><b>Confirmation No:</b> ${confirmationNumber}</p>
+//         `;
+//         break;
+
+//       case "flight_confirmation":
+//         message = `
+//           <p>Your flight booking is fully confirmed.</p>
+//           <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+//           <p><b>Email:</b> ${billingEmail}</p>
+//           <p><b>Airline:</b> ${airline}</p>
+//           <p><b>Route:</b> ${departure} → ${arrival}</p>
+//           <p><b>Date:</b> ${travelDate}</p>
+//         `;
+//         break;
+
+//       case "hotel_booking":
+//         message = `
+//           <p>Your hotel booking has been successfully confirmed.</p>
+//           <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+//           <p><b>Email:</b> ${billingEmail}</p>
+//           <p><b>Hotel:</b> ${hotelName || "Not specified"}</p>
+//           <p><b>Room Type:</b> ${roomType || "Standard"}</p>
+//           <p><b>Booking Reference:</b> ${confirmationNumber}</p>
+//         `;
+//         break;
+
+//       case "car_rental":
+//         message = `
+//           <p>Your car rental booking has been confirmed.</p>
+//           <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+//           <p><b>Email:</b> ${billingEmail}</p>
+//           <p><b>Car Type:</b> ${carType || "Standard"}</p>
+//           <p><b>Rental Days:</b> ${rentalDays || "1"}</p>
+//           <p><b>Booking Reference:</b> ${confirmationNumber}</p>
+//         `;
+//         break;
+
+//       case "customer_support":
+//         message = `
+//           <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+//           <p><b>Email:</b> ${billingEmail}</p>
+//           <p>${customMessage || "Thank you for contacting FareBuzzer support."}</p>
+//         `;
+//         break;
+
+//       case "holiday_package": // NEW
+//         message = `
+//           <p>Your holiday package booking has been confirmed.</p>
+//           <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+//           <p><b>Email:</b> ${billingEmail}</p>
+//           <p><b>Package Name:</b> ${packageName || "Holiday Package"}</p>
+//           <p><b>Duration:</b> ${packageNights || "1"} night(s)</p>
+//           <p><b>Travel Dates:</b> ${packageStartDate || "Not specified"} to ${packageEndDate || "Not specified"}</p>
+//           <p><b>Number of Persons:</b> ${numberOfPersons || "2"}</p>
+//           <p><b>Package Price:</b> USD ${packagePrice || "0.00"}</p>
+//           <p><b>Booking Reference:</b> ${confirmationNumber}</p>
+//         `;
+//         break;
+
+//       case "travel_insurance": // NEW
+//         message = `
+//           <p>Your travel insurance has been successfully booked.</p>
+//           <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+//           <p><b>Email:</b> ${billingEmail}</p>
+//           <p><b>Insurance Type:</b> ${insuranceType || "Comprehensive Travel Insurance"}</p>
+//           <p><b>Coverage:</b> ${insuranceCoverage || "Standard Coverage"}</p>
+//           <p><b>Booking Reference:</b> ${confirmationNumber}</p>
+//         `;
+//         break;
+
+//       default:
+//         message = `
+//           <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+//           <p><b>Email:</b> ${billingEmail}</p>
+//           <p>Thank you for choosing FareBuzzer.</p>
+//         `;
+//     }
+
+//     /* ---------------- FINAL HTML (UPDATED: Dynamic greeting) ---------------- */
+//     const html = `
+//       <div style="font-family:Arial, sans-serif; padding:30px; max-width:600px; margin:0 auto; line-height:1.6; color:#333;">
+//         <div style="text-align:center; padding-bottom:20px; border-bottom:2px solid #10b981;">
+//           <h1 style="color:#10b981; margin:0; font-size:24px;">✈️ FareBuzzer Travel</h1>
+//         </div>
+//         <h2 style="color:#1e293b; margin:20px 0 10px 0;">${subject}</h2>
+//         <p style="font-size:16px; margin-bottom:10px;"><strong>Dear ${customerName},</strong></p>
+//         <p style="margin-bottom:20px;">
+//           Thank you for your enquiry ${dynamicGreeting}.
+//         </p>
+//         ${message}
+//         <br/>
+//         <div style="margin-top:30px; padding:20px; background:#f8fafc; border-radius:8px; border-left:4px solid #10b981;">
+//           <p style="margin:0 0 10px 0; font-weight:500;">Contact Us:</p>
+//           <p style="margin:0; color:#64748b;">📧 <strong>enquiry@farebuzzertravel.com</strong> | 📞 <strong>844 784 3676</strong></p>
+//         </div>
+//         <p style="margin-top:30px; color:#64748b; font-size:14px;">
+//           Regards,<br/>
+//           <b style="color:#10b981;">FareBuzzer Support Team</b>
+//         </p>
+//         <hr style="border:none; border-top:1px solid #e2e8f0; margin:30px 0;">
+//         <p style="text-align:center; font-size:12px; color:#94a3b8;">
+//           © ${new Date().getFullYear()} FareBuzzer Travel.
+//         </p>
+//       </div>
+//     `;
+
+//     /* ---------------- SEND EMAIL ---------------- */
+//     await transporter.sendMail({
+//       from: `"FareBuzzer Support" <${process.env.GMAIL_USER}>`,
+//       to: billingEmail,
+//       replyTo: "besttripmakers@gmail.com",
+//       subject,
+//       html
+//     });
+
+//     /* ---------------- SAVE TO CRM INBOX (UPDATED: Added new fields and templateUsed) ---------------- */
+//     await Email.create({
+//       type: "sent",
+//       emailType,
+//       from: process.env.GMAIL_USER,
+//       to: billingEmail,
+//       subject,
+//       html,
+//       templateUsed: templateUsed || null, // NEW: Save template reference
+//       meta: {
+//         customerName,
+//         customerPhone,
+//         billingEmail,
+//         searchQuery,
+//         category,
+//         destination,
+//         airline,
+//         confirmationNumber,
+//         departure,
+//         arrival,
+//         travelDate,
+//         bookingAmount,
+//         refundAmount,
+//         oldTravelDate,
+//         newTravelDate,
+//         changeFee,
+//         fareDifference,
+//         cancellationDate,
+//         customMessage,
+//         dynamicGreeting,
+//         // NEW: Package fields
+//         packageName,
+//         packageNights,
+//         packageStartDate,
+//         packageEndDate,
+//         packagePrice,
+//         numberOfPersons,
+//         // NEW: Hotel fields
+//         hotelName,
+//         roomType,
+//         // NEW: Car rental fields
+//         carType,
+//         rentalDays,
+//         // NEW: Insurance fields
+//         insuranceType,
+//         insuranceCoverage
+//       }
+//     });
+
+//     res.status(200).json({
+//       status: "success",
+//       message: `Email sent to ${customerName} (${customerPhone}) & saved successfully`,
+//       data: { 
+//         customerName, 
+//         customerPhone, 
+//         billingEmail, 
+//         emailType,
+//         dynamicGreeting,
+//         templateUsed: templateUsed || null // NEW: Return template info
+//       }
+//     });
+
+//   } catch (error) {
+//     console.error("Send email error:", error);
+//     res.status(500).json({
+//       status: "error",
+//       message: "Failed to send email",
+//       error: process.env.NODE_ENV === "development" ? error.message : undefined
+//     });
+//   }
+// };
+
+//===========22 jan==========
+
+
+
 import transporter from "../utils/email.js";
 import Email from "../models/Email.js";
+import { generateETicket } from "../utils/generateETicket.js";
 
 export const sendCustomerEmail = async (req, res) => {
   try {
     const {
       emailType,
-      templateUsed, // NEW: Added template reference
+      templateUsed,
       customerName,
       customerPhone,
       billingEmail,
@@ -2080,41 +2526,48 @@ export const sendCustomerEmail = async (req, res) => {
       searchQuery,
       category,
       destination,
-      // NEW: Package fields
+
+      // Packages
       packageName,
       packageNights,
       packageStartDate,
       packageEndDate,
       packagePrice,
       numberOfPersons,
-      // NEW: Hotel fields
+
+      // Hotel
       hotelName,
       roomType,
-      // NEW: Car rental fields
+
+      // Car
       carType,
       rentalDays,
-      // NEW: Insurance fields
+
+      // Insurance
       insuranceType,
-      insuranceCoverage
+      insuranceCoverage,
+
+      // 🔹 NEW
+      chargeReference = "LowfareStudio"
     } = req.body;
 
-    // UPDATED: Added phone validation
+    /* ---------------- VALIDATION ---------------- */
     if (!customerName || !billingEmail || !customerPhone) {
       return res.status(400).json({
         status: "fail",
         message: "Customer name, phone number, and billing email are required"
       });
     }
+
     const phoneRegex = /^[+]?[0-9\s\-\(\)]{8,20}$/;
-    
     if (!phoneRegex.test(customerPhone.trim())) {
       return res.status(400).json({
         status: "fail",
-        message: "Invalid phone number format. Use 8-20 digits, spaces, +, -, () allowed (example: +919876543210 or 2025550123)"
+        message: "Invalid phone number format"
       });
     }
 
-    /* ---------------- SUBJECT MAP ---------------- */
+    /* ---------------- SUBJECT ---------------- */
     const subjectMap = {
       new_reservation: "New Flight Reservation Confirmation",
       exchange_ticket: "Ticket Exchange Confirmation",
@@ -2127,290 +2580,78 @@ export const sendCustomerEmail = async (req, res) => {
       hotel_booking: "Hotel Booking Confirmation",
       car_rental: "Car Rental Confirmation",
       customer_support: "Customer Support Response",
-      holiday_package: "Holiday Package Confirmation", // NEW
-      travel_insurance: "Travel Insurance Confirmation" // NEW
+      holiday_package: "Holiday Package Confirmation",
+      travel_insurance: "Travel Insurance Confirmation"
     };
 
     const subject = subjectMap[emailType] || "FareBuzzer Notification";
 
-    /* ---------------- DYNAMIC GREETING LOGIC ---------------- */
-    const getDynamicGreeting = () => {
-      // Priority: destination > category > searchQuery > default
-      
-      // If destination is provided (most specific)
-      if (destination && typeof destination === 'string') {
-        const dest = destination.trim().toLowerCase();
-        if (dest.includes('kashmir')) return "regarding the Kashmir package";
-        if (dest.includes('manali')) return "regarding the Manali package";
-        if (dest.includes('goa')) return "regarding the Goa package";
-        if (dest.includes('leh') || dest.includes('ladakh')) return "regarding the Leh-Ladakh package";
-        if (dest.includes('shimla')) return "regarding the Shimla package";
-        if (dest.includes('ooty')) return "regarding the Ooty package";
-        if (dest.includes('maldives')) return "regarding the Maldives package";
-        if (dest.includes('dubai')) return "regarding the Dubai package";
-        if (dest.includes('bali')) return "regarding the Bali package";
-        if (dest.includes('thailand')) return "regarding the Thailand package";
-        if (dest.includes('singapore')) return "regarding the Singapore package";
-        return `regarding the ${destination} package`;
-      }
-      
-      // If category is provided
-      if (category && typeof category === 'string') {
-        const cat = category.trim().toLowerCase();
-        if (cat.includes('flight')) return "regarding the flight booking";
-        if (cat.includes('hotel')) return "regarding the hotel booking";
-        if (cat.includes('car') || cat.includes('rental')) return "regarding the car rental";
-        if (cat.includes('package') || cat.includes('tour')) return "regarding the holiday package";
-        if (cat.includes('cruise')) return "regarding the cruise booking";
-        if (cat.includes('visa')) return "regarding the visa assistance";
-        if (cat.includes('insurance')) return "regarding the travel insurance";
-      }
-      
-      // If search query is provided, extract keywords
-      if (searchQuery && typeof searchQuery === 'string') {
-        const query = searchQuery.toLowerCase();
-        
-        // Check for destinations
-        const destinations = [
-          'kashmir', 'manali', 'goa', 'leh', 'ladakh', 'shimla', 'darjeeling',
-          'munnar', 'kerala', 'rajasthan', 'jaipur', 'udaipur', 'agra', 'varanasi',
-          'andaman', 'maldives', 'dubai', 'bali', 'thailand', 'singapore', 'malaysia',
-          'europe', 'usa', 'canada', 'australia', 'new zealand'
-        ];
-        
-        for (const dest of destinations) {
-          if (query.includes(dest)) {
-            return `regarding the ${dest.charAt(0).toUpperCase() + dest.slice(1)} package`;
-          }
-        }
-        
-        // Check for categories
-        if (query.includes('flight') || query.includes('air ticket') || query.includes('airline')) {
-          return "regarding the flight booking";
-        }
-        if (query.includes('hotel') || query.includes('accommodation') || query.includes('resort')) {
-          return "regarding the hotel booking";
-        }
-        if (query.includes('car') || query.includes('rental') || query.includes('vehicle')) {
-          return "regarding the car rental";
-        }
-        if (query.includes('package') || query.includes('tour') || query.includes('holiday')) {
-          return "regarding the holiday package";
-        }
-      }
-      
-      // Default dynamic greeting based on email type
-      switch(emailType) {
-        case 'flight_confirmation':
-        case 'new_reservation':
-          return "regarding your flight booking";
-        case 'hotel_booking':
-          return "regarding your hotel booking";
-        case 'car_rental':
-          return "regarding your car rental";
-        case 'exchange_ticket':
-          return "regarding your ticket exchange";
-        case 'flight_cancellation':
-          return "regarding your flight cancellation";
-        case 'refund_request':
-          return "regarding your refund request";
-        case 'seat_addons':
-          return "regarding your seat selection";
-        case 'name_correction':
-          return "regarding your name correction";
-        case 'add_pet':
-          return "regarding your pet addition";
-        case 'holiday_package':
-          return "regarding your holiday package";
-        case 'travel_insurance':
-          return "regarding your travel insurance";
-        default:
-          return "regarding your travel enquiry";
-      }
-    };
-
-    const dynamicGreeting = getDynamicGreeting();
-
-    /* ---------------- EMAIL BODY (UPDATED: Added phone in all cases) ---------------- */
+    /* ---------------- MESSAGE ---------------- */
     let message = "";
 
-    switch (emailType) {
-      case "new_reservation":
-        message = `
-          <p>Your flight reservation has been successfully confirmed.</p>
-          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
-          <p><b>Email:</b> ${billingEmail}</p>
-          <p><b>Airline:</b> ${airline}</p>
-          <p><b>Route:</b> ${departure} → ${arrival}</p>
-          <p><b>Travel Date:</b> ${travelDate}</p>
-          <p><b>Booking Amount:</b> USD ${bookingAmount}</p>
-          <p><b>Confirmation No:</b> ${confirmationNumber}</p>
-        `;
-        break;
+    if (emailType === "flight_confirmation") {
+      message = `
+        <p>Thank you for booking your flight to <b>${arrival}</b>.</p>
+        <p><b>Passenger:</b> ${customerName} (${customerPhone})</p>
+        <p><b>Airline:</b> ${airline}</p>
+        <p><b>Route:</b> ${departure} → ${arrival}</p>
+        <p><b>Travel Date:</b> ${travelDate}</p>
 
-      case "exchange_ticket":
-        message = `
-          <p>Your ticket exchange request has been processed.</p>
-          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
-          <p><b>Email:</b> ${billingEmail}</p>
-          <p><b>Original Date:</b> ${oldTravelDate}</p>
-          <p><b>New Date:</b> ${newTravelDate}</p>
-          <p><b>Change Fee:</b> USD ${changeFee}</p>
-          <p><b>Fare Difference:</b> USD ${fareDifference}</p>
-          <p><b>Confirmation No:</b> ${confirmationNumber}</p>
-        `;
-        break;
+        <div style="background:#f1f5f9;padding:15px;border-radius:8px;">
+          <p><b>Payment Information</b></p>
+          <p>Amount Charged: <b>USD ${bookingAmount}</b></p>
+          <p>Charge Reference: <b>${chargeReference}</b></p>
+          <p style="font-family:monospace;">
+            LOWFARESTUDIO*TRAVEL<br/>
+            USD ${bookingAmount}
+          </p>
+        </div>
 
-      case "flight_cancellation":
-        message = `
-          <p>Your flight booking has been cancelled successfully.</p>
-          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
-          <p><b>Email:</b> ${billingEmail}</p>
-          <p><b>Cancellation Date:</b> ${cancellationDate}</p>
-          <p><b>Confirmation No:</b> ${confirmationNumber}</p>
-        `;
-        break;
-
-      case "refund_request":
-        message = `
-          <p>Your refund request has been received and is under processing.</p>
-          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
-          <p><b>Email:</b> ${billingEmail}</p>
-          <p><b>Refund Amount:</b> USD ${refundAmount}</p>
-          <p><b>Confirmation No:</b> ${confirmationNumber}</p>
-          <p>Amount will be credited within 5–10 business days.</p>
-        `;
-        break;
-
-      case "seat_addons":
-        message = `
-          <p>Your seat selection / add-ons request has been confirmed.</p>
-          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
-          <p><b>Email:</b> ${billingEmail}</p>
-          <p><b>Confirmation No:</b> ${confirmationNumber}</p>
-        `;
-        break;
-
-      case "name_correction":
-        message = `
-          <p>Your name correction request has been received.</p>
-          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
-          <p><b>Email:</b> ${billingEmail}</p>
-          <p><b>Confirmation No:</b> ${confirmationNumber}</p>
-          <p>Our team will verify and update shortly.</p>
-        `;
-        break;
-
-      case "add_pet":
-        message = `
-          <p>Your pet addition request has been confirmed.</p>
-          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
-          <p><b>Email:</b> ${billingEmail}</p>
-          <p><b>Confirmation No:</b> ${confirmationNumber}</p>
-        `;
-        break;
-
-      case "flight_confirmation":
-        message = `
-          <p>Your flight booking is fully confirmed.</p>
-          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
-          <p><b>Email:</b> ${billingEmail}</p>
-          <p><b>Airline:</b> ${airline}</p>
-          <p><b>Route:</b> ${departure} → ${arrival}</p>
-          <p><b>Date:</b> ${travelDate}</p>
-        `;
-        break;
-
-      case "hotel_booking":
-        message = `
-          <p>Your hotel booking has been successfully confirmed.</p>
-          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
-          <p><b>Email:</b> ${billingEmail}</p>
-          <p><b>Hotel:</b> ${hotelName || "Not specified"}</p>
-          <p><b>Room Type:</b> ${roomType || "Standard"}</p>
-          <p><b>Booking Reference:</b> ${confirmationNumber}</p>
-        `;
-        break;
-
-      case "car_rental":
-        message = `
-          <p>Your car rental booking has been confirmed.</p>
-          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
-          <p><b>Email:</b> ${billingEmail}</p>
-          <p><b>Car Type:</b> ${carType || "Standard"}</p>
-          <p><b>Rental Days:</b> ${rentalDays || "1"}</p>
-          <p><b>Booking Reference:</b> ${confirmationNumber}</p>
-        `;
-        break;
-
-      case "customer_support":
-        message = `
-          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
-          <p><b>Email:</b> ${billingEmail}</p>
-          <p>${customMessage || "Thank you for contacting FareBuzzer support."}</p>
-        `;
-        break;
-
-      case "holiday_package": // NEW
-        message = `
-          <p>Your holiday package booking has been confirmed.</p>
-          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
-          <p><b>Email:</b> ${billingEmail}</p>
-          <p><b>Package Name:</b> ${packageName || "Holiday Package"}</p>
-          <p><b>Duration:</b> ${packageNights || "1"} night(s)</p>
-          <p><b>Travel Dates:</b> ${packageStartDate || "Not specified"} to ${packageEndDate || "Not specified"}</p>
-          <p><b>Number of Persons:</b> ${numberOfPersons || "2"}</p>
-          <p><b>Package Price:</b> USD ${packagePrice || "0.00"}</p>
-          <p><b>Booking Reference:</b> ${confirmationNumber}</p>
-        `;
-        break;
-
-      case "travel_insurance": // NEW
-        message = `
-          <p>Your travel insurance has been successfully booked.</p>
-          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
-          <p><b>Email:</b> ${billingEmail}</p>
-          <p><b>Insurance Type:</b> ${insuranceType || "Comprehensive Travel Insurance"}</p>
-          <p><b>Coverage:</b> ${insuranceCoverage || "Standard Coverage"}</p>
-          <p><b>Booking Reference:</b> ${confirmationNumber}</p>
-        `;
-        break;
-
-      default:
-        message = `
-          <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
-          <p><b>Email:</b> ${billingEmail}</p>
-          <p>Thank you for choosing FareBuzzer.</p>
-        `;
+        <p>Your e-ticket is attached with this email.</p>
+      `;
+    } else {
+      message = `
+        <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+        <p><b>Email:</b> ${billingEmail}</p>
+        <p>${customMessage || "Thank you for choosing FareBuzzer."}</p>
+      `;
     }
 
-    /* ---------------- FINAL HTML (UPDATED: Dynamic greeting) ---------------- */
+    /* ---------------- FINAL HTML ---------------- */
     const html = `
-      <div style="font-family:Arial, sans-serif; padding:30px; max-width:600px; margin:0 auto; line-height:1.6; color:#333;">
-        <div style="text-align:center; padding-bottom:20px; border-bottom:2px solid #10b981;">
-          <h1 style="color:#10b981; margin:0; font-size:24px;">✈️ FareBuzzer Travel</h1>
-        </div>
-        <h2 style="color:#1e293b; margin:20px 0 10px 0;">${subject}</h2>
-        <p style="font-size:16px; margin-bottom:10px;"><strong>Dear ${customerName},</strong></p>
-        <p style="margin-bottom:20px;">
-          Thank you for your enquiry ${dynamicGreeting}.
-        </p>
+      <div style="font-family:Arial;padding:30px;max-width:600px;margin:auto;">
+        <h2 style="color:#10b981;">${subject}</h2>
         ${message}
-        <br/>
-        <div style="margin-top:30px; padding:20px; background:#f8fafc; border-radius:8px; border-left:4px solid #10b981;">
-          <p style="margin:0 0 10px 0; font-weight:500;">Contact Us:</p>
-          <p style="margin:0; color:#64748b;">📧 <strong>enquiry@farebuzzertravel.com</strong> | 📞 <strong>844 784 3676</strong></p>
-        </div>
-        <p style="margin-top:30px; color:#64748b; font-size:14px;">
-          Regards,<br/>
-          <b style="color:#10b981;">FareBuzzer Support Team</b>
-        </p>
-        <hr style="border:none; border-top:1px solid #e2e8f0; margin:30px 0;">
-        <p style="text-align:center; font-size:12px; color:#94a3b8;">
-          © ${new Date().getFullYear()} FareBuzzer Travel.
+        <hr/>
+        <p style="font-size:13px;color:#64748b;">
+          FareBuzzer Travel Support<br/>
+          enquiry@farebuzzertravel.com | 844 784 3676
         </p>
       </div>
     `;
+
+    /* ---------------- ATTACHMENTS (ONLY FOR FLIGHT CONFIRMATION) ---------------- */
+    let attachments = [];
+
+    if (emailType === "flight_confirmation") {
+      const pdfPath = await generateETicket({
+        confirmationNumber,
+        chargeReference,
+        customerName,
+        billingEmail,
+        customerPhone,
+        airline,
+        departure,
+        arrival,
+        travelDate,
+        bookingAmount
+      });
+
+      attachments.push({
+        filename: "Flight-Ticket.pdf",
+        path: pdfPath
+      });
+    }
 
     /* ---------------- SEND EMAIL ---------------- */
     await transporter.sendMail({
@@ -2418,10 +2659,11 @@ export const sendCustomerEmail = async (req, res) => {
       to: billingEmail,
       replyTo: "besttripmakers@gmail.com",
       subject,
-      html
+      html,
+      attachments
     });
 
-    /* ---------------- SAVE TO CRM INBOX (UPDATED: Added new fields and templateUsed) ---------------- */
+    /* ---------------- SAVE TO CRM INBOX ---------------- */
     await Email.create({
       type: "sent",
       emailType,
@@ -2429,57 +2671,28 @@ export const sendCustomerEmail = async (req, res) => {
       to: billingEmail,
       subject,
       html,
-      templateUsed: templateUsed || null, // NEW: Save template reference
+      templateUsed: templateUsed || null,
       meta: {
         customerName,
         customerPhone,
         billingEmail,
-        searchQuery,
-        category,
-        destination,
         airline,
-        confirmationNumber,
         departure,
         arrival,
         travelDate,
         bookingAmount,
-        refundAmount,
-        oldTravelDate,
-        newTravelDate,
-        changeFee,
-        fareDifference,
-        cancellationDate,
-        customMessage,
-        dynamicGreeting,
-        // NEW: Package fields
-        packageName,
-        packageNights,
-        packageStartDate,
-        packageEndDate,
-        packagePrice,
-        numberOfPersons,
-        // NEW: Hotel fields
-        hotelName,
-        roomType,
-        // NEW: Car rental fields
-        carType,
-        rentalDays,
-        // NEW: Insurance fields
-        insuranceType,
-        insuranceCoverage
+        confirmationNumber,
+        chargeReference
       }
     });
 
     res.status(200).json({
       status: "success",
-      message: `Email sent to ${customerName} (${customerPhone}) & saved successfully`,
-      data: { 
-        customerName, 
-        customerPhone, 
-        billingEmail, 
-        emailType,
-        dynamicGreeting,
-        templateUsed: templateUsed || null // NEW: Return template info
+      message: "Email sent successfully with ticket",
+      data: {
+        customerName,
+        billingEmail,
+        emailType
       }
     });
 
@@ -2487,11 +2700,11 @@ export const sendCustomerEmail = async (req, res) => {
     console.error("Send email error:", error);
     res.status(500).json({
       status: "error",
-      message: "Failed to send email",
-      error: process.env.NODE_ENV === "development" ? error.message : undefined
+      message: "Failed to send email"
     });
   }
 };
+
 
 
 

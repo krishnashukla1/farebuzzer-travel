@@ -5051,8 +5051,8 @@ const SendEmail = () => {
             <input name="ticketNumber" placeholder="Ticket Number" className={input} onChange={handleChange} />
             <input name="airline" placeholder="Airline Name" className={input} onChange={handleChange} />
             <input name="cabinClass" placeholder="Cabin Class" className={input} onChange={handleChange} />
-            <input name="from" placeholder="From (JFK)" className={input} onChange={handleChange} />
-            <input name="to" placeholder="To (LHR)" className={input} onChange={handleChange} />
+            <input name="departure" placeholder="From (JFK)" className={input} onChange={handleChange} />
+            <input name="arrival" placeholder="To (LHR)" className={input} onChange={handleChange} />
             <input type="date" name="travelDate" className={input} onChange={handleChange} />
             <input name="departureTime" placeholder="Departure Time" className={input} onChange={handleChange} />
             <input name="arrivalTime" placeholder="Arrival Time" className={input} onChange={handleChange} />

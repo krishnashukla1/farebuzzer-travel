@@ -79,7 +79,7 @@ connectDB();
 const app = express();
 
 // Middlewares
-app.use(cors());
+// app.use(cors());
 
 // app.use(
 //   cors({
@@ -91,6 +91,26 @@ app.use(cors());
 // );
 
 // app.options("*", cors());
+
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        "http://localhost:5173",
+        "https://farebuzzertravel.com"
+      ];
+
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 
 
 app.use(express.json());

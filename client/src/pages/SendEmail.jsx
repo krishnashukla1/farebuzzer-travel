@@ -5124,6 +5124,9 @@
 
 // export default SendEmail;
 
+
+
+
 import { useState, useEffect } from "react";
 import API from "../api/axios";
 
@@ -5132,7 +5135,7 @@ const SendEmail = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [emailType, setEmailType] = useState("flight_confirmation");
+  const [emailType] = useState("flight_confirmation");
   const [senderBrand, setSenderBrand] = useState("lowfare_studio");
 
   const initialForm = {
@@ -5140,24 +5143,20 @@ const SendEmail = () => {
     customerPhone: "",
     billingEmail: "",
 
-    pnr: "",
-    ticketNumber: "",
+    confirmationNumber: "",
     airline: "",
-    from: "",
-    to: "",
+    departure: "",
+    arrival: "",
     travelDate: "",
-    departureTime: "",
-    arrivalTime: "",
     cabinClass: "Economy",
 
     bookingAmount: "",
-    paymentMode: "Credit Card",
-
     customMessage: "",
   };
 
   const [form, setForm] = useState(initialForm);
 
+  /* ---------------- CLEAR ALERTS ---------------- */
   useEffect(() => {
     if (successMessage || errorMessage) {
       const t = setTimeout(() => {
@@ -5168,10 +5167,12 @@ const SendEmail = () => {
     }
   }, [successMessage, errorMessage]);
 
+  /* ---------------- HANDLE CHANGE ---------------- */
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  /* ---------------- SUBMIT ---------------- */
   const submitHandler = async (e) => {
     e.preventDefault();
 
@@ -5187,14 +5188,34 @@ const SendEmail = () => {
     try {
       await API.post("/email/send", {
         emailType,
-        senderBrand,
-        ...form,
+
+        customerName: form.customerName,
+        customerPhone: form.customerPhone,
+        billingEmail: form.billingEmail,
+
+        confirmationNumber: form.confirmationNumber,
+        airline: form.airline,
+        departure: form.departure,
+        arrival: form.arrival,
+        travelDate: form.travelDate,
+        bookingAmount: form.bookingAmount,
+
+        chargeReference:
+          senderBrand === "lowfare_studio"
+            ? "LowfareStudio"
+            : senderBrand === "american_airlines"
+            ? "American Airlines"
+            : "Airline Desk",
+
+        customMessage: form.customMessage,
       });
 
       setSuccessMessage("Flight ticket email sent successfully");
       setForm(initialForm);
     } catch (err) {
-      setErrorMessage(err.response?.data?.message || "Email sending failed");
+      setErrorMessage(
+        err.response?.data?.message || "Email sending failed"
+      );
     } finally {
       setLoading(false);
     }
@@ -5208,13 +5229,17 @@ const SendEmail = () => {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Send Flight Ticket Email</h1>
+      <h1 className="text-2xl font-bold mb-6">
+        ✈️ Send Flight Ticket Email
+      </h1>
 
       <form onSubmit={submitHandler} className="space-y-6">
 
         {/* Sender */}
         <section className={section}>
-          <h3 className="font-semibold text-lg">Sender / Charges Reference</h3>
+          <h3 className="font-semibold text-lg">
+            Sender / Charge Reference
+          </h3>
           <select
             value={senderBrand}
             onChange={(e) => setSenderBrand(e.target.value)}
@@ -5229,53 +5254,141 @@ const SendEmail = () => {
         {/* Customer */}
         <section className={section}>
           <h3 className="font-semibold text-lg">Customer Details</h3>
-          <input name="customerName" placeholder="Customer Name" className={input} value={form.customerName} onChange={handleChange} required />
-          <input name="customerPhone" placeholder="Phone Number" className={input} value={form.customerPhone} onChange={handleChange} required />
-          <input name="billingEmail" type="email" placeholder="Email Address" className={input} value={form.billingEmail} onChange={handleChange} required />
+          <input
+            name="customerName"
+            placeholder="Customer Name"
+            className={input}
+            value={form.customerName}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="customerPhone"
+            placeholder="Phone Number"
+            className={input}
+            value={form.customerPhone}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="billingEmail"
+            type="email"
+            placeholder="Email Address"
+            className={input}
+            value={form.billingEmail}
+            onChange={handleChange}
+            required
+          />
         </section>
 
         {/* Flight */}
         <section className={section}>
-          <h3 className="font-semibold text-lg">Flight Ticket Details</h3>
+          <h3 className="font-semibold text-lg">
+            Flight Ticket Details
+          </h3>
+
           <div className="grid sm:grid-cols-2 gap-4">
-            <input name="pnr" placeholder="PNR" className={input} onChange={handleChange} />
-            <input name="ticketNumber" placeholder="Ticket Number" className={input} onChange={handleChange} />
-            <input name="airline" placeholder="Airline" className={input} onChange={handleChange} />
-            <input name="cabinClass" placeholder="Cabin Class" className={input} onChange={handleChange} />
-            <input name="from" placeholder="From (JFK)" className={input} onChange={handleChange} />
-            <input name="to" placeholder="To (LHR)" className={input} onChange={handleChange} />
-            <input type="date" name="travelDate" className={input} onChange={handleChange} />
-            <input name="departureTime" placeholder="Departure Time" className={input} onChange={handleChange} />
-            <input name="arrivalTime" placeholder="Arrival Time" className={input} onChange={handleChange} />
+            <input
+              name="confirmationNumber"
+              placeholder="Booking Reference / PNR"
+              className={input}
+              value={form.confirmationNumber}
+              onChange={handleChange}
+              required
+            />
+            <input
+              name="airline"
+              placeholder="Airline Name"
+              className={input}
+              value={form.airline}
+              onChange={handleChange}
+              required
+            />
+            <input
+              name="departure"
+              placeholder="From (JFK)"
+              className={input}
+              value={form.departure}
+              onChange={handleChange}
+              required
+            />
+            <input
+              name="arrival"
+              placeholder="To (LHR)"
+              className={input}
+              value={form.arrival}
+              onChange={handleChange}
+              required
+            />
+            <input
+              type="date"
+              name="travelDate"
+              className={input}
+              value={form.travelDate}
+              onChange={handleChange}
+              required
+            />
+            <input
+              name="cabinClass"
+              placeholder="Cabin Class"
+              className={input}
+              value={form.cabinClass}
+              onChange={handleChange}
+            />
           </div>
         </section>
 
         {/* Payment */}
         <section className={section}>
-          <h3 className="font-semibold text-lg">Payment Information</h3>
-          <input name="bookingAmount" type="number" placeholder="Amount Paid" className={input} onChange={handleChange} />
-          <select name="paymentMode" className={input} onChange={handleChange}>
-            <option>Credit Card</option>
-            <option>Debit Card</option>
-            <option>UPI</option>
-            <option>Net Banking</option>
-          </select>
+          <h3 className="font-semibold text-lg">
+            Payment Information
+          </h3>
+          <input
+            name="bookingAmount"
+            type="number"
+            placeholder="Amount Paid (USD)"
+            className={input}
+            value={form.bookingAmount}
+            onChange={handleChange}
+            required
+          />
           <p className="text-sm text-gray-600">
-            Charges will reflect as <b>LowfareStudio</b>
+            Charges will reflect as <b>LowfareStudio</b> on customer statement.
           </p>
         </section>
 
         {/* Message */}
         <section className={section}>
           <h3 className="font-semibold text-lg">Custom Message</h3>
-          <textarea name="customMessage" rows="4" className={input} onChange={handleChange} />
+          <textarea
+            name="customMessage"
+            rows="4"
+            placeholder="Additional notes for customer..."
+            className={input}
+            value={form.customMessage}
+            onChange={handleChange}
+          />
         </section>
 
-        {successMessage && <div className="bg-green-100 text-green-700 p-3 rounded-lg">{successMessage}</div>}
-        {errorMessage && <div className="bg-red-100 text-red-700 p-3 rounded-lg">{errorMessage}</div>}
+        {/* Alerts */}
+        {successMessage && (
+          <div className="bg-green-100 text-green-700 p-3 rounded-lg">
+            {successMessage}
+          </div>
+        )}
+        {errorMessage && (
+          <div className="bg-red-100 text-red-700 p-3 rounded-lg">
+            {errorMessage}
+          </div>
+        )}
 
-        <button disabled={loading} className="w-full bg-blue-600 text-white py-3 rounded-xl">
-          {loading ? "Sending..." : "Send Flight Ticket"}
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl"
+        >
+          {loading ? "Sending Ticket..." : "Send Flight Ticket"}
         </button>
       </form>
     </div>
@@ -5283,4 +5396,3 @@ const SendEmail = () => {
 };
 
 export default SendEmail;
-

@@ -361,26 +361,43 @@ const renderBarcodeAndQR = async (doc, pnr, ticketNumber, yPosition) => {
 const renderFooter = (doc) => {
   const footerY = doc.page.height - LAYOUT.FOOTER_HEIGHT;
   
-  doc.fillColor('#6B7280')
-     .fontSize(7)
-     .text(
-       'This document is valid for travel and must be presented with government-issued photo ID.',
-       LAYOUT.MARGIN,
-       footerY,
-       { 
-         width: doc.page.width - (LAYOUT.MARGIN * 2), 
-         align: 'center' 
-       }
-     )
-     .text(
-       'FareBuzzer Travel • support@farebuzzer.com • +1-800-123-4567 • www.farebuzzer.com',
-       LAYOUT.MARGIN,
-       footerY + 15,
-       { 
-         width: doc.page.width - (LAYOUT.MARGIN * 2), 
-         align: 'center' 
-       }
-     );
+//   doc.fillColor('#6B7280')
+//      .fontSize(7)
+//      .text(
+//        'This document is valid for travel and must be presented with government-issued photo ID.',
+//        LAYOUT.MARGIN,
+//        footerY,
+//        { 
+//          width: doc.page.width - (LAYOUT.MARGIN * 2), 
+//          align: 'center' 
+//        }
+//      )
+//      .text(
+//        'FareBuzzer Travel • support@farebuzzer.com • +1-800-123-4567 • www.farebuzzer.com',
+//        LAYOUT.MARGIN,
+//        footerY + 15,
+//        { 
+//          width: doc.page.width - (LAYOUT.MARGIN * 2), 
+//          align: 'center' 
+//        }
+//      );
+
+
+doc
+  .fillColor('#6B7280')
+  .fontSize(7)
+  .text(
+    'This document is valid for travel and must be presented with government-issued photo ID.\n' +
+    'FareBuzzer Travel • support@farebuzzer.com • +1-800-123-4567 • www.farebuzzer.com',
+    LAYOUT.MARGIN,
+    footerY,
+    {
+      width: doc.page.width - (LAYOUT.MARGIN * 2),
+      align: 'center',
+      lineGap: 2   // 👈 controls gap between lines
+    }
+  );
+
 };
 
 export const generateETicket = async (data) => {

@@ -167,8 +167,12 @@ const renderPassengerDetails = (doc, data) => {
      .text(`Phone: ${data.customerPhone}`, LAYOUT.MARGIN + 210, boxY + 40);
   
   // Fare type
+//   doc.fontSize(12)
+//      .text(data.cabinClass || 'ECONOMY', LAYOUT.MARGIN + 410, boxY + 25);
+
+      // Fare type - use provided cabin class or default
   doc.fontSize(12)
-     .text(data.cabinClass || 'ECONOMY', LAYOUT.MARGIN + 410, boxY + 25);
+     .text(data.cabinClass || 'NOT SPECIFIED', LAYOUT.MARGIN + 410, boxY + 25);
   
   doc.moveDown(3);
   return doc.y;
@@ -221,20 +225,36 @@ const renderFlightDetails = (doc, data) => {
      .text(data.cabinClass || 'ECONOMY', LAYOUT.MARGIN + 440, flightRowY);
   
   // Departure details
+//   doc.fillColor('#6B7280')
+//      .fontSize(10)
+//      .font('Helvetica-Oblique')
+//      .text(`Date: ${data.travelDate}`, LAYOUT.MARGIN + 110, flightRowY + 15)
+//      .text(`Time: ${data.departureTime || '14:30'}`, LAYOUT.MARGIN + 110, flightRowY + 30)
+//      .text(`Terminal: ${data.departureTerminal || 'T1'}`, LAYOUT.MARGIN + 110, flightRowY + 45)
+//      .text(`Gate: To be announced`, LAYOUT.MARGIN + 110, flightRowY + 60);
+  
+ // Departure details - use provided times or show placeholder
   doc.fillColor('#6B7280')
      .fontSize(10)
      .font('Helvetica-Oblique')
      .text(`Date: ${data.travelDate}`, LAYOUT.MARGIN + 110, flightRowY + 15)
-     .text(`Time: ${data.departureTime || '14:30'}`, LAYOUT.MARGIN + 110, flightRowY + 30)
-     .text(`Terminal: ${data.departureTerminal || 'T1'}`, LAYOUT.MARGIN + 110, flightRowY + 45)
+     .text(`Time: ${data.departureTime || 'To be announced'}`, LAYOUT.MARGIN + 110, flightRowY + 30)
+     .text(`Terminal: ${data.departureTerminal || 'To be announced'}`, LAYOUT.MARGIN + 110, flightRowY + 45)
      .text(`Gate: To be announced`, LAYOUT.MARGIN + 110, flightRowY + 60);
+
+
+  // Arrival details
+//   doc.text(`Date: ${data.travelDate}`, LAYOUT.MARGIN + 260, flightRowY + 15)
+//      .text(`Time: ${data.arrivalTime || '17:00'}`, LAYOUT.MARGIN + 260, flightRowY + 30)
+//      .text(`Terminal: ${data.arrivalTerminal || 'T2'}`, LAYOUT.MARGIN + 260, flightRowY + 45)
+//      .text(`Seat: To be assigned at check-in`, LAYOUT.MARGIN + 260, flightRowY + 60);
   
   // Arrival details
   doc.text(`Date: ${data.travelDate}`, LAYOUT.MARGIN + 260, flightRowY + 15)
-     .text(`Time: ${data.arrivalTime || '17:00'}`, LAYOUT.MARGIN + 260, flightRowY + 30)
-     .text(`Terminal: ${data.arrivalTerminal || 'T2'}`, LAYOUT.MARGIN + 260, flightRowY + 45)
+     .text(`Time: ${data.arrivalTime || 'To be announced'}`, LAYOUT.MARGIN + 260, flightRowY + 30)
+     .text(`Terminal: ${data.arrivalTerminal || 'To be announced'}`, LAYOUT.MARGIN + 260, flightRowY + 45)
      .text(`Seat: To be assigned at check-in`, LAYOUT.MARGIN + 260, flightRowY + 60);
-  
+
   doc.moveDown(4);
   return doc.y;
 };
@@ -400,10 +420,76 @@ doc
 
 };
 
+// export const generateETicket = async (data) => {
+
+//   if (!data.confirmationNumber) {
+//     throw new Error("confirmationNumber missing for ticket generation");
+//   }
+
+//   const filePath = path.join(
+//     os.tmpdir(),
+//     `FareBuzzer-Eticket-${data.confirmationNumber}.pdf`
+//   );
+
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       const doc = new PDFDocument({ 
+//         size: "A4", 
+//         margin: LAYOUT.MARGIN,
+//         info: {
+//           Title: `E-Ticket ${data.confirmationNumber}`,
+//           Author: 'FareBuzzer Travel',
+//           Subject: 'Electronic Flight Ticket'
+//         }
+//       });
+      
+//       const stream = fs.createWriteStream(filePath);
+//       doc.pipe(stream);
+
+//       // Generate ticket identifiers
+//       const pnr = generatePNR();
+//       const ticketNumber = generateTicketNumber(data.airline);
+
+//       // Render sections in sequence
+//       renderHeader(doc, data);
+      
+//       renderTicketInfo(doc, data, pnr, ticketNumber);
+      
+//       renderPassengerDetails(doc, data);
+      
+//       renderFlightDetails(doc, data);
+      
+//       renderImportantInfo(doc, data);
+      
+//       const paymentEndY = renderPaymentSummary(doc, data);
+      
+//       await renderBarcodeAndQR(doc, pnr, ticketNumber, paymentEndY);
+      
+//       renderFooter(doc);
+
+//       doc.end();
+      
+//       stream.on("finish", () => resolve(filePath));
+//       stream.on("error", reject);
+
+//     } catch (err) {
+//       reject(err);
+//     }
+//   });
+// };
+
+
+// Update the generateETicket function to accept and use all provided data
 export const generateETicket = async (data) => {
   if (!data.confirmationNumber) {
     throw new Error("confirmationNumber missing for ticket generation");
   }
+
+  // Use the provided confirmationNumber as PNR
+  const pnr = data.confirmationNumber;
+  
+  // Use provided ticket number or generate one
+  const ticketNumber = data.ticketNumber || generateTicketNumber(data.airline);
 
   const filePath = path.join(
     os.tmpdir(),
@@ -424,10 +510,6 @@ export const generateETicket = async (data) => {
       
       const stream = fs.createWriteStream(filePath);
       doc.pipe(stream);
-
-      // Generate ticket identifiers
-      const pnr = generatePNR();
-      const ticketNumber = generateTicketNumber(data.airline);
 
       // Render sections in sequence
       renderHeader(doc, data);
@@ -456,3 +538,4 @@ export const generateETicket = async (data) => {
     }
   });
 };
+

@@ -2053,7 +2053,6 @@
 // };
 
 //============with template==========
-
 // import transporter from "../utils/email.js";
 // import Email from "../models/Email.js";
 
@@ -2494,7 +2493,7 @@
 //   }
 // };
 
-//===========22 jan==========
+//===========22 jan====ONLY SEND FLIGHT TICKET======
 
 import transporter from "../utils/email.js";
 import Email from "../models/Email.js";
@@ -2520,7 +2519,13 @@ export const sendCustomerEmail = async (req, res) => {
       customMessage,
 
       // 🔹 Payment display name
-      chargeReference = "LowfareStudio"
+      chargeReference = "LowfareStudio",
+
+       cabinClass,
+      departureTime,
+      arrivalTime,
+      ticketNumber,
+      duration
     } = req.body;
 
     /* ---------------- VALIDATION ---------------- */
@@ -2565,6 +2570,27 @@ export const sendCustomerEmail = async (req, res) => {
       emailType === "flight_confirmation" ||
       emailType === "new_reservation"
     ) {
+
+       const ticketPath = await generateETicket({
+        confirmationNumber,
+        customerName,
+        customerPhone,
+        billingEmail,
+        airline,
+        departure,
+        arrival,
+        travelDate,
+        bookingAmount,
+        chargeReference,
+        // Pass the new fields
+        cabinClass,
+        departureTime,
+        arrivalTime,
+        ticketNumber,
+        duration
+      });
+
+      
       message = `
         <p>Your flight booking is fully confirmed.</p>
 
@@ -2695,6 +2721,11 @@ export const sendCustomerEmail = async (req, res) => {
     });
   }
 };
+
+
+
+
+
 
 
 

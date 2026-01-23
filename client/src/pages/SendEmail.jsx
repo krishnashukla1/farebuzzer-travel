@@ -1098,9 +1098,9 @@
 //   // };
 
 //   // Reusable classes
- 
- 
- 
+
+
+
 // const handleSubmit = async (e) => {
 //   e.preventDefault();
 
@@ -1139,7 +1139,7 @@
 //     setLoading(false);
 //   }
 // };
- 
+
 //   const inputClass =
 //     "w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200";
 
@@ -3020,10 +3020,10 @@
 //     console.log("Selecting template:", templateId);
 //     setSelectedTemplate(templateId);
 //     const template = templates.find(t => t._id === templateId);
-    
+
 //     if (template && template.data) {
 //       console.log("Template data found:", template.data);
-      
+
 //       // Create a new form state with template data merged
 //       const newForm = {
 //         ...initialFormState,
@@ -3039,14 +3039,14 @@
 //         // Ensure email type matches
 //         emailType: template.emailType
 //       };
-      
+
 //       setForm(newForm);
-      
+
 //       // Also update the email type to match the template
 //       if (template.emailType !== emailType) {
 //         setEmailType(template.emailType);
 //       }
-      
+
 //       setSuccessMessage(`Template "${template.name}" loaded successfully!`);
 //     } else {
 //       console.error("Template not found or has no data:", template);
@@ -3075,11 +3075,11 @@
 //           packageEndDate: form.packageEndDate || "",
 //           packagePrice: form.packagePrice || "",
 //           numberOfPersons: form.numberOfPersons || "",
-          
+
 //           // Hotel details
 //           hotelName: form.hotelName || "",
 //           roomType: form.roomType || "",
-          
+
 //           // Flight details
 //           departure: form.departure || "",
 //           arrival: form.arrival || "",
@@ -3094,13 +3094,13 @@
 //           customMessage: form.customMessage || "",
 //           confirmationNumber: form.confirmationNumber || "",
 //           airline: form.airline || "",
-          
+
 //           // Other services
 //           carType: form.carType || "",
 //           rentalDays: form.rentalDays || "",
 //           insuranceType: form.insuranceType || "",
 //           insuranceCoverage: form.insuranceCoverage || "",
-          
+
 //           // Search fields (optional)
 //           searchQuery: form.searchQuery || "",
 //           category: form.category || "",
@@ -3109,10 +3109,10 @@
 //       };
 
 //       console.log("Saving template data:", templateData);
-      
+
 //       const response = await API.post("/email/templates", templateData);
 //       console.log("Template saved:", response.data);
-      
+
 //       setSuccessMessage("Template saved successfully!");
 //       setNewTemplateName("");
 //       setShowTemplateModal(false);
@@ -4017,10 +4017,10 @@
 //     console.log("Selecting template:", templateId);
 //     setSelectedTemplate(templateId);
 //     const template = templates.find(t => t._id === templateId);
-    
+
 //     if (template && template.data) {
 //       console.log("Template data found:", template.data);
-      
+
 //       // Create a new form state with template data merged
 //       const newForm = {
 //         ...initialFormState,
@@ -4036,14 +4036,14 @@
 //         // Ensure email type matches
 //         emailType: template.emailType
 //       };
-      
+
 //       setForm(newForm);
-      
+
 //       // Also update the email type to match the template
 //       if (template.emailType !== emailType) {
 //         setEmailType(template.emailType);
 //       }
-      
+
 //       setSuccessMessage(`Template "${template.name}" loaded successfully!`);
 //     } else {
 //       console.error("Template not found or has no data:", template);
@@ -4077,11 +4077,11 @@
 //           packageEndDate: form.packageEndDate || "",
 //           packagePrice: form.packagePrice || "",
 //           numberOfPersons: form.numberOfPersons || "",
-          
+
 //           // Hotel details
 //           hotelName: form.hotelName || "",
 //           roomType: form.roomType || "",
-          
+
 //           // Flight details
 //           departure: form.departure || "",
 //           arrival: form.arrival || "",
@@ -4096,13 +4096,13 @@
 //           customMessage: form.customMessage || "",
 //           confirmationNumber: form.confirmationNumber || "",
 //           airline: form.airline || "",
-          
+
 //           // Other services
 //           carType: form.carType || "",
 //           rentalDays: form.rentalDays || "",
 //           insuranceType: form.insuranceType || "",
 //           insuranceCoverage: form.insuranceCoverage || "",
-          
+
 //           // Search fields (optional)
 //           searchQuery: form.searchQuery || "",
 //           category: form.category || "",
@@ -4111,10 +4111,10 @@
 //       };
 
 //       console.log("Saving template data:", templateData);
-      
+
 //       const response = await API.post("/email/templates", templateData);
 //       console.log("Template saved:", response.data);
-      
+
 //       setSuccessMessage("Template saved successfully!");
 //       setNewTemplateName("");
 //       setShowTemplateModal(false);
@@ -5015,7 +5015,7 @@
 //     }
 //   };
 
- 
+
 
 //   const input =
 //   "w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-800 " +
@@ -5266,20 +5266,508 @@
 
 // export default SendEmail;
 
+//=====23 jan============
 
+// import { useState, useEffect } from "react";
+// import API from "../api/axios";
+
+// const SendEmail = () => {
+//   const [loading, setLoading] = useState(false);
+//   const [successMessage, setSuccessMessage] = useState("");
+//   const [errorMessage, setErrorMessage] = useState("");
+
+//   const [emailType] = useState("flight_confirmation");
+//   const [senderBrand, setSenderBrand] = useState("lowfare_studio");
+
+//   // Cabin Class options
+//   const cabinClassOptions = [
+//     "Economy",
+//     "Premium Economy",
+//     "Business",
+//     "First Class"
+//   ];
+
+//   // Fare Type options
+//   const fareTypeOptions = [
+//     { label: "Saver Fare", value: "SAVER" },
+//     { label: "Regular Fare", value: "REGULAR" },
+//     { label: "Flexible Fare", value: "FLEXIBLE" },
+//     { label: "Fully Refundable Fare", value: "REFUNDABLE" },
+//     { label: "Promotional Fare", value: "PROMO" },
+//     { label: "Non-Refundable Fare", value: "NON_REFUNDABLE" },
+//     { label: "Corporate Fare", value: "CORPORATE" },
+//     { label: "Student Fare", value: "STUDENT" }
+//   ];
+
+//   const initialForm = {
+//     customerName: "",
+//     customerPhone: "",
+//     billingEmail: "",
+//     confirmationNumber: "",
+//     airline: "",
+//     departure: "",
+//     arrival: "",
+//     travelDate: "",
+//     cabinClass: "Economy",
+//     bookingAmount: "",
+//     customMessage: "",
+//     ticketNumber: "",
+//     departureTime: "",
+//     arrivalTime: "",
+//     flightNumber: "",
+//     fareType: "REGULAR",
+//     departureTerminal: "",
+//     arrivalTerminal: ""
+//   };
+
+//   const [form, setForm] = useState(initialForm);
+
+//   // Calculate duration automatically
+//   useEffect(() => {
+//     if (form.departureTime && form.arrivalTime) {
+//       const calculateDuration = () => {
+//         try {
+//           const [depHours, depMinutes] = form.departureTime.split(':').map(Number);
+//           const [arrHours, arrMinutes] = form.arrivalTime.split(':').map(Number);
+
+//           let totalMinutes = (arrHours * 60 + arrMinutes) - (depHours * 60 + depMinutes);
+
+//           // Handle overnight flights
+//           if (totalMinutes < 0) {
+//             totalMinutes += 24 * 60;
+//           }
+
+//           const hours = Math.floor(totalMinutes / 60);
+//           const minutes = totalMinutes % 60;
+
+//           return `${hours}h ${minutes}m`;
+//         } catch (error) {
+//           return "";
+//         }
+//       };
+
+//       // Duration is calculated automatically, no need to display
+//       // We'll just show it in console or use for PDF
+//     }
+//   }, [form.departureTime, form.arrivalTime]);
+
+//   /* ---------------- CLEAR ALERTS ---------------- */
+//   useEffect(() => {
+//     if (successMessage || errorMessage) {
+//       const t = setTimeout(() => {
+//         setSuccessMessage("");
+//         setErrorMessage("");
+//       }, 3000);
+//       return () => clearTimeout(t);
+//     }
+//   }, [successMessage, errorMessage]);
+
+//   /* ---------------- HANDLE CHANGE ---------------- */
+//   const handleChange = (e) => {
+//     setForm({ ...form, [e.target.name]: e.target.value });
+//   };
+
+//   /* ---------------- SUBMIT ---------------- */
+//   const submitHandler = async (e) => {
+//     e.preventDefault();
+
+//     if (!form.customerPhone || !form.billingEmail) {
+//       setErrorMessage("Customer phone & email are required");
+//       return;
+//     }
+
+//     setLoading(true);
+//     setErrorMessage("");
+//     setSuccessMessage("");
+
+//     try {
+//       await API.post("/email/send", {
+//         emailType,
+//         customerName: form.customerName,
+//         customerPhone: form.customerPhone,
+//         billingEmail: form.billingEmail,
+//         confirmationNumber: form.confirmationNumber,
+//         airline: form.airline,
+//         departure: form.departure,
+//         arrival: form.arrival,
+//         travelDate: form.travelDate,
+//         bookingAmount: form.bookingAmount,
+//         cabinClass: form.cabinClass,
+//         chargeReference:
+//           senderBrand === "lowfare_studio"
+//             ? "LowfareStudio"
+//             : senderBrand === "american_airlines"
+//               ? "American Airlines"
+//               : "Airline Desk",
+//         customMessage: form.customMessage,
+//         ticketNumber: form.ticketNumber,
+//         departureTime: form.departureTime,
+//         arrivalTime: form.arrivalTime,
+//         flightNumber: form.flightNumber,
+//         fareType: form.fareType,
+//         departureTerminal: form.departureTerminal,
+//         arrivalTerminal: form.arrivalTerminal
+//       });
+
+//       setSuccessMessage("Flight ticket email sent successfully");
+//       setForm(initialForm);
+//     } catch (err) {
+//       setErrorMessage(
+//         err.response?.data?.message || "Email sending failed"
+//       );
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const input =
+//     "w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-800 " +
+//     "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 " +
+//     "transition-all duration-200 cursor-text";
+
+//   const select =
+//     "w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-800 " +
+//     "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 " +
+//     "transition-all duration-200 cursor-pointer";
+
+//   const section =
+//     "bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4";
+
+//   return (
+//     <div className="p-6 max-w-7xl mx-auto">
+//       <h1 className="text-2xl font-bold mb-6 flex items-center gap-2">
+//         ✈️ Send Flight Ticket Email
+//       </h1>
+
+//       <form onSubmit={submitHandler} className="space-y-6">
+//         {/* Sender */}
+//         <section className={section}>
+//           <h3 className="font-semibold text-lg text-gray-800">
+//             Sender / Charge Reference
+//           </h3>
+//           <select
+//             value={senderBrand}
+//             onChange={(e) => setSenderBrand(e.target.value)}
+//             className={select}
+//           >
+//             <option value="airline_desk">Airline Desk</option>
+//             <option value="american_airlines">American Airlines</option>
+//             <option value="lowfare_studio">Lowfare Studio</option>
+//           </select>
+//         </section>
+
+//         {/* Customer */}
+//         {/* <section className={section}>
+//           <h3 className="font-semibold text-lg text-gray-800">
+//             Customer Details
+//           </h3>
+//           <input
+//             name="customerName"
+//             placeholder="Customer Name"
+//             className={input}
+//             value={form.customerName}
+//             onChange={handleChange}
+//             required
+//           />
+//           <input
+//             name="customerPhone"
+//             placeholder="Phone Number"
+//             className={input}
+//             value={form.customerPhone}
+//             onChange={handleChange}
+//             required
+//           />
+//           <input
+//             name="billingEmail"
+//             type="email"
+//             placeholder="Email Address"
+//             className={input}
+//             value={form.billingEmail}
+//             onChange={handleChange}
+//             required
+//           />
+//         </section> */}
+
+
+//         <section className={section}>
+//   <h3 className="font-semibold text-lg text-gray-800 mb-3">
+//     Customer Details
+//   </h3>
+
+//   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+//     <input
+//       name="customerName"
+//       placeholder="Customer Name"
+//       className={input}
+//       value={form.customerName}
+//       onChange={handleChange}
+//       required
+//     />
+
+//     <input
+//       name="customerPhone"
+//       placeholder="Phone Number"
+//       className={input}
+//       value={form.customerPhone}
+//       onChange={handleChange}
+//       required
+//     />
+
+//     <input
+//       type="email"
+//       name="billingEmail"
+//       placeholder="Email Address"
+//       className={input}
+//       value={form.billingEmail}
+//       onChange={handleChange}
+//       required
+//     />
+//   </div>
+// </section>
+
+
+//         {/* Flight */}
+//         <section className={section}>
+//           <h3 className="font-semibold text-lg text-gray-800">
+//             Flight Ticket Details
+//           </h3>
+//           <div className="grid sm:grid-cols-2 gap-4">
+//             <input
+//               name="confirmationNumber"
+//               placeholder="Booking Reference / PNR"
+//               className={input}
+//               value={form.confirmationNumber}
+//               onChange={handleChange}
+//               required
+//             />
+//             <input
+//               name="airline"
+//               placeholder="Airline Name"
+//               className={input}
+//               value={form.airline}
+//               onChange={handleChange}
+//               required
+//             />
+//             <input
+//               name="flightNumber"
+//               placeholder="Flight Number (e.g., AA1234)"
+//               className={input}
+//               value={form.flightNumber}
+//               onChange={handleChange}
+//               required
+//             />
+//             <input
+//               name="departure"
+//               placeholder="From (JFK)"
+//               className={input}
+//               value={form.departure}
+//               onChange={handleChange}
+//               required
+//             />
+//             <input
+//               name="arrival"
+//               placeholder="To (LHR)"
+//               className={input}
+//               value={form.arrival}
+//               onChange={handleChange}
+//               required
+//             />
+//             <input
+//               type="date"
+//               name="travelDate"
+//               className={`${input} cursor-pointer`}
+//               value={form.travelDate}
+//               onChange={handleChange}
+//               required
+//             />
+//             <select
+//               name="cabinClass"
+//               className={select}
+//               value={form.cabinClass}
+//               onChange={handleChange}
+//             >
+//               {cabinClassOptions.map((option) => (
+//                 <option key={option} value={option}>
+//                   {option}
+//                 </option>
+//               ))}
+//             </select>
+//             <select
+//               name="fareType"
+//               className={select}
+//               value={form.fareType}
+//               onChange={handleChange}
+//             >
+//               {fareTypeOptions.map((option) => (
+//                 <option key={option.value} value={option.value}>
+//                   {option.label}
+//                 </option>
+//               ))}
+//             </select>
+//             {/* <input
+//               type="time"
+//               name="departureTime"
+//               placeholder="Departure Time"
+//               className={input}
+//               value={form.departureTime}
+//               onChange={handleChange}
+//             /> */}
+
+
+//             {/* <input
+//               type="time"
+//               name="arrivalTime"
+//               placeholder="Arrival Time"
+//               className={input}
+//               value={form.arrivalTime}
+//               onChange={handleChange}
+//             /> */}
+
+//             <input
+//               type="text"
+//               name="departureTime"
+//               placeholder="Departure Time (HH:MM)"
+//               className={input}
+//               value={form.departureTime}
+//               onFocus={(e) => (e.target.type = "time")}
+//               onBlur={(e) => !e.target.value && (e.target.type = "text")}
+//               onChange={handleChange}
+//             />
+//             <input
+//               type="text"
+//               name="arrivalTime"
+//               placeholder="Arrival Time (HH:MM)"
+//               className={input}
+//               value={form.arrivalTime}
+//               onFocus={(e) => (e.target.type = "time")}
+//               onBlur={(e) => !e.target.value && (e.target.type = "text")}
+//               onChange={handleChange}
+//             />
+
+
+
+//             <input
+//               name="departureTerminal"
+//               placeholder="Departure Terminal (optional)"
+//               className={input}
+//               value={form.departureTerminal}
+//               onChange={handleChange}
+//             />
+
+
+
+//             <input
+//               name="arrivalTerminal"
+//               placeholder="Arrival Terminal (optional)"
+//               className={input}
+//               value={form.arrivalTerminal}
+//               onChange={handleChange}
+//             />
+//             <input
+//               name="ticketNumber"
+//               placeholder="Ticket Number (optional)"
+//               className={input}
+//               value={form.ticketNumber}
+//               onChange={handleChange}
+//             />
+//           </div>
+//         </section>
+
+//         {/* Payment */}
+//         <section className={section}>
+//           <h3 className="font-semibold text-lg text-gray-800">
+//             Payment Information
+//           </h3>
+//           <input
+//             name="bookingAmount"
+//             type="number"
+//             step="0.01"
+//             placeholder="Amount Paid (USD)"
+//             className={input}
+//             value={form.bookingAmount}
+//             onChange={handleChange}
+//             required
+//           />
+//           <p className="text-sm text-gray-500">
+//             Charges will reflect as{" "}
+//             <span className="font-semibold text-gray-800">
+//               LowfareStudio
+//             </span>{" "}
+//             on customer statement.
+//           </p>
+//         </section>
+
+//         {/* Message */}
+//         <section className={section}>
+//           <h3 className="font-semibold text-lg text-gray-800">
+//             Custom Message
+//           </h3>
+//           <textarea
+//             name="customMessage"
+//             rows="4"
+//             placeholder="Additional notes for customer..."
+//             className={`${input} resize-none`}
+//             value={form.customMessage}
+//             onChange={handleChange}
+//           />
+//         </section>
+
+//         {/* Alerts */}
+//         {successMessage && (
+//           <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl">
+//             {successMessage}
+//           </div>
+//         )}
+
+//         {errorMessage && (
+//           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+//             {errorMessage}
+//           </div>
+//         )}
+
+//         {/* Submit */}
+//         <button
+//           type="submit"
+//           disabled={loading}
+//           className="
+//             w-full py-3 rounded-xl font-semibold text-white
+//             bg-blue-600 hover:bg-blue-700
+//             transition-all duration-200
+//             disabled:opacity-60 disabled:cursor-not-allowed
+//             cursor-pointer shadow-md
+//           "
+//         >
+//           {loading ? "Sending Ticket..." : "Send Flight Ticket"}
+//         </button>
+//       </form>
+//     </div>
+//   );
+// };
+
+// export default SendEmail;
+
+
+//========merge both=========
 
 import { useState, useEffect } from "react";
 import API from "../api/axios";
 
 const SendEmail = () => {
+  const [emailType, setEmailType] = useState("new_reservation"); // Default to new_reservation
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
-  const [emailType] = useState("flight_confirmation");
+  const [templates, setTemplates] = useState([]);
+  const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [newTemplateName, setNewTemplateName] = useState("");
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
+  const [loadingTemplates, setLoadingTemplates] = useState(true);
+  
+  // Sender brand only for flight tickets
   const [senderBrand, setSenderBrand] = useState("lowfare_studio");
 
-  // Cabin Class options
+  // Cabin Class options (for flight ticket form)
   const cabinClassOptions = [
     "Economy",
     "Premium Economy",
@@ -5287,7 +5775,7 @@ const SendEmail = () => {
     "First Class"
   ];
 
-  // Fare Type options
+  // Fare Type options (for flight ticket form)
   const fareTypeOptions = [
     { label: "Saver Fare", value: "SAVER" },
     { label: "Regular Fare", value: "REGULAR" },
@@ -5299,7 +5787,43 @@ const SendEmail = () => {
     { label: "Student Fare", value: "STUDENT" }
   ];
 
-  const initialForm = {
+  // Initial form state for GENERAL form (non-flight-ticket)
+  const initialGeneralFormState = {
+    customerName: "",
+    customerPhone: "",
+    billingEmail: "",
+    confirmationNumber: "",
+    airline: "",
+    departure: "",
+    arrival: "",
+    travelDate: "",
+    bookingAmount: "",
+    oldTravelDate: "",
+    newTravelDate: "",
+    changeFee: "",
+    fareDifference: "",
+    refundAmount: "",
+    cancellationDate: "",
+    customMessage: "",
+    searchQuery: "",
+    category: "",
+    destination: "",
+    packageName: "",
+    packageNights: "",
+    packageStartDate: "",
+    packageEndDate: "",
+    packagePrice: "",
+    numberOfPersons: "",
+    hotelName: "",
+    roomType: "",
+    carType: "",
+    rentalDays: "",
+    insuranceType: "",
+    insuranceCoverage: ""
+  };
+
+  // Initial form state for FLIGHT TICKET form
+  const initialFlightFormState = {
     customerName: "",
     customerPhone: "",
     billingEmail: "",
@@ -5320,359 +5844,1272 @@ const SendEmail = () => {
     arrivalTerminal: ""
   };
 
-  const [form, setForm] = useState(initialForm);
+  // Use different form states based on emailType
+  const [generalForm, setGeneralForm] = useState(initialGeneralFormState);
+  const [flightForm, setFlightForm] = useState(initialFlightFormState);
 
-  // Calculate duration automatically
+  // Determine which form to use based on emailType
+  const isFlightTicketForm = emailType === "new_reservation" || emailType === "flight_confirmation";
+  
+  // Get current form based on type
+  const currentForm = isFlightTicketForm ? flightForm : generalForm;
+
+  // Load templates on component mount
   useEffect(() => {
-    if (form.departureTime && form.arrivalTime) {
-      const calculateDuration = () => {
-        try {
-          const [depHours, depMinutes] = form.departureTime.split(':').map(Number);
-          const [arrHours, arrMinutes] = form.arrivalTime.split(':').map(Number);
-          
-          let totalMinutes = (arrHours * 60 + arrMinutes) - (depHours * 60 + depMinutes);
-          
-          // Handle overnight flights
-          if (totalMinutes < 0) {
-            totalMinutes += 24 * 60;
-          }
-          
-          const hours = Math.floor(totalMinutes / 60);
-          const minutes = totalMinutes % 60;
-          
-          return `${hours}h ${minutes}m`;
-        } catch (error) {
-          return "";
-        }
-      };
-      
-      // Duration is calculated automatically, no need to display
-      // We'll just show it in console or use for PDF
-    }
-  }, [form.departureTime, form.arrivalTime]);
+    fetchTemplates();
+  }, []);
 
-  /* ---------------- CLEAR ALERTS ---------------- */
+  // Load templates when email type changes
+  useEffect(() => {
+    if (emailType) {
+      fetchTemplates();
+    }
+  }, [emailType]);
+
+  const fetchTemplates = async () => {
+    try {
+      setLoadingTemplates(true);
+      const response = await API.get("/email/templates");
+      setTemplates(response.data?.data || []);
+    } catch (error) {
+      console.error("Error loading templates:", error);
+      setTemplates([]);
+    } finally {
+      setLoadingTemplates(false);
+    }
+  };
+
+  const handleChange = (e) => {
+    if (isFlightTicketForm) {
+      setFlightForm({ ...flightForm, [e.target.name]: e.target.value });
+    } else {
+      setGeneralForm({ ...generalForm, [e.target.name]: e.target.value });
+    }
+  };
+
+  const handleEmailTypeChange = (e) => {
+    const newType = e.target.value;
+    setEmailType(newType);
+    setSelectedTemplate("");
+    
+    // Clear forms when changing email type (except customer info)
+    const currentCustomerInfo = {
+      customerName: currentForm.customerName,
+      customerPhone: currentForm.customerPhone,
+      billingEmail: currentForm.billingEmail
+    };
+
+    if (newType === "new_reservation" || newType === "flight_confirmation") {
+      // Reset flight form but keep customer info
+      setFlightForm({
+        ...initialFlightFormState,
+        ...currentCustomerInfo
+      });
+    } else {
+      // Reset general form but keep customer info and search fields
+      setGeneralForm({
+        ...initialGeneralFormState,
+        ...currentCustomerInfo,
+        searchQuery: generalForm.searchQuery,
+        category: generalForm.category,
+        destination: generalForm.destination
+      });
+    }
+  };
+
   useEffect(() => {
     if (successMessage || errorMessage) {
-      const t = setTimeout(() => {
+      const timer = setTimeout(() => {
         setSuccessMessage("");
         setErrorMessage("");
       }, 3000);
-      return () => clearTimeout(t);
+      return () => clearTimeout(timer);
     }
   }, [successMessage, errorMessage]);
 
-  /* ---------------- HANDLE CHANGE ---------------- */
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  // Handle template selection
+  const handleTemplateSelect = (templateId) => {
+    console.log("Selecting template:", templateId);
+    setSelectedTemplate(templateId);
+    const template = templates.find(t => t._id === templateId);
+
+    if (template && template.data) {
+      console.log("Template data found:", template.data);
+
+      // Create new form state with template data merged
+      const newForm = {
+        ...initialGeneralFormState,
+        // Keep customer info if already entered
+        customerName: generalForm.customerName || "",
+        customerPhone: generalForm.customerPhone || "",
+        billingEmail: generalForm.billingEmail || "",
+        searchQuery: generalForm.searchQuery || "",
+        category: generalForm.category || "",
+        destination: generalForm.destination || "",
+        // Apply all template data
+        ...template.data,
+        // Ensure email type matches
+        emailType: template.emailType
+      };
+
+      setGeneralForm(newForm);
+
+      // Also update the email type to match the template
+      if (template.emailType !== emailType) {
+        setEmailType(template.emailType);
+      }
+
+      setSuccessMessage(`Template "${template.name}" loaded successfully!`);
+    } else {
+      console.error("Template not found or has no data:", template);
+      setErrorMessage("Failed to load template data");
+    }
   };
 
-  /* ---------------- SUBMIT ---------------- */
-  const submitHandler = async (e) => {
-    e.preventDefault();
-
-    if (!form.customerPhone || !form.billingEmail) {
-      setErrorMessage("Customer phone & email are required");
+  // Save current form as template
+  const saveAsTemplate = async () => {
+    if (emailType !== "holiday_package") {
+      setErrorMessage("Templates can only be saved for Holiday Packages");
       return;
     }
 
+    if (!newTemplateName.trim()) {
+      setErrorMessage("Please enter a template name");
+      return;
+    }
+
+    setIsSavingTemplate(true);
+    try {
+      // Extract template data (exclude customer-specific fields)
+      const templateData = {
+        name: newTemplateName,
+        emailType: emailType,
+        data: {
+          // Package details
+          packageName: generalForm.packageName || "",
+          packageNights: generalForm.packageNights || "",
+          packageStartDate: generalForm.packageStartDate || "",
+          packageEndDate: generalForm.packageEndDate || "",
+          packagePrice: generalForm.packagePrice || "",
+          numberOfPersons: generalForm.numberOfPersons || "",
+
+          // Hotel details
+          hotelName: generalForm.hotelName || "",
+          roomType: generalForm.roomType || "",
+
+          // Flight details
+          departure: generalForm.departure || "",
+          arrival: generalForm.arrival || "",
+          travelDate: generalForm.travelDate || "",
+          bookingAmount: generalForm.bookingAmount || "",
+          oldTravelDate: generalForm.oldTravelDate || "",
+          newTravelDate: generalForm.newTravelDate || "",
+          changeFee: generalForm.changeFee || "",
+          fareDifference: generalForm.fareDifference || "",
+          refundAmount: generalForm.refundAmount || "",
+          cancellationDate: generalForm.cancellationDate || "",
+          customMessage: generalForm.customMessage || "",
+          confirmationNumber: generalForm.confirmationNumber || "",
+          airline: generalForm.airline || "",
+
+          // Other services
+          carType: generalForm.carType || "",
+          rentalDays: generalForm.rentalDays || "",
+          insuranceType: generalForm.insuranceType || "",
+          insuranceCoverage: generalForm.insuranceCoverage || "",
+
+          // Search fields (optional)
+          searchQuery: generalForm.searchQuery || "",
+          category: generalForm.category || "",
+          destination: generalForm.destination || ""
+        }
+      };
+
+      console.log("Saving template data:", templateData);
+
+      const response = await API.post("/email/templates", templateData);
+      console.log("Template saved:", response.data);
+
+      setSuccessMessage("Template saved successfully!");
+      setNewTemplateName("");
+      setShowTemplateModal(false);
+      fetchTemplates(); // Refresh templates list
+    } catch (error) {
+      console.error("Error saving template:", error);
+      setErrorMessage(error.response?.data?.message || "Failed to save template");
+    } finally {
+      setIsSavingTemplate(false);
+    }
+  };
+
+  // Delete template
+  const deleteTemplate = async (templateId, e) => {
+    e.stopPropagation();
+    if (window.confirm("Are you sure you want to delete this template?")) {
+      try {
+        await API.delete(`/email/templates/${templateId}`);
+        setTemplates(templates.filter(t => t._id !== templateId));
+        if (selectedTemplate === templateId) {
+          setSelectedTemplate("");
+        }
+        setSuccessMessage("Template deleted successfully!");
+      } catch (error) {
+        setErrorMessage("Failed to delete template");
+      }
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const phone = (currentForm.customerPhone || "").trim();
+    const phoneRegex = /^[+0-9\s\-\(\)]{8,20}$/;
+
+    if (phone === "") {
+      setErrorMessage("Phone number is required");
+      return;
+    }
+
+    if (!phoneRegex.test(phone)) {
+      setErrorMessage(
+        "Invalid phone number format. Use only numbers, spaces, +, -, () (8–20 characters)"
+      );
+      return;
+    }
+
+    // Additional validation for flight ticket form
+    if (isFlightTicketForm) {
+      if (!flightForm.confirmationNumber) {
+        setErrorMessage("Confirmation Number is required for flight tickets");
+        return;
+      }
+      if (!flightForm.airline) {
+        setErrorMessage("Airline Name is required");
+        return;
+      }
+      if (!flightForm.flightNumber) {
+        setErrorMessage("Flight Number is required");
+        return;
+      }
+      if (!flightForm.departure) {
+        setErrorMessage("Departure is required");
+        return;
+      }
+      if (!flightForm.arrival) {
+        setErrorMessage("Arrival is required");
+        return;
+      }
+      if (!flightForm.travelDate) {
+        setErrorMessage("Travel Date is required");
+        return;
+      }
+    }
+
     setLoading(true);
-    setErrorMessage("");
     setSuccessMessage("");
+    setErrorMessage("");
 
     try {
-      await API.post("/email/send", {
-        emailType,
-        customerName: form.customerName,
-        customerPhone: form.customerPhone,
-        billingEmail: form.billingEmail,
-        confirmationNumber: form.confirmationNumber,
-        airline: form.airline,
-        departure: form.departure,
-        arrival: form.arrival,
-        travelDate: form.travelDate,
-        bookingAmount: form.bookingAmount,
-        cabinClass: form.cabinClass,
-        chargeReference:
-          senderBrand === "lowfare_studio"
-            ? "LowfareStudio"
-            : senderBrand === "american_airlines"
-            ? "American Airlines"
-            : "Airline Desk",
-        customMessage: form.customMessage,
-        ticketNumber: form.ticketNumber,
-        departureTime: form.departureTime,
-        arrivalTime: form.arrivalTime,
-        flightNumber: form.flightNumber,
-        fareType: form.fareType,
-        departureTerminal: form.departureTerminal,
-        arrivalTerminal: form.arrivalTerminal
-      });
+      let requestData;
+      
+      if (isFlightTicketForm) {
+        // For flight ticket forms
+        requestData = {
+          emailType,
+          ...flightForm,
+          chargeReference:
+            senderBrand === "lowfare_studio"
+              ? "LowfareStudio"
+              : senderBrand === "american_airlines"
+                ? "American Airlines"
+                : "Airline Desk",
+          templateUsed: null // No templates for flight tickets
+        };
+      } else {
+        // For general forms
+        requestData = {
+          emailType,
+          ...generalForm,
+          templateUsed: selectedTemplate || null
+        };
+      }
 
-      setSuccessMessage("Flight ticket email sent successfully");
-      setForm(initialForm);
+      const response = await API.post("/email/send", requestData);
+
+      setSuccessMessage(`Email sent successfully! ${response.data?.data?.dynamicGreeting ? `(${response.data.data.dynamicGreeting})` : ''}`);
+      
+      // Reset forms
+      if (isFlightTicketForm) {
+        setFlightForm(initialFlightFormState);
+      } else {
+        setGeneralForm(initialGeneralFormState);
+      }
+      setSelectedTemplate("");
     } catch (err) {
-      setErrorMessage(
-        err.response?.data?.message || "Email sending failed"
-      );
+      setErrorMessage(err.response?.data?.message || "Failed to send email");
     } finally {
       setLoading(false);
     }
   };
 
-  const input =
-    "w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-800 " +
-    "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 " +
-    "transition-all duration-200 cursor-text";
+  const inputClass =
+    "w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200";
 
-  const select =
-    "w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-800 " +
-    "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 " +
-    "transition-all duration-200 cursor-pointer";
+  const labelClass = "text-sm font-medium text-gray-700 mb-2 block";
 
-  const section =
-    "bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4";
+  const sectionClass = "bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-2xl shadow-sm border border-gray-200";
+
+  // Filter templates by current email type
+  const filteredTemplates = templates.filter(t => t.emailType === emailType);
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6 flex items-center gap-2">
-        ✈️ Send Flight Ticket Email
-      </h1>
+    <div className="p-4">
+      <h1 className="text-xl font-bold mb-4">Send Customer Email</h1>
 
-      <form onSubmit={submitHandler} className="space-y-6">
-        {/* Sender */}
-        <section className={section}>
-          <h3 className="font-semibold text-lg text-gray-800">
-            Sender / Charge Reference
-          </h3>
-          <select
-            value={senderBrand}
-            onChange={(e) => setSenderBrand(e.target.value)}
-            className={select}
-          >
-            <option value="airline_desk">Airline Desk</option>
-            <option value="american_airlines">American Airlines</option>
-            <option value="lowfare_studio">Lowfare Studio</option>
-          </select>
-        </section>
-
-        {/* Customer */}
-        <section className={section}>
-          <h3 className="font-semibold text-lg text-gray-800">
-            Customer Details
-          </h3>
-          <input
-            name="customerName"
-            placeholder="Customer Name"
-            className={input}
-            value={form.customerName}
-            onChange={handleChange}
-            required
-          />
-          <input
-            name="customerPhone"
-            placeholder="Phone Number"
-            className={input}
-            value={form.customerPhone}
-            onChange={handleChange}
-            required
-          />
-          <input
-            name="billingEmail"
-            type="email"
-            placeholder="Email Address"
-            className={input}
-            value={form.billingEmail}
-            onChange={handleChange}
-            required
-          />
-        </section>
-
-        {/* Flight */}
-        <section className={section}>
-          <h3 className="font-semibold text-lg text-gray-800">
-            Flight Ticket Details
-          </h3>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <input
-              name="confirmationNumber"
-              placeholder="Booking Reference / PNR"
-              className={input}
-              value={form.confirmationNumber}
-              onChange={handleChange}
-              required
-            />
-            <input
-              name="airline"
-              placeholder="Airline Name"
-              className={input}
-              value={form.airline}
-              onChange={handleChange}
-              required
-            />
-            <input
-              name="flightNumber"
-              placeholder="Flight Number (e.g., AA1234)"
-              className={input}
-              value={form.flightNumber}
-              onChange={handleChange}
-              required
-            />
-            <input
-              name="departure"
-              placeholder="From (JFK)"
-              className={input}
-              value={form.departure}
-              onChange={handleChange}
-              required
-            />
-            <input
-              name="arrival"
-              placeholder="To (LHR)"
-              className={input}
-              value={form.arrival}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="date"
-              name="travelDate"
-              className={`${input} cursor-pointer`}
-              value={form.travelDate}
-              onChange={handleChange}
-              required
-            />
-            <select
-              name="cabinClass"
-              className={select}
-              value={form.cabinClass}
-              onChange={handleChange}
-            >
-              {cabinClassOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-            <select
-              name="fareType"
-              className={select}
-              value={form.fareType}
-              onChange={handleChange}
-            >
-              {fareTypeOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <input
-              type="time"
-              name="departureTime"
-              placeholder="Departure Time"
-              className={input}
-              value={form.departureTime}
-              onChange={handleChange}
-            />
-            <input
-              type="time"
-              name="arrivalTime"
-              placeholder="Arrival Time"
-              className={input}
-              value={form.arrivalTime}
-              onChange={handleChange}
-            />
-            <input
-              name="departureTerminal"
-              placeholder="Departure Terminal"
-              className={input}
-              value={form.departureTerminal}
-              onChange={handleChange}
-            />
-            <input
-              name="arrivalTerminal"
-              placeholder="Arrival Terminal"
-              className={input}
-              value={form.arrivalTerminal}
-              onChange={handleChange}
-            />
-            <input
-              name="ticketNumber"
-              placeholder="Ticket Number (optional)"
-              className={input}
-              value={form.ticketNumber}
-              onChange={handleChange}
-            />
+      <div className="max-w-full mx-auto p-4 sm:p-6">
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-8 pt-2 pb-1">
+            <h2 className="text-xl font-bold text-white">Select category and fill details</h2>
           </div>
-        </section>
 
-        {/* Payment */}
-        <section className={section}>
-          <h3 className="font-semibold text-lg text-gray-800">
-            Payment Information
-          </h3>
-          <input
-            name="bookingAmount"
-            type="number"
-            step="0.01"
-            placeholder="Amount Paid (USD)"
-            className={input}
-            value={form.bookingAmount}
-            onChange={handleChange}
-            required
-          />
-          <p className="text-sm text-gray-500">
-            Charges will reflect as{" "}
-            <span className="font-semibold text-gray-800">
-              LowfareStudio
-            </span>{" "}
-            on customer statement.
-          </p>
-        </section>
+          <form onSubmit={handleSubmit} className="p-8 space-y-7">
+            {/* Email Category */}
+            <div>
+              <label className={labelClass}>Email Category</label>
+              <select
+                value={emailType}
+                onChange={handleEmailTypeChange}
+                className={`${inputClass} cursor-pointer appearance-none bg-white pr-10 bg-chevron-down bg-no-repeat bg-right-center`}
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`,
+                  backgroundSize: "12px",
+                  backgroundPosition: "right 1rem center",
+                }}
+              >
+                <option value="new_reservation">New Reservation (Flight Ticket)</option>
+                <option value="exchange_ticket">Exchange Ticket</option>
+                <option value="flight_cancellation">Flight Cancellation</option>
+                <option value="refund_request">Refund Request</option>
+                <option value="seat_addons">Seat / Add-ons</option>
+                <option value="name_correction">Name Correction</option>
+                <option value="add_pet">Add Pet</option>
+                <option value="flight_confirmation">Flight Confirmation (Flight Ticket)</option>
+                <option value="hotel_booking">Hotel Booking</option>
+                <option value="car_rental">Car Rental</option>
+                <option value="customer_support">Customer Support</option>
+                <option value="holiday_package">Holiday Package</option>
+                <option value="travel_insurance">Travel Insurance</option>
+              </select>
+            </div>
 
-        {/* Message */}
-        <section className={section}>
-          <h3 className="font-semibold text-lg text-gray-800">
-            Custom Message
-          </h3>
-          <textarea
-            name="customMessage"
-            rows="4"
-            placeholder="Additional notes for customer..."
-            className={`${input} resize-none`}
-            value={form.customMessage}
-            onChange={handleChange}
-          />
-        </section>
+            {/* Sender Brand (Only for flight ticket forms) */}
+            {isFlightTicketForm && (
+              <div>
+                <label className={labelClass}>Sender / Charge Reference</label>
+                <select
+                  value={senderBrand}
+                  onChange={(e) => setSenderBrand(e.target.value)}
+                  className={`${inputClass} cursor-pointer appearance-none bg-white pr-10 bg-chevron-down bg-no-repeat bg-right-center`}
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`,
+                    backgroundSize: "12px",
+                    backgroundPosition: "right 1rem center",
+                  }}
+                >
+                  <option value="airline_desk">Airline Desk</option>
+                  <option value="american_airlines">American Airlines</option>
+                  <option value="lowfare_studio">Lowfare Studio</option>
+                </select>
+              </div>
+            )}
 
-        {/* Alerts */}
-        {successMessage && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl">
-            {successMessage}
+            {/* Template Selection Section - ONLY FOR HOLIDAY PACKAGE */}
+            {emailType === "holiday_package" && (
+              <section className={sectionClass}>
+                <div className="flex justify-between items-center mb-5">
+                  <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+                    <span className="w-2 h-2 bg-purple-600 rounded-full mr-3"></span>
+                    Template Selection
+                    <span className="ml-2 text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">Optional</span>
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowTemplateModal(true)}
+                    className="cursor-pointer text-sm bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-4 py-2 rounded-lg font-medium transition-all"
+                  >
+                    Save Current as Template
+                  </button>
+                </div>
+
+                {loadingTemplates ? (
+                  <div className="text-center py-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+                  </div>
+                ) : filteredTemplates.length > 0 ? (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {filteredTemplates.map(template => (
+                        <div
+                          key={template._id}
+                          onClick={() => handleTemplateSelect(template._id)}
+                          className={`p-4 rounded-xl border-2 cursor-pointer transition-all hover:shadow-md ${
+                            selectedTemplate === template._id
+                              ? 'border-purple-500 bg-purple-50'
+                              : 'border-gray-200 hover:border-purple-300'
+                          }`}
+                        >
+                          <div className="flex justify-between items-start">
+                            <h4 className="font-medium text-gray-800 truncate">
+                              {template.name}
+                            </h4>
+                            <button
+                              type="button"
+                              onClick={(e) => deleteTemplate(template._id, e)}
+                              className="text-red-500 hover:text-red-700 ml-2"
+                            >
+                              ×
+                            </button>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Type: {template.emailType.replace('_', ' ')}
+                          </p>
+                          {template.data?.packageNights && (
+                            <p className="text-xs text-gray-600 mt-1">
+                              {template.data.packageNights} nights • ${template.data.packagePrice || "0"}
+                            </p>
+                          )}
+                          {template.data?.hotelName && (
+                            <p className="text-xs text-gray-600 mt-1">
+                              Hotel: {template.data.hotelName}
+                            </p>
+                          )}
+                          {template.data?.carType && (
+                            <p className="text-xs text-gray-600 mt-1">
+                              Car: {template.data.carType}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    {selectedTemplate && (
+                      <p className="text-sm text-green-600 mt-2">
+                        ✓ Template loaded. You can now edit the details below.
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-6 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-gray-500">No templates saved for holiday packages yet.</p>
+                    <p className="text-sm text-gray-400 mt-1">
+                      Fill in package details below and click "Save Current as Template" to create one.
+                    </p>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* Customer Information */}
+            <section className={sectionClass}>
+              <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
+                <span className="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
+                Customer Information
+              </h3>
+              <div className="grid sm:grid-cols-3 gap-5">
+                <div>
+                  <label className={labelClass}>Customer Name *</label>
+                  <input
+                    name="customerName"
+                    placeholder="Enter full name"
+                    className={inputClass}
+                    onChange={handleChange}
+                    value={currentForm.customerName}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass}>Phone Number *</label>
+                  <input
+                    name="customerPhone"
+                    type="tel"
+                    placeholder="Only numbers, spaces, +, -, () allowed (8–20 characters)"
+                    className={inputClass}
+                    onChange={handleChange}
+                    value={currentForm.customerPhone}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass}>Billing Email *</label>
+                  <input
+                    name="billingEmail"
+                    type="email"
+                    placeholder="customer@example.com"
+                    className={inputClass}
+                    onChange={handleChange}
+                    value={currentForm.billingEmail}
+                    required
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* FLIGHT TICKET FORM (only for new_reservation and flight_confirmation) */}
+            {isFlightTicketForm ? (
+              <>
+                {/* Flight Ticket Details */}
+                <section className={sectionClass}>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
+                    <span className="w-2 h-2 bg-green-600 rounded-full mr-3"></span>
+                    Flight Ticket Details
+                  </h3>
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className={labelClass}>Booking Reference / PNR *</label>
+                      <input
+                        name="confirmationNumber"
+                        placeholder="e.g., ABC123"
+                        className={inputClass}
+                        onChange={handleChange}
+                        value={flightForm.confirmationNumber}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Airline Name *</label>
+                      <input
+                        name="airline"
+                        placeholder="e.g., Delta Airlines"
+                        className={inputClass}
+                        onChange={handleChange}
+                        value={flightForm.airline}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Flight Number *</label>
+                      <input
+                        name="flightNumber"
+                        placeholder="e.g., AA1234"
+                        className={inputClass}
+                        onChange={handleChange}
+                        value={flightForm.flightNumber}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Departure *</label>
+                      <input
+                        name="departure"
+                        placeholder="e.g., New York - JFK"
+                        className={inputClass}
+                        onChange={handleChange}
+                        value={flightForm.departure}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Arrival *</label>
+                      <input
+                        name="arrival"
+                        placeholder="e.g., London - LHR"
+                        className={inputClass}
+                        onChange={handleChange}
+                        value={flightForm.arrival}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Travel Date *</label>
+                      <input
+                        type="date"
+                        name="travelDate"
+                        className={inputClass}
+                        onChange={handleChange}
+                        value={flightForm.travelDate}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Cabin Class *</label>
+                      <select
+                        name="cabinClass"
+                        className={`${inputClass} cursor-pointer`}
+                        value={flightForm.cabinClass}
+                        onChange={handleChange}
+                        required
+                      >
+                        {cabinClassOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className={labelClass}>Fare Type *</label>
+                      <select
+                        name="fareType"
+                        className={`${inputClass} cursor-pointer`}
+                        value={flightForm.fareType}
+                        onChange={handleChange}
+                        required
+                      >
+                        <option value="">Select Fare Type *</option>
+                        {fareTypeOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className={labelClass}>Departure Time (Optional)</label>
+                      <input
+                        type="text"
+                        name="departureTime"
+                        placeholder="HH:MM"
+                        className={inputClass}
+                        value={flightForm.departureTime}
+                        onFocus={(e) => (e.target.type = "time")}
+                        onBlur={(e) => !e.target.value && (e.target.type = "text")}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Arrival Time (Optional)</label>
+                      <input
+                        type="text"
+                        name="arrivalTime"
+                        placeholder="HH:MM"
+                        className={inputClass}
+                        value={flightForm.arrivalTime}
+                        onFocus={(e) => (e.target.type = "time")}
+                        onBlur={(e) => !e.target.value && (e.target.type = "text")}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Departure Terminal (Optional)</label>
+                      <input
+                        name="departureTerminal"
+                        placeholder="e.g., T1"
+                        className={inputClass}
+                        onChange={handleChange}
+                        value={flightForm.departureTerminal}
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Arrival Terminal (Optional)</label>
+                      <input
+                        name="arrivalTerminal"
+                        placeholder="e.g., T2"
+                        className={inputClass}
+                        onChange={handleChange}
+                        value={flightForm.arrivalTerminal}
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Ticket Number (Optional)</label>
+                      <input
+                        name="ticketNumber"
+                        placeholder="e.g., 00123456789"
+                        className={inputClass}
+                        onChange={handleChange}
+                        value={flightForm.ticketNumber}
+                      />
+                    </div>
+                  </div>
+                </section>
+
+                {/* Payment Information for Flight Ticket */}
+                <section className={sectionClass}>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-5">Payment Information</h3>
+                  <div className="max-w-md">
+                    <label className={labelClass}>Booking Amount (USD) *</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      name="bookingAmount"
+                      placeholder="0.00"
+                      className={inputClass}
+                      onChange={handleChange}
+                      value={flightForm.bookingAmount}
+                      required
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Charges will reflect as{" "}
+                    <span className="font-semibold text-gray-800">
+                      {senderBrand === "lowfare_studio" 
+                        ? "LowfareStudio" 
+                        : senderBrand === "american_airlines" 
+                          ? "American Airlines" 
+                          : "Airline Desk"}
+                    </span>{" "}
+                    on customer statement.
+                  </p>
+                </section>
+
+                {/* Custom Message for Flight Ticket */}
+                <section className={sectionClass}>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-5">Additional Notes</h3>
+                  <textarea
+                    name="customMessage"
+                    rows="4"
+                    placeholder="Additional notes for customer..."
+                    className={`${inputClass} resize-none`}
+                    onChange={handleChange}
+                    value={flightForm.customMessage}
+                  />
+                </section>
+              </>
+            ) : (
+              /* GENERAL FORM (for all other email types) */
+              <>
+                {/* NEW: Dynamic Greeting Information Section */}
+                <section className={sectionClass}>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
+                    <span className="w-2 h-2 bg-green-600 rounded-full mr-3"></span>
+                    Enquiry Details (For Personalized Greeting)
+                    <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Optional</span>
+                  </h3>
+                  <div className="space-y-4">
+                    <p className="text-sm text-gray-600 mb-4">
+                      These fields help personalize the greeting in the email. Fill based on what the customer enquired about.
+                    </p>
+                    <div className="grid sm:grid-cols-3 gap-5">
+                      <div>
+                        <label className={labelClass}>Customer's Search Query</label>
+                        <input
+                          name="searchQuery"
+                          placeholder="e.g., 'flights to Dubai' or 'Kashmir packages'"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.searchQuery}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          What the customer searched for
+                        </p>
+                      </div>
+                      <div>
+                        <label className={labelClass}>Service Category</label>
+                        <select
+                          name="category"
+                          className={`${inputClass} cursor-pointer appearance-none bg-white pr-10 bg-chevron-down bg-no-repeat bg-right-center`}
+                          onChange={handleChange}
+                          value={generalForm.category}
+                          style={{
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`,
+                            backgroundSize: "12px",
+                            backgroundPosition: "right 1rem center",
+                          }}
+                        >
+                          <option value="">Select category</option>
+                          <option value="flight">Flight Booking</option>
+                          <option value="hotel">Hotel Booking</option>
+                          <option value="package">Holiday Package</option>
+                          <option value="car_rental">Car Rental</option>
+                          <option value="cruise">Cruise</option>
+                          <option value="visa">Visa Assistance</option>
+                          <option value="insurance">Travel Insurance</option>
+                        </select>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Type of service enquired
+                        </p>
+                      </div>
+                      <div>
+                        <label className={labelClass}>Destination</label>
+                        <input
+                          name="destination"
+                          placeholder="e.g., Kashmir, Manali, Goa, Dubai"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.destination}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Specific destination if known
+                        </p>
+                      </div>
+                    </div>
+                    {/* Preview of greeting */}
+                    {(generalForm.searchQuery || generalForm.category || generalForm.destination) && (
+                      <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <p className="text-sm text-blue-800">
+                          <span className="font-medium">Preview greeting:</span>
+                          <span className="italic ml-2">
+                            "Thank you for your enquiry regarding the {generalForm.destination ? `${generalForm.destination} package` : generalForm.category ? `${generalForm.category} booking` : 'travel enquiry'}."
+                          </span>
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </section>
+
+                {/* Package-specific fields for holiday packages */}
+                {emailType === "holiday_package" && (
+                  <section className={sectionClass}>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
+                      <span className="w-2 h-2 bg-yellow-600 rounded-full mr-3"></span>
+                      Package Details
+                    </h3>
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                      <div>
+                        <label className={labelClass}>Package Name *</label>
+                        <input
+                          name="packageName"
+                          placeholder="e.g., Kashmir 5 Nights Package"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.packageName}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Number of Nights *</label>
+                        <input
+                          name="packageNights"
+                          type="number"
+                          placeholder="e.g., 5"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.packageNights}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Package Price (USD) *</label>
+                        <input
+                          name="packagePrice"
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.packagePrice}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Start Date</label>
+                        <input
+                          type="date"
+                          name="packageStartDate"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.packageStartDate}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>End Date</label>
+                        <input
+                          type="date"
+                          name="packageEndDate"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.packageEndDate}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Number of Persons</label>
+                        <input
+                          name="numberOfPersons"
+                          type="number"
+                          placeholder="e.g., 2"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.numberOfPersons}
+                        />
+                      </div>
+                    </div>
+                  </section>
+                )}
+
+                {/* Hotel-specific fields */}
+                {emailType === "hotel_booking" && (
+                  <section className={sectionClass}>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-5">Hotel Details</h3>
+                    <div className="grid sm:grid-cols-2 gap-5">
+                      <div>
+                        <label className={labelClass}>Hotel Name</label>
+                        <input
+                          name="hotelName"
+                          placeholder="e.g., Taj Palace"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.hotelName}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Room Type</label>
+                        <input
+                          name="roomType"
+                          placeholder="e.g., Deluxe Room"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.roomType}
+                        />
+                      </div>
+                    </div>
+                  </section>
+                )}
+
+                {/* Car Rental fields */}
+                {emailType === "car_rental" && (
+                  <section className={sectionClass}>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-5">Car Rental Details</h3>
+                    <div className="grid sm:grid-cols-2 gap-5">
+                      <div>
+                        <label className={labelClass}>Car Type</label>
+                        <input
+                          name="carType"
+                          placeholder="e.g., SUV, Sedan, Hatchback"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.carType}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Rental Days</label>
+                        <input
+                          name="rentalDays"
+                          type="number"
+                          placeholder="e.g., 3"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.rentalDays}
+                        />
+                      </div>
+                    </div>
+                  </section>
+                )}
+
+                {/* Travel Insurance fields */}
+                {emailType === "travel_insurance" && (
+                  <section className={sectionClass}>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-5">Insurance Details</h3>
+                    <div className="grid sm:grid-cols-2 gap-5">
+                      <div>
+                        <label className={labelClass}>Insurance Type</label>
+                        <input
+                          name="insuranceType"
+                          placeholder="e.g., Comprehensive, Medical, Trip Cancellation"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.insuranceType}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Coverage Amount</label>
+                        <input
+                          name="insuranceCoverage"
+                          placeholder="e.g., $50,000"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.insuranceCoverage}
+                        />
+                      </div>
+                    </div>
+                  </section>
+                )}
+
+                {/* Common Booking Info for non-flight-ticket forms */}
+                {emailType !== "customer_support" && emailType !== "holiday_package" && (
+                  <section className={sectionClass}>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
+                      <span className="w-2 h-2 bg-indigo-600 rounded-full mr-3"></span>
+                      Booking Details
+                    </h3>
+                    <div className="grid sm:grid-cols-2 gap-5">
+                      <div>
+                        <label className={labelClass}>Confirmation Number</label>
+                        <input
+                          name="confirmationNumber"
+                          placeholder="e.g. ABC123"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.confirmationNumber}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Airline (if applicable)</label>
+                        <input
+                          name="airline"
+                          placeholder="e.g. Delta Airlines"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.airline}
+                        />
+                      </div>
+                    </div>
+                  </section>
+                )}
+
+                {/* New Reservation (general form - not flight ticket) */}
+                {emailType === "new_reservation" && !isFlightTicketForm && (
+                  <section className={sectionClass}>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-5">Flight Details</h3>
+                    <div className="grid sm:grid-cols-2 gap-5">
+                      <div>
+                        <label className={labelClass}>Departure</label>
+                        <input
+                          name="departure"
+                          placeholder="e.g. New York - JFK"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.departure}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Arrival</label>
+                        <input
+                          name="arrival"
+                          placeholder="e.g. London - LHR"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.arrival}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Travel Date</label>
+                        <input
+                          type="date"
+                          name="travelDate"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.travelDate}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Booking Amount (USD)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          name="bookingAmount"
+                          placeholder="0.00"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.bookingAmount}
+                        />
+                      </div>
+                    </div>
+                  </section>
+                )}
+
+                {/* Exchange Ticket */}
+                {emailType === "exchange_ticket" && (
+                  <section className={sectionClass}>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-5">Date Change Details</h3>
+                    <div className="grid sm:grid-cols-2 gap-5">
+                      <div>
+                        <label className={labelClass}>Original Travel Date</label>
+                        <input
+                          type="date"
+                          name="oldTravelDate"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.oldTravelDate}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>New Travel Date</label>
+                        <input
+                          type="date"
+                          name="newTravelDate"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.newTravelDate}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Change Fee (USD)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          name="changeFee"
+                          placeholder="0.00"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.changeFee}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Fare Difference (USD)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          name="fareDifference"
+                          placeholder="0.00"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.fareDifference}
+                        />
+                      </div>
+                    </div>
+                  </section>
+                )}
+
+                {/* Flight Cancellation */}
+                {emailType === "flight_cancellation" && (
+                  <section className={sectionClass}>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-5">Cancellation Date</h3>
+                    <div className="max-w-md">
+                      <label className={labelClass}>Date of Cancellation</label>
+                      <input
+                        type="date"
+                        name="cancellationDate"
+                        className={inputClass}
+                        onChange={handleChange}
+                        value={generalForm.cancellationDate}
+                      />
+                    </div>
+                  </section>
+                )}
+
+                {/* Refund Request */}
+                {emailType === "refund_request" && (
+                  <section className={sectionClass}>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-5">Refund Information</h3>
+                    <div className="grid sm:grid-cols-2 gap-5 max-w-2xl">
+                      <div>
+                        <label className={labelClass}>Refund Amount (USD) *</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          name="refundAmount"
+                          placeholder="0.00"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.refundAmount}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Cancellation Date (optional)</label>
+                        <input
+                          type="date"
+                          name="cancellationDate"
+                          className={inputClass}
+                          onChange={handleChange}
+                          value={generalForm.cancellationDate}
+                        />
+                      </div>
+                    </div>
+                  </section>
+                )}
+
+                {/* Customer Support */}
+                {emailType === "customer_support" && (
+                  <section className={sectionClass}>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-5">Custom Message</h3>
+                    <textarea
+                      name="customMessage"
+                      rows="6"
+                      placeholder="Write your detailed message here..."
+                      className={`${inputClass} resize-none`}
+                      onChange={handleChange}
+                      value={generalForm.customMessage}
+                    />
+                  </section>
+                )}
+              </>
+            )}
+
+            {/* Messages */}
+            {successMessage && (
+              <div className="p-3 rounded-lg bg-green-100 text-green-700 text-sm font-medium">
+                {successMessage}
+              </div>
+            )}
+
+            {errorMessage && (
+              <div className="p-3 rounded-lg bg-red-100 text-red-700 text-sm font-medium">
+                {errorMessage}
+              </div>
+            )}
+
+            {/* Submit */}
+            <div className="pt-4">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold py-3 rounded-xl shadow-lg disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer transition-all"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center">
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    Sending...
+                  </span>
+                ) : isFlightTicketForm ? (
+                  "Send Flight Ticket"
+                ) : (
+                  "Send Email"
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* Save Template Modal */}
+      {showTemplateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">Save as Template</h3>
+            <p className="text-gray-600 mb-4">
+              Save the current details as a template for future use. Customer-specific information will not be saved.
+            </p>
+            <input
+              type="text"
+              placeholder="Enter template name (e.g., Kashmir 5 Nights Package)"
+              className={`${inputClass} mb-4`}
+              value={newTemplateName}
+              onChange={(e) => setNewTemplateName(e.target.value)}
+            />
+            <div className="flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={() => setShowTemplateModal(false)}
+                className="cursor-pointer px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={saveAsTemplate}
+                disabled={isSavingTemplate || !newTemplateName.trim()}
+                className="cursor-pointer px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-medium disabled:opacity-70 transition-all"
+              >
+                {isSavingTemplate ? "Saving..." : "Save Template"}
+              </button>
+            </div>
           </div>
-        )}
-
-        {errorMessage && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
-            {errorMessage}
-          </div>
-        )}
-
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="
-            w-full py-3 rounded-xl font-semibold text-white
-            bg-blue-600 hover:bg-blue-700
-            transition-all duration-200
-            disabled:opacity-60 disabled:cursor-not-allowed
-            cursor-pointer shadow-md
-          "
-        >
-          {loading ? "Sending Ticket..." : "Send Flight Ticket"}
-        </button>
-      </form>
+        </div>
+      )}
     </div>
   );
 };

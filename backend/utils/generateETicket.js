@@ -542,8 +542,8 @@
 
 
 
+//=====23 jan============
 
-//===========
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
@@ -913,7 +913,7 @@ const renderPaymentSummary = (doc, data) => {
   const issuedDate = formatDate();
   doc.fillColor('#6B7280')
      .fontSize(8)
-     .text(`Charged to card ending in 2180 • ${issuedDate}`, 
+     .text(`Charged to card ending in xxxx • ${issuedDate}`, 
            LAYOUT.MARGIN + 10, 
            boxY + 105);
   
@@ -953,7 +953,11 @@ const renderFooter = (doc) => {
     .fontSize(7)
     .text(
       'This document is valid for travel and must be presented with government-issued photo ID.\n' +
-      'FareBuzzer Travel • support@farebuzzer.com • +1-800-123-4567 • www.farebuzzer.com',
+      'FareBuzzer Travel • enquiry@farebuzzertravel.com • 844 784 3676 • www.farebuzzertravel.com',
+
+
+      // 'FareBuzzer Travel • support@farebuzzer.com • +1-800-123-4567 • www.farebuzzer.com',
+
       LAYOUT.MARGIN,
       footerY,
       {

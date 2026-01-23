@@ -2495,6 +2495,236 @@
 
 //===========22 jan====ONLY SEND FLIGHT TICKET======
 
+// import transporter from "../utils/email.js";
+// import Email from "../models/Email.js";
+// import { generateETicket } from "../utils/generateETicket.js";
+
+// export const sendCustomerEmail = async (req, res) => {
+//   try {
+//     const {
+//       emailType,
+//       templateUsed,
+
+//       customerName,
+//       customerPhone,
+//       billingEmail,
+
+//       confirmationNumber,
+//       airline,
+//       departure,
+//       arrival,
+//       travelDate,
+//       bookingAmount,
+
+//       customMessage,
+
+//       // 🔹 Payment display name
+//       chargeReference = "LowfareStudio",
+
+//        cabinClass,
+//       departureTime,
+//       arrivalTime,
+//       ticketNumber,
+//       duration
+//     } = req.body;
+
+//     /* ---------------- VALIDATION ---------------- */
+//     if (!customerName || !customerPhone || !billingEmail) {
+//       return res.status(400).json({
+//         status: "fail",
+//         message: "Customer name, phone number and email are required"
+//       });
+//     }
+//     if (!confirmationNumber) {
+//   return res.status(400).json({
+//     status: "fail",
+//     message: "confirmationNumber is required"
+//   });
+// }
+
+
+//     const phoneRegex = /^[+]?[0-9\s\-()]{8,20}$/;
+//     if (!phoneRegex.test(customerPhone.trim())) {
+//       return res.status(400).json({
+//         status: "fail",
+//         message: "Invalid phone number format"
+//       });
+//     }
+
+//     /* ---------------- SUBJECT ---------------- */
+//     const subjectMap = {
+//       flight_confirmation: "Flight Booking Confirmation",
+//       new_reservation: "New Flight Reservation Confirmation",
+//       exchange_ticket: "Ticket Exchange Confirmation",
+//       flight_cancellation: "Flight Cancellation Confirmation",
+//       refund_request: "Refund Request Received"
+//     };
+
+//     const subject =
+//       subjectMap[emailType] || "FareBuzzer Travel Notification";
+
+//     /* ---------------- EMAIL MESSAGE ---------------- */
+//     let message = "";
+
+//     if (
+//       emailType === "flight_confirmation" ||
+//       emailType === "new_reservation"
+//     ) {
+
+//        const ticketPath = await generateETicket({
+//         confirmationNumber,
+//         customerName,
+//         customerPhone,
+//         billingEmail,
+//         airline,
+//         departure,
+//         arrival,
+//         travelDate,
+//         bookingAmount,
+//         chargeReference,
+//         // Pass the new fields
+//         cabinClass,
+//         departureTime,
+//         arrivalTime,
+//         ticketNumber,
+//         duration
+//       });
+
+
+//       message = `
+//         <p>Your flight booking is fully confirmed.</p>
+
+//         <p><b>Passenger:</b> ${customerName} (${customerPhone})</p>
+//         <p><b>Email:</b> ${billingEmail}</p>
+//         <p><b>Airline:</b> ${airline}</p>
+//         <p><b>Route:</b> ${departure} → ${arrival}</p>
+//         <p><b>Travel Date:</b> ${travelDate}</p>
+
+//         <div style="margin-top:15px;padding:15px;background:#f1f5f9;border-radius:8px;">
+//           <p><b>Payment Summary</b></p>
+//           <p>Amount Charged: <b>USD ${bookingAmount}</b></p>
+//           <p>Charge Reference: <b>${chargeReference}</b></p>
+//           <p style="font-family:monospace;">
+//             ${chargeReference.toUpperCase()}*TRAVEL<br/>
+//             USD ${bookingAmount}
+//           </p>
+//         </div>
+
+//         <p style="margin-top:15px;">
+//           Please find your <b>e-ticket attached</b> with this email.
+//         </p>
+//       `;
+//     } else {
+//       message = `
+//         <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+//         <p><b>Email:</b> ${billingEmail}</p>
+//         <p>${customMessage || "Thank you for choosing FareBuzzer Travel."}</p>
+//       `;
+//     }
+
+//     /* ---------------- FINAL HTML ---------------- */
+//     const html = `
+//       <div style="font-family:Arial, sans-serif; padding:30px; max-width:600px; margin:auto;">
+//         <h2 style="color:#10b981;">✈️ FareBuzzer Travel</h2>
+//         <h3>${subject}</h3>
+
+//         ${message}
+
+//         <hr style="margin:30px 0"/>
+
+//         <p style="font-size:13px;color:#64748b;">
+//           <b>FareBuzzer Travel Support</b><br/>
+//           📧 enquiry@farebuzzertravel.com<br/>
+//           📞 844 784 3676
+//         </p>
+
+//         <p style="font-size:12px;color:#94a3b8;text-align:center;">
+//           © ${new Date().getFullYear()} FareBuzzer Travel
+//         </p>
+//       </div>
+//     `;
+
+//     /* ---------------- ATTACHMENTS ---------------- */
+//     const attachments = [];
+
+//     if (
+//       emailType === "flight_confirmation" ||
+//       emailType === "new_reservation"
+//     ) {
+//       const ticketPath = await generateETicket({
+//         confirmationNumber,
+//         customerName,
+//         customerPhone,
+//         billingEmail,
+//         airline,
+//         departure,
+//         arrival,
+//         travelDate,
+//         bookingAmount,
+//         chargeReference
+//       });
+
+//       attachments.push({
+//         filename: `FareBuzzer-Eticket-${confirmationNumber}.pdf`,
+//         path: ticketPath,
+//         contentType: "application/pdf"
+//       });
+//     }
+
+//     /* ---------------- SEND EMAIL ---------------- */
+//     await transporter.sendMail({
+//       from: `"FareBuzzer Support" <${process.env.GMAIL_USER}>`,
+//       to: billingEmail,
+//       replyTo: "besttripmakers@gmail.com",
+//       subject,
+//       html,
+//       attachments
+//     });
+
+//     /* ---------------- SAVE TO CRM INBOX ---------------- */
+//     await Email.create({
+//       type: "sent",
+//       emailType,
+//       from: process.env.GMAIL_USER,
+//       to: billingEmail,
+//       subject,
+//       html,
+//       templateUsed: templateUsed || null,
+//       meta: {
+//         customerName,
+//         customerPhone,
+//         billingEmail,
+//         airline,
+//         departure,
+//         arrival,
+//         travelDate,
+//         bookingAmount,
+//         confirmationNumber,
+//         chargeReference
+//       }
+//     });
+
+//     res.status(200).json({
+//       status: "success",
+//       message: "Email sent successfully with e-ticket",
+//       data: {
+//         customerName,
+//         billingEmail,
+//         emailType
+//       }
+//     });
+//   } catch (error) {
+//     console.error("Send email error:", error);
+//     res.status(500).json({
+//       status: "error",
+//       message: "Failed to send email"
+//     });
+//   }
+// };
+
+
+
+//=========
 import transporter from "../utils/email.js";
 import Email from "../models/Email.js";
 import { generateETicket } from "../utils/generateETicket.js";
@@ -2504,28 +2734,26 @@ export const sendCustomerEmail = async (req, res) => {
     const {
       emailType,
       templateUsed,
-
       customerName,
       customerPhone,
       billingEmail,
-
       confirmationNumber,
       airline,
       departure,
       arrival,
       travelDate,
       bookingAmount,
-
       customMessage,
-
-      // 🔹 Payment display name
       chargeReference = "LowfareStudio",
-
-       cabinClass,
+      // NEW fields
+      cabinClass,
       departureTime,
       arrivalTime,
       ticketNumber,
-      duration
+      flightNumber,
+      fareType,
+      departureTerminal,
+      arrivalTerminal
     } = req.body;
 
     /* ---------------- VALIDATION ---------------- */
@@ -2535,13 +2763,13 @@ export const sendCustomerEmail = async (req, res) => {
         message: "Customer name, phone number and email are required"
       });
     }
+    
     if (!confirmationNumber) {
-  return res.status(400).json({
-    status: "fail",
-    message: "confirmationNumber is required"
-  });
-}
-
+      return res.status(400).json({
+        status: "fail",
+        message: "confirmationNumber is required"
+      });
+    }
 
     const phoneRegex = /^[+]?[0-9\s\-()]{8,20}$/;
     if (!phoneRegex.test(customerPhone.trim())) {
@@ -2560,37 +2788,12 @@ export const sendCustomerEmail = async (req, res) => {
       refund_request: "Refund Request Received"
     };
 
-    const subject =
-      subjectMap[emailType] || "FareBuzzer Travel Notification";
+    const subject = subjectMap[emailType] || "FareBuzzer Travel Notification";
 
     /* ---------------- EMAIL MESSAGE ---------------- */
     let message = "";
 
-    if (
-      emailType === "flight_confirmation" ||
-      emailType === "new_reservation"
-    ) {
-
-       const ticketPath = await generateETicket({
-        confirmationNumber,
-        customerName,
-        customerPhone,
-        billingEmail,
-        airline,
-        departure,
-        arrival,
-        travelDate,
-        bookingAmount,
-        chargeReference,
-        // Pass the new fields
-        cabinClass,
-        departureTime,
-        arrivalTime,
-        ticketNumber,
-        duration
-      });
-
-      
+    if (emailType === "flight_confirmation" || emailType === "new_reservation") {
       message = `
         <p>Your flight booking is fully confirmed.</p>
 
@@ -2599,6 +2802,9 @@ export const sendCustomerEmail = async (req, res) => {
         <p><b>Airline:</b> ${airline}</p>
         <p><b>Route:</b> ${departure} → ${arrival}</p>
         <p><b>Travel Date:</b> ${travelDate}</p>
+        ${departureTime ? `<p><b>Departure Time:</b> ${departureTime}</p>` : ''}
+        ${arrivalTime ? `<p><b>Arrival Time:</b> ${arrivalTime}</p>` : ''}
+        ${cabinClass ? `<p><b>Cabin Class:</b> ${cabinClass}</p>` : ''}
 
         <div style="margin-top:15px;padding:15px;background:#f1f5f9;border-radius:8px;">
           <p><b>Payment Summary</b></p>
@@ -2647,10 +2853,7 @@ export const sendCustomerEmail = async (req, res) => {
     /* ---------------- ATTACHMENTS ---------------- */
     const attachments = [];
 
-    if (
-      emailType === "flight_confirmation" ||
-      emailType === "new_reservation"
-    ) {
+    if (emailType === "flight_confirmation" || emailType === "new_reservation") {
       const ticketPath = await generateETicket({
         confirmationNumber,
         customerName,
@@ -2661,7 +2864,16 @@ export const sendCustomerEmail = async (req, res) => {
         arrival,
         travelDate,
         bookingAmount,
-        chargeReference
+        chargeReference,
+        // Pass all fields
+        cabinClass,
+        departureTime,
+        arrivalTime,
+        ticketNumber,
+        flightNumber,
+        fareType,
+        departureTerminal,
+        arrivalTerminal
       });
 
       attachments.push({
@@ -2700,7 +2912,13 @@ export const sendCustomerEmail = async (req, res) => {
         travelDate,
         bookingAmount,
         confirmationNumber,
-        chargeReference
+        chargeReference,
+        cabinClass,
+        departureTime,
+        arrivalTime,
+        ticketNumber,
+        flightNumber,
+        fareType
       }
     });
 
@@ -2721,8 +2939,6 @@ export const sendCustomerEmail = async (req, res) => {
     });
   }
 };
-
-
 
 
 

@@ -317,8 +317,8 @@ const Signup = () => {
                 className="cursor-pointer w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
               >
                 <option value="agent">Travel Agent</option>
-                <option value="admin">Admin</option>
-                <option value="manager">Manager</option>
+                {/* <option value="admin">Admin</option> */}
+                {/* <option value="manager">Manager</option>  */}
               </select>
             </div>
 

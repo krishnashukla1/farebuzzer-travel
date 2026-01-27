@@ -34,8 +34,8 @@ export default function InboxEmail() {
         api.get("/email/inbox/sent"),
 
 
-      //       api.get("/email/inbox/live?limit=100"), // Add limit
-      // api.get("/email/inbox/sent?limit=100"),
+        //       api.get("/email/inbox/live?limit=100"), // Add limit
+        // api.get("/email/inbox/sent?limit=100"),
       ]);
 
       const inboxEmails = inboxRes.data.data.map(email => ({
@@ -130,23 +130,132 @@ export default function InboxEmail() {
     }
   };
 
-  const getEmailDisplayInfo = (email) => {
-    if (email.source === 'crm') {
-      return {
-        from: email.from || email.sender || 'CRM System',
-        fromEmail: email.fromEmail || email.from || email.sender || 'CRM System',
-        subject: email.subject || 'No Subject',
-        body: email.html || email.text || email.body || 'No content',
-      };
+  // const getEmailDisplayInfo = (email) => {
+  //   if (email.source === 'crm') {
+  //     return {
+  //       from: email.from || email.sender || 'CRM System',
+  //       fromEmail: email.fromEmail || email.from || email.sender || 'CRM System',
+  //       subject: email.subject || 'No Subject',
+  //       body: email.html || email.text || email.body || 'No content',
+  //     };
+  //   }
+
+  //   return {
+  //     from: email.from || 'Unknown',
+  //     fromEmail: email.fromEmail || email.from || 'Unknown',
+  //     subject: email.subject || 'No Subject',
+  //     body: email.html || email.text || 'No content',
+  //   };
+  // };
+
+
+
+const getEmailDisplayInfo = (email) => {
+  console.log("Email data:", email); // Debug log
+  
+  if (email.source === 'crm') {
+    // Generate content from meta data if no html/text exists
+    let bodyContent;
+    
+    if (email.html || email.text || email.body || email.content || email.message) {
+      bodyContent = email.html || email.text || email.body || email.content || email.message;
+    } else if (email.meta) {
+      // Generate a readable summary from meta data
+      bodyContent = generateContentFromMeta(email.meta, email.emailType);
+    } else {
+      bodyContent = 'No content';
     }
     
     return {
-      from: email.from || 'Unknown',
-      fromEmail: email.fromEmail || email.from || 'Unknown',
+      from: email.from || email.sender || 'CRM System',
+      fromEmail: email.fromEmail || email.from || email.sender || 'CRM System',
       subject: email.subject || 'No Subject',
-      body: email.html || email.text || 'No content',
+      body: bodyContent,
     };
+  }
+  
+  return {
+    from: email.from || 'Unknown',
+    fromEmail: email.fromEmail || email.from || 'Unknown',
+    subject: email.subject || 'No Subject',
+    body: email.html || email.text || 'No content',
   };
+};
+
+// Helper function to generate content from meta
+const generateContentFromMeta = (meta, emailType) => {
+  let content = '';
+  
+  switch(emailType) {
+    case 'flight_cancellation':
+      content = `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Flight Cancellation Details</h2>
+          <p><strong>Customer:</strong> ${meta.customerName || 'N/A'}</p>
+          <p><strong>Booking Reference:</strong> ${meta.confirmationNumber || 'N/A'}</p>
+          <p><strong>Airline:</strong> ${meta.airline || 'N/A'}</p>
+          <p><strong>Cancellation Date:</strong> ${meta.cancellationDate || 'N/A'}</p>
+          ${meta.refundAmount ? `<p><strong>Refund Amount:</strong> $${meta.refundAmount}</p>` : ''}
+          ${meta.customMessage ? `<p><strong>Notes:</strong> ${meta.customMessage}</p>` : ''}
+        </div>
+      `;
+      break;
+      
+    case 'new_reservation':
+    case 'flight_confirmation':
+      content = `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Flight Booking Details</h2>
+          <p><strong>Customer:</strong> ${meta.customerName || 'N/A'}</p>
+          <p><strong>Booking Reference:</strong> ${meta.confirmationNumber || 'N/A'}</p>
+          <p><strong>Airline:</strong> ${meta.airline || 'N/A'}</p>
+          <p><strong>Flight:</strong> ${meta.departure || 'N/A'} to ${meta.arrival || 'N/A'}</p>
+          <p><strong>Date:</strong> ${meta.travelDate || 'N/A'}</p>
+          <p><strong>Flight Number:</strong> ${meta.flightNumber || 'N/A'}</p>
+          ${meta.bookingAmount ? `<p><strong>Amount:</strong> $${meta.bookingAmount}</p>` : ''}
+        </div>
+      `;
+      break;
+      
+    case 'holiday_package':
+      content = `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Holiday Package Details</h2>
+          <p><strong>Customer:</strong> ${meta.customerName || 'N/A'}</p>
+          <p><strong>Package:</strong> ${meta.packageName || 'N/A'}</p>
+          <p><strong>Duration:</strong> ${meta.packageNights || 'N/A'} nights</p>
+          ${meta.packagePrice ? `<p><strong>Price:</strong> $${meta.packagePrice}</p>` : ''}
+          ${meta.hotelName ? `<p><strong>Hotel:</strong> ${meta.hotelName}</p>` : ''}
+        </div>
+      `;
+      break;
+      
+    default:
+      // Generic template for other email types
+      content = `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Email Details</h2>
+          <p><strong>Type:</strong> ${emailType.replace(/_/g, ' ')}</p>
+          <p><strong>Customer:</strong> ${meta.customerName || 'N/A'}</p>
+          ${meta.confirmationNumber ? `<p><strong>Reference:</strong> ${meta.confirmationNumber}</p>` : ''}
+          ${Object.entries(meta)
+            .filter(([key, value]) => !['customerName', 'confirmationNumber'].includes(key) && value)
+            .map(([key, value]) => `<p><strong>${formatKey(key)}:</strong> ${value}</p>`)
+            .join('')}
+        </div>
+      `;
+  }
+  
+  return content;
+};
+
+const formatKey = (key) => {
+  return key
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, str => str.toUpperCase())
+    .replace(/_/g, ' ');
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
@@ -177,11 +286,10 @@ export default function InboxEmail() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors cursor-pointer ${
-                    activeTab === tab
+                  className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors cursor-pointer ${activeTab === tab
                       ? "bg-indigo-600 text-white"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
+                    }`}
                 >
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
                   {tab === "unread" && emails.filter(e => !e.isRead).length > 0 && (
@@ -257,9 +365,8 @@ export default function InboxEmail() {
                   <div
                     key={email.id || email._id}
                     onClick={() => handleEmailClick(email)}
-                    className={`cursor-pointer border-b hover:bg-gray-50 transition-colors ${
-                      !email.isRead ? "bg-blue-50" : ""
-                    }`}
+                    className={`cursor-pointer border-b hover:bg-gray-50 transition-colors ${!email.isRead ? "bg-blue-50" : ""
+                      }`}
                   >
                     <div className="px-4 py-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -273,11 +380,10 @@ export default function InboxEmail() {
                             <p className="font-semibold text-gray-900 truncate">
                               {emailInfo.from}
                             </p>
-                            <span className={`text-xs px-2 py-1 rounded-full ${
-                              email.source === 'crm' 
-                                ? 'bg-green-100 text-green-800' 
+                            <span className={`text-xs px-2 py-1 rounded-full ${email.source === 'crm'
+                                ? 'bg-green-100 text-green-800'
                                 : 'bg-blue-100 text-blue-800'
-                            }`}>
+                              }`}>
                               {email.source === 'crm' ? 'Sent' : 'Inbox'}
                             </span>
                           </div>
@@ -312,7 +418,7 @@ export default function InboxEmail() {
                   >
                     <ChevronLeft size={20} />
                   </button>
-                  
+
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                     let pageNum;
                     if (totalPages <= 5) {
@@ -329,17 +435,16 @@ export default function InboxEmail() {
                       <button
                         key={pageNum}
                         onClick={() => paginate(pageNum)}
-                        className={`w-10 h-10 rounded-lg ${
-                          currentPage === pageNum
+                        className={`w-10 h-10 rounded-lg ${currentPage === pageNum
                             ? "bg-indigo-600 text-white cursor-pointer"
                             : "hover:bg-gray-100 cursor-pointer"
-                        }`}
+                          }`}
                       >
                         {pageNum}
                       </button>
                     );
                   })}
-                  
+
                   <button
                     onClick={() => paginate(currentPage + 1)}
                     disabled={currentPage === totalPages}
@@ -377,7 +482,7 @@ export default function InboxEmail() {
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="p-4 bg-gray-50 border-b">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div>
@@ -392,17 +497,16 @@ export default function InboxEmail() {
                 </div>
                 <div>
                   <p className="text-gray-600">Source:</p>
-                  <span className={`px-2 py-1 rounded-full text-xs ${
-                    selectedEmail.source === 'crm' 
-                      ? 'bg-green-100 text-green-800' 
+                  <span className={`px-2 py-1 rounded-full text-xs ${selectedEmail.source === 'crm'
+                      ? 'bg-green-100 text-green-800'
                       : 'bg-blue-100 text-blue-800'
-                  }`}>
+                    }`}>
                     {selectedEmail.source === 'crm' ? 'Sent from CRM' : 'Received in Gmail'}
                   </span>
                 </div>
               </div>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto p-6">
               <div
                 className="prose max-w-none break-words"

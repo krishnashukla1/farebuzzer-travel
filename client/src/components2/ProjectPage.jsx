@@ -353,7 +353,9 @@ export default function ProjectPage() {
 
   // Rate status badge
   const RateBadge = () => {
-    if (ratesLoading) return <span className="bg-yellow-500 text-white text-xs px-3 py-1 rounded-full">Loading rates...</span>;
+    // if (ratesLoading) return <span className="bg-yellow-500 text-white text-xs px-3 py-1 rounded-full">Loading rates...</span>;
+    if (ratesLoading) return <span className="bg-green-500 text-white text-xs px-3 py-1 rounded-full flex items-center gap-1">Live Rates</span>;
+
     if (ratesError) return <span className="bg-red-500 text-white text-xs px-3 py-1 rounded-full">Fallback rates</span>;
     return <span className="bg-green-500 text-white text-xs px-3 py-1 rounded-full flex items-center gap-1">Live Rates</span>;
   };

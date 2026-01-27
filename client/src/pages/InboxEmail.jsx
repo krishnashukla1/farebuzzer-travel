@@ -249,6 +249,102 @@ const generateContentFromMeta = (meta, emailType) => {
   return content;
 };
 
+
+// const generateContentFromMeta = (meta, emailType) => {
+//   let content = '';
+  
+//   // Common fields for all email types
+//   const customerInfo = `<strong>Customer:</strong> ${meta.customerName || 'N/A'}`;
+//   const bookingRef = meta.confirmationNumber ? ` | <strong>Booking:</strong> ${meta.confirmationNumber}` : '';
+  
+//   switch(emailType) {
+//     case 'flight_cancellation':
+//       content = `
+//         <div style="font-family: Arial, sans-serif; padding: 10px; font-size: 14px;">
+//           <p>${customerInfo}${bookingRef}</p>
+//           <p><strong>Airline:</strong> ${meta.airline || 'N/A'} | 
+//           <strong>Cancelled:</strong> ${meta.cancellationDate || 'N/A'}</p>
+//           ${meta.refundAmount ? `<p><strong>Refund:</strong> $${meta.refundAmount}</p>` : ''}
+//         </div>
+//       `;
+//       break;
+      
+//     case 'new_reservation':
+//     case 'flight_confirmation':
+//       // For flight bookings, include flight number if available
+//       const flightNumber = meta.flightNumber ? ` | <strong>Flight:</strong> ${meta.flightNumber}` : '';
+//       const flightRoute = meta.departure && meta.arrival ? 
+//         `<strong>Route:</strong> ${meta.departure} → ${meta.arrival}` : '';
+//       const travelDate = meta.travelDate ? ` | <strong>Date:</strong> ${meta.travelDate}` : '';
+//       const amount = meta.bookingAmount ? `<p><strong>Amount:</strong> $${meta.bookingAmount}</p>` : '';
+      
+//       content = `
+//         <div style="font-family: Arial, sans-serif; padding: 10px; font-size: 14px;">
+//           <p>${customerInfo}${bookingRef}</p>
+//           <p>${flightRoute}${travelDate}${flightNumber}</p>
+//           ${amount}
+//         </div>
+//       `;
+//       break;
+      
+//     case 'holiday_package':
+//       const packageInfo = meta.packageName ? `<p><strong>Package:</strong> ${meta.packageName} (${meta.packageNights || '0'} nights)</p>` : '';
+//       const hotelInfo = meta.hotelName ? `<p><strong>Hotel:</strong> ${meta.hotelName}${meta.roomType ? ` - ${meta.roomType}` : ''}</p>` : '';
+//       const packagePrice = meta.packagePrice ? `<p><strong>Price:</strong> $${meta.packagePrice}</p>` : '';
+      
+//       content = `
+//         <div style="font-family: Arial, sans-serif; padding: 10px; font-size: 14px;">
+//           <p>${customerInfo}${bookingRef}</p>
+//           ${packageInfo}
+//           ${hotelInfo}
+//           ${packagePrice}
+//         </div>
+//       `;
+//       break;
+      
+//     case 'hotel_booking':
+//       const hotelDetails = meta.hotelName ? `<p><strong>Hotel:</strong> ${meta.hotelName}${meta.roomType ? ` (${meta.roomType})` : ''}</p>` : '';
+      
+//       content = `
+//         <div style="font-family: Arial, sans-serif; padding: 10px; font-size: 14px;">
+//           <p>${customerInfo}${bookingRef}</p>
+//           ${hotelDetails}
+//         </div>
+//       `;
+//       break;
+      
+//     case 'car_rental':
+//       const carDetails = meta.carType ? `<p><strong>Car:</strong> ${meta.carType}${meta.rentalDays ? ` (${meta.rentalDays} days)` : ''}</p>` : '';
+      
+//       content = `
+//         <div style="font-family: Arial, sans-serif; padding: 10px; font-size: 14px;">
+//           <p>${customerInfo}${bookingRef}</p>
+//           ${carDetails}
+//         </div>
+//       `;
+//       break;
+      
+//     default:
+//       // For other email types, show key information
+//       const otherDetails = [];
+      
+//       if (meta.airline) otherDetails.push(`<strong>Airline:</strong> ${meta.airline}`);
+//       if (meta.departure && meta.arrival) otherDetails.push(`<strong>Route:</strong> ${meta.departure} → ${meta.arrival}`);
+//       if (meta.travelDate) otherDetails.push(`<strong>Date:</strong> ${meta.travelDate}`);
+//       if (meta.bookingAmount) otherDetails.push(`<strong>Amount:</strong> $${meta.bookingAmount}`);
+      
+//       content = `
+//         <div style="font-family: Arial, sans-serif; padding: 10px; font-size: 14px;">
+//           <p>${customerInfo}${bookingRef}</p>
+//           ${otherDetails.length > 0 ? `<p>${otherDetails.join(' | ')}</p>` : ''}
+//         </div>
+//       `;
+//   }
+  
+//   return content;
+// };
+
+
 const formatKey = (key) => {
   return key
     .replace(/([A-Z])/g, ' $1')

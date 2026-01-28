@@ -615,3 +615,63 @@ export const flightStatus = async (req, res) => {
     });
   }
 };
+
+
+//=================================================
+
+// 🔥 Flight search controller (mock KAYAK + dynamic)
+export const flightPrice = async (req, res) => {
+  const { from, to, date } = req.query;
+
+  if (!from || !to || !date) {
+    return res.status(400).json({
+      success: false,
+      message: "from, to and date are required",
+    });
+  }
+
+  // Mock dynamic price logic
+  const basePrice = 200;
+  const randomExtra = Math.floor(Math.random() * 100);
+
+  return res.status(200).json({
+    success: true,
+    provider: "KAYAK (mock)",
+    search: {
+      from,
+      to,
+      date,
+    },
+    result: {
+      airline: "Emirates",
+      flightNumber: "EK-202",
+      duration: "3h 45m",
+      price: basePrice + randomExtra,
+      currency: "USD",
+      cabinClass: "Economy",
+    },
+  });
+};
+
+// 🔥 (Optional) Real KAYAK API function (kept for future)
+export const searchFlightsFromKayak = async () => {
+  try {
+    const response = await axios.get(
+      "https://sandbox.api.kayak.com/your-endpoint",
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.KAYAK_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("KAYAK API Error:", error.message);
+    return null;
+  }
+};
+
+
+

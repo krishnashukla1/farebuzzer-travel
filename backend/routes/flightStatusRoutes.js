@@ -1,9 +1,13 @@
 import express from "express";
-import { flightStatus } from "../controllers/flightStatusController.js";
+import { flightStatus ,flightPrice} from "../controllers/flightStatusController.js";
 
 const router = express.Router();
 
 router.get("/flight-status", flightStatus);
+
+router.get("/flight-price", flightPrice);
+
+
 
 export default router;
 

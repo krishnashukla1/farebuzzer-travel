@@ -849,7 +849,10 @@ const renderImportantInfo = (doc, data) => {
      .font('Helvetica')
      .list([
        `Check-in opens 24 hours before departure at ${data.airline}.com or via mobile app`,
-       `Baggage allowance: 1 carry-on (max 7kg) + 1 personal item`,
+      //  `Baggage allowance: 1 carry-on (max 7kg) + 1 personal item`,
+  
+`Cabin Baggage (Carry-on): Up to 7 kg (1 bag) + 1 personal item`,
+` Checked Baggage: As per fare (0 kg / 15 kg / 1 piece / 2 pieces)`,
        `Boarding begins 2 hours before departure`,
        `Government-issued photo ID required for all passengers`,
        `Electronic ticket - No physical ticket required`,

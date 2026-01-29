@@ -2966,15 +2966,31 @@ export const sendCustomerEmail = async (req, res) => {
     }
 
     // PART 5: CHARGE REFERENCE NOTE (FOR ALL EMAIL TYPES)
-    let chargeNoteSection = "";
-    if (includeChargeNote !== false) {
-      chargeNoteSection = `
-        <hr style="margin:20px 0; border-top:1px dashed #ccc;">
-        <p><b>NOTE:</b></p>
-        <p>Please note that you might see the charges under <strong>American Airline / Airline Desk / Lowfarestudio</strong> on your billing statement.</p>
-        <p>Your Debit/Credit card may have one or multiple charges but the total quoted price will stay the same.</p>
-      `;
-    }
+    // let chargeNoteSection = "";
+    // if (includeChargeNote !== false) {
+    //   chargeNoteSection = `
+    //     <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+    //     <p><b>NOTE:</b></p>
+    //     <p>Please note that you might see the charges under <strong>American Airline / Airline Desk / Lowfarestudio</strong> on your billing statement.</p>
+    //     <p>Your Debit/Credit card may have one or multiple charges but the total quoted price will stay the same.</p>
+    //   `;
+    // }
+
+
+    // PART 5: CHARGE REFERENCE NOTE (FOR ALL EMAIL TYPES)
+let chargeNoteSection = "";
+if (includeChargeNote !== false) {
+  // Get the charge reference from the request data
+  // Make sure chargeReference is passed from frontend
+  const chargeReference = req.body.chargeReference || "Lowfarestudio";
+  
+  chargeNoteSection = `
+    <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+    <p><b>NOTE:</b></p>
+    <p>Please note that you might see the charges under <strong>${chargeReference}</strong> on your billing statement.</p>
+    <p>Your Debit/Credit card may have one or multiple charges but the total quoted price will stay the same.</p>
+  `;
+}
 
     // PART 6: FARE RULES (Only for flight-related emails)
     let fareRulesSection = "";

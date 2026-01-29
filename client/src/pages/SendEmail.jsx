@@ -5580,12 +5580,20 @@ END OF ITINERARY`;
         requestData = {
           emailType,
           ...flightForm,
-          chargeReference:
-            senderBrand === "lowfare_studio"
-              ? "LowfareStudio"
-              : senderBrand === "american_airlines"
-                ? "American Airlines"
-                : "Airline Desk",
+          // chargeReference:
+          //   senderBrand === "lowfare_studio"
+          //     ? "LowfareStudio"
+          //     : senderBrand === "american_airlines"
+          //       ? "American Airlines"
+          //       : "Airline Desk",
+
+  chargeReference: 
+    senderBrand === "lowfare_studio" ? "LowfareStudio" :
+    senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk",
+
+
+
+
           templateUsed: null, // No templates for flight tickets
           // Include update fields for flight ticket forms
           updateType: flightForm.updateType || "confirmed",
@@ -5608,12 +5616,19 @@ END OF ITINERARY`;
           ...generalForm,
           templateUsed: selectedTemplate || null,
           // Include sender brand for all email types
-          chargeReference:
-            senderBrand === "lowfare_studio"
-              ? "LowfareStudio"
-              : senderBrand === "american_airlines"
-                ? "American Airlines"
-                : "Airline Desk"
+          // chargeReference:
+          //   senderBrand === "lowfare_studio"
+          //     ? "LowfareStudio"
+          //     : senderBrand === "american_airlines"
+          //       ? "American Airlines"
+          //       : "Airline Desk"
+
+
+  chargeReference: 
+    senderBrand === "lowfare_studio" ? "LowfareStudio" :
+    senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk"
+
+
         };
       }
 
@@ -6285,7 +6300,7 @@ TOTAL USD 600.00"
                 </div>
 
                 {/* Part 4: Charge Reference Note */}
-                <div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                {/* <div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                   <label className={labelClass}>Billing Statement Note</label>
                   <p className="text-sm text-gray-700">
                     Please note that you might see the charges under <strong>American Airline / Airline Desk / Lowfarestudio</strong> on your billing statement.
@@ -6306,7 +6321,42 @@ TOTAL USD 600.00"
                       Include billing statement note in email
                     </label>
                   </div>
-                </div>
+                </div> */}
+
+
+{/* Part 4: Charge Reference Note */}
+<div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+  <label className={labelClass}>Billing Statement Note</label>
+  <p className="text-sm text-gray-700">
+    Please note that you might see the charges under{" "}
+    <strong>
+      {senderBrand === "lowfare_studio" 
+        ? "LowfareStudio" 
+        : senderBrand === "american_airlines" 
+        ? "American Airlines" 
+        : "Airline Desk"
+      }
+    </strong>{" "}
+    on your billing statement.
+  </p>
+  <p className="text-sm text-gray-700 mt-1">
+    Your Debit/Credit card may have one or multiple charges but the total quoted price will stay the same.
+  </p>
+  <div className="mt-2 flex items-center">
+    <input
+      type="checkbox"
+      id="includeChargeNote"
+      name="includeChargeNote"
+      checked={currentForm.includeChargeNote !== false}
+      onChange={handleChange}
+      className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+    />
+    <label htmlFor="includeChargeNote" className="ml-2 text-sm text-gray-700">
+      Include billing statement note in email
+    </label>
+  </div>
+</div>
+
 
                 {/* Part 5: Fare Rules (for flight only) */}
                 <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">

@@ -2866,6 +2866,10 @@ export const sendCustomerEmail = async (req, res) => {
             ${confirmationNumber ? `<p><b>Confirmation No:</b> ${confirmationNumber}</p>` : ''}
             ${bookingAmount ? `<p><b>Amount:</b> USD ${bookingAmount}</p>` : ''}
           `;
+             // Add custom message if exists
+    if (customMessage && customMessage.trim() !== '') {
+      customerDetails += `<p><b>Additional Notes:</b> ${customMessage}</p>`;
+    }
         }
         break;
 
@@ -3019,9 +3023,22 @@ if (includeChargeNote !== false) {
       `;
     }
 
+
+    // PART 7: CUSTOM MESSAGE (FOR ALL EMAIL TYPES)
+let customMessageSection = "";
+if (customMessage && customMessage.trim() !== "") {
+  customMessageSection = `
+    <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+    <div style="background:#f8f9fa; padding:15px; border-radius:5px; border-left:4px solid #6c757d;">
+      <p><b>Additional Notes:</b></p>
+      <p style="font-style:italic; color:#495057;">${customMessage}</p>
+    </div>
+  `;
+}
     // Combine all sections
     message = greetingMessage + customerDetails + agreementSection + 
-              paymentInfoSection + chargeNoteSection + fareRulesSection;
+              paymentInfoSection + chargeNoteSection + fareRulesSection+
+                customMessageSection; 
 
     // Generate and attach PDF ticket for new_reservation and flight_confirmation
     if (emailType === "new_reservation" || emailType === "flight_confirmation") {
@@ -3167,6 +3184,7 @@ if (includeChargeNote !== false) {
         fareType,
         departureTerminal,
         arrivalTerminal,
+         customMessage, 
         // NEW FIELDS FOR ALL EMAILS
         updateType: finalUpdateType,
         includeAgreement,

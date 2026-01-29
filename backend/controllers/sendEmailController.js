@@ -3024,7 +3024,7 @@ if (includeChargeNote !== false) {
     }
 
 
-    // PART 7: CUSTOM MESSAGE (FOR ALL EMAIL TYPES)
+    // PART 7: CUSTOM MESSAGE (FOR ALL EMAIL TYPES)   FOR GRAY COLR BORDER IN MAIL
 let customMessageSection = "";
 if (customMessage && customMessage.trim() !== "") {
   customMessageSection = `

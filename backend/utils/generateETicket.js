@@ -913,12 +913,25 @@ const renderPaymentSummary = (doc, data) => {
      .text(`USD $${Number(data.bookingAmount).toFixed(2)}`, LAYOUT.MARGIN + 360, boxY + 85);
   
   // Payment details
-  const issuedDate = formatDate();
-  doc.fillColor('#6B7280')
-     .fontSize(8)
-     .text(`Charged to card ending in xxxx • ${issuedDate}`, 
-           LAYOUT.MARGIN + 10, 
-           boxY + 105);
+  // const issuedDate = formatDate();
+  
+  // doc.fillColor('#6B7280')
+  //    .fontSize(8)
+  //    .text(`Charged to card ending in xxxx • ${issuedDate}`, 
+  //          LAYOUT.MARGIN + 10, 
+  //          boxY + 105);
+
+
+  // Payment details
+const issuedDate = formatDate();
+// Get cardLastFour from the data, or show "xxxx" if not provided
+const cardLastFour = data.cardLastFour || "xxxx";
+
+doc.fillColor('#6B7280')
+   .fontSize(8)
+   .text(`Charged to card ending in ${cardLastFour} • ${issuedDate}`, 
+         LAYOUT.MARGIN + 10, 
+         boxY + 105);
   
   return boxY + boxHeight + LAYOUT.SECTION_SPACING;
 };

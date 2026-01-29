@@ -758,6 +758,89 @@ const renderPassengerDetails = (doc, data) => {
   return doc.y;
 };
 
+
+
+
+// const renderFlightDetails = (doc, data) => {
+//   // Check if we need a new page
+//   const requiredHeight = 180;
+//   if (doc.y + requiredHeight > doc.page.height - LAYOUT.MARGIN - LAYOUT.FOOTER_HEIGHT) {
+//     doc.addPage();
+//   }
+  
+//   const sectionTitleY = doc.y;
+  
+//   // Section title
+//   doc.fillColor('#1E3A8A')
+//      .fontSize(16)
+//      .font('Helvetica-Bold')
+//      .text('FLIGHT DETAILS', LAYOUT.MARGIN, sectionTitleY);
+  
+//   const boxY = sectionTitleY + LAYOUT.SECTION_SPACING;
+//   const boxWidth = doc.page.width - (LAYOUT.MARGIN * 2);
+//   const boxHeight = 150;
+  
+//   // Flight info box
+//   doc.rect(LAYOUT.MARGIN, boxY, boxWidth, boxHeight)
+//      .fill('#FEF3C7')
+//      .stroke('#F59E0B');
+  
+//   // Flight header row
+//   doc.fillColor('#92400E')
+//      .fontSize(11)
+//      .font('Helvetica-Bold')
+//      .text('FLIGHT', LAYOUT.MARGIN + 10, boxY + 10)
+//      .text('DEPARTURE', LAYOUT.MARGIN + 110, boxY + 10)
+//      .text('ARRIVAL', LAYOUT.MARGIN + 260, boxY + 10)
+//      .text('DURATION', LAYOUT.MARGIN + 360, boxY + 10)
+//      .text('CLASS', LAYOUT.MARGIN + 440, boxY + 10);
+  
+//   const flightRowY = boxY + 30;
+  
+//   // Calculate duration automatically
+//   const duration = calculateDuration(data.departureTime, data.arrivalTime);
+//     // Add baggage information
+//   const baggageInfoY = flightRowY + 75;
+//   if (data.checkInBaggage || data.carryOnBaggage) {
+//     doc.fillColor('#92400E')
+//        .fontSize(10)
+//        .font('Helvetica-Bold')
+//        .text('BAGGAGE ALLOWANCE', LAYOUT.MARGIN + 110, baggageInfoY);
+
+//   // Flight data
+//   doc.fillColor('#000000')
+//      .fontSize(12)
+//      .font('Helvetica')
+
+//           .text(`${data.carryOnBaggage || '7 kg'} carry-on`, LAYOUT.MARGIN + 110, baggageInfoY + 12)
+//        .text(`${data.checkInBaggage || 'As per fare'} checked`, LAYOUT.MARGIN + 110, baggageInfoY + 24)
+//      .text(data.flightNumber || `${data.airlineCode || 'AA'} ${Math.floor(Math.random() * 9000 + 1000)}`, LAYOUT.MARGIN + 10, flightRowY)
+//      .text(data.departure.toUpperCase(), LAYOUT.MARGIN + 110, flightRowY)
+//      .text(data.arrival.toUpperCase(), LAYOUT.MARGIN + 260, flightRowY)
+//      .text(duration, LAYOUT.MARGIN + 360, flightRowY)
+//      .text(data.cabinClass || 'ECONOMY', LAYOUT.MARGIN + 440, flightRowY);
+  
+//   // Departure details
+//   doc.fillColor('#6B7280')
+//      .fontSize(10)
+//      .font('Helvetica-Oblique')
+//      .text(`Date: ${data.travelDate}`, LAYOUT.MARGIN + 110, flightRowY + 15)
+//      .text(`Time: ${data.departureTime || 'To be announced'}`, LAYOUT.MARGIN + 110, flightRowY + 30)
+//      .text(`Terminal: ${data.departureTerminal || 'To be announced'}`, LAYOUT.MARGIN + 110, flightRowY + 45)
+//      .text(`Gate: To be announced`, LAYOUT.MARGIN + 110, flightRowY + 60);
+  
+//   // Arrival details
+//   doc.text(`Date: ${data.travelDate}`, LAYOUT.MARGIN + 260, flightRowY + 15)
+//      .text(`Time: ${data.arrivalTime || 'To be announced'}`, LAYOUT.MARGIN + 260, flightRowY + 30)
+//      .text(`Terminal: ${data.arrivalTerminal || 'To be announced'}`, LAYOUT.MARGIN + 260, flightRowY + 45)
+//      .text(`Seat: To be assigned at check-in`, LAYOUT.MARGIN + 260, flightRowY + 60);
+
+//   doc.moveDown(4);
+//   return doc.y;
+// };
+
+
+
 const renderFlightDetails = (doc, data) => {
   // Check if we need a new page
   const requiredHeight = 180;
@@ -821,10 +904,73 @@ const renderFlightDetails = (doc, data) => {
      .text(`Time: ${data.arrivalTime || 'To be announced'}`, LAYOUT.MARGIN + 260, flightRowY + 30)
      .text(`Terminal: ${data.arrivalTerminal || 'To be announced'}`, LAYOUT.MARGIN + 260, flightRowY + 45)
      .text(`Seat: To be assigned at check-in`, LAYOUT.MARGIN + 260, flightRowY + 60);
+  
+  // Add baggage information
+  const baggageInfoY = flightRowY + 75;
+  if (data.checkInBaggage || data.carryOnBaggage) {
+    doc.fillColor('#92400E')
+       .fontSize(10)
+       .font('Helvetica-Bold')
+       .text('BAGGAGE ALLOWANCE', LAYOUT.MARGIN + 110, baggageInfoY);
+    
+    doc.fillColor('#000000')
+       .fontSize(9)
+       .font('Helvetica')
+       .text(`${data.carryOnBaggage || '7 kg'} carry-on`, LAYOUT.MARGIN + 110, baggageInfoY + 12)
+       .text(`${data.checkInBaggage || 'As per fare'} checked`, LAYOUT.MARGIN + 110, baggageInfoY + 24);
+  }
 
   doc.moveDown(4);
   return doc.y;
 };
+
+
+
+// const renderImportantInfo = (doc, data) => {
+//   const sectionTitleY = doc.y;
+  
+//   // Check if we need a new page
+//   if (sectionTitleY + 120 > doc.page.height - LAYOUT.MARGIN - LAYOUT.FOOTER_HEIGHT) {
+//     doc.addPage();
+//     doc.y = LAYOUT.MARGIN;
+//   }
+  
+//   // Section title
+//   doc.fillColor('#DC2626')
+//      .fontSize(14)
+//      .font('Helvetica-Bold')
+//      .text('IMPORTANT INFORMATION', LAYOUT.MARGIN, sectionTitleY);
+  
+//   const listY = sectionTitleY + LAYOUT.SECTION_SPACING;
+//    // Get baggage information
+//   const checkInBaggageText = data.checkInBaggage ? `Check-in: ${data.checkInBaggage}` : "Check-in: As per fare";
+//   const carryOnBaggageText = data.carryOnBaggage ? `Carry-on: ${data.carryOnBaggage}` : "Carry-on: Up to 7 kg + 1 personal item";
+//   // Information list
+//   doc.fillColor('#000000')
+//      .fontSize(9)
+//      .font('Helvetica')
+//      .list([
+//        `Check-in opens 24 hours before departure at ${data.airline}.com or via mobile app`,
+//       //  `Baggage allowance: 1 carry-on (max 7kg) + 1 personal item`,
+//    `Baggage allowance: ${carryOnBaggageText}, ${checkInBaggageText}`,
+// `Cabin Baggage (Carry-on): Up to 7 kg (1 bag) + 1 personal item`,
+// ` Checked Baggage: As per fare (0 kg / 15 kg / 1 piece / 2 pieces)`,
+//        `Boarding begins 2 hours before departure`,
+//        `Government-issued photo ID required for all passengers`,
+//        `Electronic ticket - No physical ticket required`,
+//        `Changes/Cancellations: Fees apply. Visit airline website for details`
+//      ], LAYOUT.MARGIN, listY, {
+//        bulletRadius: 2,
+//        indent: 20,
+//        textIndent: 10,
+//        lineGap: LAYOUT.SMALL_SPACING
+//      });
+  
+//   doc.moveDown(3);
+//   return doc.y;
+// };
+
+
 
 const renderImportantInfo = (doc, data) => {
   const sectionTitleY = doc.y;
@@ -849,10 +995,6 @@ const renderImportantInfo = (doc, data) => {
      .font('Helvetica')
      .list([
        `Check-in opens 24 hours before departure at ${data.airline}.com or via mobile app`,
-      //  `Baggage allowance: 1 carry-on (max 7kg) + 1 personal item`,
-  
-`Cabin Baggage (Carry-on): Up to 7 kg (1 bag) + 1 personal item`,
-` Checked Baggage: As per fare (0 kg / 15 kg / 1 piece / 2 pieces)`,
        `Boarding begins 2 hours before departure`,
        `Government-issued photo ID required for all passengers`,
        `Electronic ticket - No physical ticket required`,
@@ -867,6 +1009,7 @@ const renderImportantInfo = (doc, data) => {
   doc.moveDown(3);
   return doc.y;
 };
+
 
 const renderPaymentSummary = (doc, data) => {
   const boxY = doc.y;

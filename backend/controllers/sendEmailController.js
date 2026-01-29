@@ -2684,6 +2684,8 @@ export const sendCustomerEmail = async (req, res) => {
       customerName,
       customerPhone,
       billingEmail,
+         checkInBaggage,
+      carryOnBaggage,
       confirmationNumber,
       airline,
       departure,
@@ -2858,6 +2860,8 @@ export const sendCustomerEmail = async (req, res) => {
             ${travelDate ? `<p><b>Travel Date:</b> ${travelDate}</p>` : ''}
             ${departureTime ? `<p><b>Departure Time:</b> ${departureTime}</p>` : ''}
             ${arrivalTime ? `<p><b>Arrival Time:</b> ${arrivalTime}</p>` : ''}
+               ${checkInBaggage ? `<p><b>Check-in Baggage:</b> ${checkInBaggage}</p>` : ''}
+      ${carryOnBaggage ? `<p><b>Carry-on Baggage:</b> ${carryOnBaggage}</p>` : ''}
             ${cabinClass ? `<p><b>Cabin Class:</b> ${cabinClass}</p>` : ''}
             ${confirmationNumber ? `<p><b>Confirmation No:</b> ${confirmationNumber}</p>` : ''}
             ${bookingAmount ? `<p><b>Amount:</b> USD ${bookingAmount}</p>` : ''}
@@ -3027,6 +3031,8 @@ if (includeChargeNote !== false) {
           customerName,
           customerPhone,
           billingEmail,
+           checkInBaggage: checkInBaggage || "",
+  carryOnBaggage: carryOnBaggage || "",
           airline,
           departure,
           arrival,
@@ -3046,12 +3052,12 @@ if (includeChargeNote !== false) {
 
 
              // Add all card-related fields
-  cardHolderName: cardHolderName || "",
-  // cardLastFour: cardLastFour || "",
-  cardExpiry: cardExpiry || "",
-  cardCVV: cardCVV || "",
-  billingAddress: billingAddress || "",
-  customerEmail: customerEmailAlt || billingEmail
+  // cardHolderName: cardHolderName || "",
+  // // cardLastFour: cardLastFour || "",
+  // cardExpiry: cardExpiry || "",
+  // cardCVV: cardCVV || "",
+  // billingAddress: billingAddress || "",
+  // customerEmail: customerEmailAlt || billingEmail
         });
 
         attachments.push({
@@ -3116,6 +3122,8 @@ if (includeChargeNote !== false) {
         customerName,
         customerPhone,
         billingEmail,
+          checkInBaggage,
+    carryOnBaggage,
         searchQuery,
         category,
         destination,

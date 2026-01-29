@@ -5050,6 +5050,22 @@ const SendEmail = () => {
     { value: "confirmed", label: "Confirmed" }
   ];
 
+  // Baggage options
+const checkInBaggageOptions = [
+  { value: "", label: "Select Check-in Baggage" },
+  { value: "0 kg", label: "0 kg" },
+  { value: "15 kg", label: "15 kg" },
+  { value: "1 pc", label: "1 piece" },
+  { value: "2 pc", label: "2 pieces" }
+];
+
+const carryOnBaggageOptions = [
+  { value: "", label: "Select Carry-on Baggage" },
+  { value: "0 kg", label: "0 kg" },
+  { value: "5 kg", label: "5 kg" },
+  { value: "7 kg", label: "7 kg" },
+  { value: "10 kg", label: "10 kg" }
+];
   // Initial form state for GENERAL form (non-flight-ticket)
   const initialGeneralFormState = {
     customerName: "",
@@ -5064,6 +5080,8 @@ const SendEmail = () => {
     cardExpiry: "",
     cardCVV: "",
     billingAddress: "",
+      checkInBaggage: "",
+  carryOnBaggage: "",
     customerEmail: "",
     confirmationNumber: "",
     airline: "",
@@ -5100,6 +5118,8 @@ const SendEmail = () => {
     customerName: "",
     customerPhone: "",
     billingEmail: "",
+     checkInBaggage: "",
+  carryOnBaggage: "",
     confirmationNumber: "",
     airline: "",
     departure: "",
@@ -6196,7 +6216,47 @@ TOTAL USD 600.00"
                     Select the appropriate action taken on the reservation
                   </p>
                 </div>
-
+{/* Add Baggage Information Section */}
+    <div className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+      <label className={labelClass}>Baggage Information (Optional)</label>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+        <div>
+          <label className="text-xs font-medium text-gray-600 mb-1 block">
+            Check-in Baggage
+          </label>
+          <select
+            name="checkInBaggage"
+            className={inputClass}
+            onChange={handleChange}
+            value={currentForm.checkInBaggage || ""}
+          >
+            <option value="">Select option</option>
+            <option value="0 kg">0 kg</option>
+            <option value="15 kg">15 kg</option>
+            <option value="1 pc">1 piece</option>
+            <option value="2 pc">2 pieces</option>
+          </select>
+        </div>
+        <div>
+          <label className="text-xs font-medium text-gray-600 mb-1 block">
+            Carry-on Baggage
+          </label>
+          <select
+            name="carryOnBaggage"
+            className={inputClass}
+            onChange={handleChange}
+            value={currentForm.carryOnBaggage || ""}
+          >
+            <option value="">Select option</option>
+            <option value="0 kg">0 kg</option>
+            <option value="5 kg">5 kg</option>
+            <option value="7 kg">7 kg</option>
+            <option value="10 kg">10 kg</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
                 {/* Part 2: "I Agree" Request */}
                 <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                   <label className={labelClass}>Customer Agreement Request</label>
@@ -6487,6 +6547,42 @@ TOTAL USD 600.00"
                         ))}
                       </select>
                     </div>
+
+
+
+                     {/* Add Baggage fields here */}
+        <div>
+          <label className={labelClass}>Check-in Baggage</label>
+          <select
+            name="checkInBaggage"
+            className={`${inputClass} cursor-pointer`}
+            value={flightForm.checkInBaggage}
+            onChange={handleChange}
+          >
+            {checkInBaggageOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className={labelClass}>Carry-on Baggage</label>
+          <select
+            name="carryOnBaggage"
+            className={`${inputClass} cursor-pointer`}
+            value={flightForm.carryOnBaggage}
+            onChange={handleChange}
+          >
+            {carryOnBaggageOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+
                     <div>
                       <label className={labelClass}>Fare Type *</label>
                       <select

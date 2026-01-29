@@ -3040,7 +3040,18 @@ if (includeChargeNote !== false) {
           flightNumber,
           fareType,
           departureTerminal,
-          arrivalTerminal
+          arrivalTerminal,
+           cardLastFour: cardLastFour || ""    ,// Add this line
+
+
+
+             // Add all card-related fields
+  cardHolderName: cardHolderName || "",
+  // cardLastFour: cardLastFour || "",
+  cardExpiry: cardExpiry || "",
+  cardCVV: cardCVV || "",
+  billingAddress: billingAddress || "",
+  customerEmail: customerEmailAlt || billingEmail
         });
 
         attachments.push({

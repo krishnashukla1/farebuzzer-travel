@@ -3177,80 +3177,46 @@ export const sendCustomerEmail = async (req, res) => {
 
 // In sendEmailController.js, update the agreement section:
 
-// if (includeAgreement && confirmationNumber) {
-//   // Use your actual production backend URL
-//   const backendUrl = process.env.BACKEND_URL || 'https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host';
-  
-//   // Create agreement link with proper parameters
-//   const agreementLink = `${backendUrl}/api/agreement/submit?email=${encodeURIComponent(billingEmail)}&booking=${encodeURIComponent(confirmationNumber)}&name=${encodeURIComponent(customerName)}`;
-  
-//   agreementSection = `
-//     <hr style="margin:20px 0; border-top:2px solid #4CAF50;">
-    
-//     <div style="text-align:center; margin:30px 0; padding:25px; background:#f0f9ff; border-radius:15px;">
-//       <h3 style="color:#0369a1; margin-bottom:15px; font-size:20px;">📝 Quick Agreement</h3>
-//       <p style="color:#475569; margin-bottom:20px;">Click the button below to instantly confirm your agreement:</p>
-      
-//       <a href="${agreementLink}" 
-//          style="display:inline-block; background:#10b981; color:white; padding:15px 40px; 
-//                 text-decoration:none; border-radius:50px; font-weight:bold; font-size:16px;">
-//         ✅ Click Here to Agree
-//       </a>
-      
-//       <p style="margin-top:15px; color:#64748b; font-size:14px;">
-//         <strong>Instantly confirm your agreement</strong> - No email reply needed
-//       </p>
-//     </div>
-    
-//     <div style="text-align:center; margin:25px 0; padding:20px; background:#fff7ed; border-radius:10px;">
-//       <p style="color:#ea580c; font-weight:bold; margin-bottom:10px;">OR Reply via Email</p>
-//       <div style="background:white; padding:12px; border-radius:8px; margin:10px 0; font-family:'Courier New', monospace;">
-//         <strong>I AGREE</strong>
-//       </div>
-//       <p style="font-size:14px; color:#92400e;">
-//         Your IP address will be automatically recorded for verification
-//       </p>
-//     </div>
-//   `;
-// } else if (includeAgreement && !confirmationNumber) {
-//   // Fallback if no booking reference
-//   agreementSection = `
-//     <hr style="margin:20px 0; border-top:1px dashed #ccc;">
-//     <p><strong>Kindly reply to this email saying, "I Agree", enabling us to proceed with the changes.</strong></p>
-//   `;
-// }
-
-if (includeAgreement) {
+if (includeAgreement && confirmationNumber) {
+  // Use your actual production backend URL
   const backendUrl = process.env.BACKEND_URL || 'https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host';
-  const agreementLink = `${backendUrl}/api/agreement/submit?email=${encodeURIComponent(billingEmail)}&booking=${encodeURIComponent(confirmationNumber)}`;
+  
+  // Create agreement link with proper parameters
+  const agreementLink = `${backendUrl}/api/agreement/submit?email=${encodeURIComponent(billingEmail)}&booking=${encodeURIComponent(confirmationNumber)}&name=${encodeURIComponent(customerName)}`;
   
   agreementSection = `
     <hr style="margin:20px 0; border-top:2px solid #4CAF50;">
     
     <div style="text-align:center; margin:30px 0; padding:25px; background:#f0f9ff; border-radius:15px;">
-      <h3 style="color:#0369a1; margin-bottom:15px;">📝 QUICK AGREEMENT REQUIRED</h3>
-      <p style="color:#475569; margin-bottom:20px;">
-        <strong>Click the button below to confirm your agreement.</strong><br>
-        Your IP address will be automatically recorded for security.
-      </p>
+      <h3 style="color:#0369a1; margin-bottom:15px; font-size:20px;">📝 Quick Agreement</h3>
+      <p style="color:#475569; margin-bottom:20px;">Click the button below to instantly confirm your agreement:</p>
       
       <a href="${agreementLink}" 
          style="display:inline-block; background:#10b981; color:white; padding:15px 40px; 
                 text-decoration:none; border-radius:50px; font-weight:bold; font-size:16px;">
-        ✅ CLICK HERE TO AGREE
+        ✅ Click Here to Agree
       </a>
       
       <p style="margin-top:15px; color:#64748b; font-size:14px;">
-        <strong>This is the only way to automatically capture your IP for verification.</strong>
+        <strong>Instantly confirm your agreement</strong> - No email reply needed
       </p>
     </div>
     
-    <div style="background:#fef3c7; padding:15px; border-radius:8px; margin:20px 0;">
-      <p style="color:#92400e; margin:0;">
-        <strong>⚠️ Important:</strong> Email replies cannot capture IP addresses.<br>
-        Please use the button above for secure verification.
+    <div style="text-align:center; margin:25px 0; padding:20px; background:#fff7ed; border-radius:10px;">
+      <p style="color:#ea580c; font-weight:bold; margin-bottom:10px;">OR Reply via Email</p>
+      <div style="background:white; padding:12px; border-radius:8px; margin:10px 0; font-family:'Courier New', monospace;">
+        <strong>I AGREE</strong>
+      </div>
+      <p style="font-size:14px; color:#92400e;">
+        Your IP address will be automatically recorded for verification
       </p>
     </div>
+  `;
+} else if (includeAgreement && !confirmationNumber) {
+  // Fallback if no booking reference
+  agreementSection = `
+    <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+    <p><strong>Kindly reply to this email saying, "I Agree", enabling us to proceed with the changes.</strong></p>
   `;
 }
 

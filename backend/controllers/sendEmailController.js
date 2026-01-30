@@ -3177,12 +3177,12 @@ export const sendCustomerEmail = async (req, res) => {
 
 // In sendEmailController.js, update the agreement section:
 
-if (includeAgreement) {
-  // Use your backend URL
-  const backendUrl = process.env.BACKEND_URL || 'http://localhost:80';
+if (includeAgreement && confirmationNumber) {
+  // Use your actual production backend URL
+  const backendUrl = process.env.BACKEND_URL || 'https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host';
   
-  // Create simple agreement link
-  const agreementLink = `${backendUrl}/api/agreement/submit?email=${encodeURIComponent(billingEmail)}&booking=${confirmationNumber}`;
+  // Create agreement link with proper parameters
+  const agreementLink = `${backendUrl}/api/agreement/submit?email=${encodeURIComponent(billingEmail)}&booking=${encodeURIComponent(confirmationNumber)}&name=${encodeURIComponent(customerName)}`;
   
   agreementSection = `
     <hr style="margin:20px 0; border-top:2px solid #4CAF50;">
@@ -3211,6 +3211,12 @@ if (includeAgreement) {
         Your IP address will be automatically recorded for verification
       </p>
     </div>
+  `;
+} else if (includeAgreement && !confirmationNumber) {
+  // Fallback if no booking reference
+  agreementSection = `
+    <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+    <p><strong>Kindly reply to this email saying, "I Agree", enabling us to proceed with the changes.</strong></p>
   `;
 }
 

@@ -3002,7 +3002,14 @@ if (includeAgreement) {
   const tokenData = `${billingEmail}:${confirmationNumber}:${Date.now()}`;
   const token = Buffer.from(tokenData).toString('base64');
   
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  // const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+ const frontendUrl =
+  'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host' ||
+  'http://localhost:5173';
+
+
+
   const agreementLink = `${frontendUrl}/agree/${token}`;
   
   agreementSection = `

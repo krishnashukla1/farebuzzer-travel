@@ -119,7 +119,7 @@ const AgreementPage = () => {
       const ipAddress = ipResponse.data.ip;
 
       // Send agreement to backend
-      const response = await axios.post('http://localhost:5000/api/agreement/submit-agreement', {
+      const response = await axios.post('http://localhost:80/api/agreement/submit-agreement', {
         customerEmail: email,
         customerName: email.split('@')[0],
         bookingReference: bookingRef,

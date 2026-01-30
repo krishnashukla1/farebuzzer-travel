@@ -72,6 +72,7 @@ import "./services/emailCron.js";
 
 import agreementRoutes from './routes/agreement.js';
 import emailWebhookRoutes from './routes/emailWebhook.js';
+import emailReplyRoutes from './routes/emailReply.js';
 
 
 
@@ -137,8 +138,12 @@ app.use("/api/weekly-off", weeklyOffRoutes);
 app.use("/api/leaves", leaveRoutes);
 
 app.use("/api", flightStatusRoutes);
+
+
+
 app.use('/api/agreement', agreementRoutes);
 app.use('/api/webhook', emailWebhookRoutes);
+app.use('/api/email', emailReplyRoutes);
 
 
 

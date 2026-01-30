@@ -2675,7 +2675,6 @@
 import transporter from "../utils/email.js";
 import Email from "../models/Email.js";
 import { generateETicket } from "../utils/generateETicket.js";
-import crypto from "crypto";
 
 
 export const sendCustomerEmail = async (req, res) => {
@@ -2999,68 +2998,221 @@ export const sendCustomerEmail = async (req, res) => {
 
 // In sendEmailController.js, update the agreement section:
 
-// PART 3: "I AGREE" SECTION (FOR ALL EMAIL TYPES)
+// if (includeAgreement) {
+//   // Generate a secure token
+//   const tokenData = `${billingEmail}:${confirmationNumber}:${Date.now()}`;
+//   const token = Buffer.from(tokenData).toString('base64');
+  
+//   // const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+//  const frontendUrl =
+//   'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host' ||
+//   'http://localhost:5173';
 
 
-if (includeAgreement && billingEmail && confirmationNumber) {
 
-  // 1️⃣ Generate secure token (email + confirmation + timestamp)
-  const tokenPayload = {
-    email: billingEmail,
-    confirmationNumber,
-    ts: Date.now()
-  };
+//   const agreementLink = `${frontendUrl}/agree/${token}`;
+  
+//   agreementSection = `
+//     <hr style="margin:20px 0; border-top:2px solid #4CAF50;">
+    
+//     <div style="text-align:center; margin:30px 0; padding:25px; background:linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius:15px; border:2px solid #0ea5e9;">
+//       <h3 style="color:#0369a1; margin-bottom:15px; font-size:20px;">📝 Quick Agreement</h3>
+//       <p style="color:#475569; margin-bottom:20px;">Click the button below to instantly confirm your agreement:</p>
+      
+//       <a href="${agreementLink}" 
+//          style="display:inline-block; background:linear-gradient(135deg, #10b981 0%, #059669 100%); 
+//                 color:white; padding:15px 40px; text-decoration:none; border-radius:50px; 
+//                 font-weight:bold; font-size:16px; box-shadow:0 4px 6px rgba(16, 185, 129, 0.3);">
+//         ✅ Click Here to Agree
+//       </a>
+      
+//       <p style="margin-top:15px; color:#64748b; font-size:14px;">
+//         <strong>Instantly confirm your agreement</strong> - No email reply needed
+//       </p>
+//     </div>
+    
+//     <div style="text-align:center; margin:25px 0; padding:20px; background:#fff7ed; border-radius:10px; border-left:4px solid #f97316;">
+//       <p style="color:#ea580c; font-weight:bold; margin-bottom:10px;">OR Reply via Email</p>
+//       <div style="background:white; padding:12px; border-radius:8px; margin:10px 0; font-family:'Courier New', monospace; font-size:16px; border:1px dashed #f59e0b;">
+//         <strong>I AGREE</strong>
+//       </div>
+//       <p style="font-size:14px; color:#92400e;">
+//         Your IP address will be automatically recorded for verification
+//       </p>
+//     </div>
+//   `;
+// }
 
-  const token = Buffer.from(JSON.stringify(tokenPayload)).toString("base64");
 
-  // 2️⃣ Frontend URL (CORRECT way)
-  const frontendUrl =
-    process.env.FRONTEND_URL || "http://localhost:5173";
 
-  // 3️⃣ Agreement link
-  const agreementLink = `${frontendUrl}/agree/${token}`;
+// In sendEmailController.js, update the agreement section:
 
-  // 4️⃣ Email HTML section
+// if (includeAgreement) {
+//   // Generate a unique ID for tracking
+//   const agreementId = crypto.randomBytes(16).toString('hex');
+//   const timestamp = Date.now();
+  
+//   // Save agreement request in database (optional)
+//   // await AgreementRequest.create({ agreementId, customerEmail: billingEmail, bookingReference: confirmationNumber });
+  
+//   // Create agreement button with JavaScript/API
+//   agreementSection = `
+//     <hr style="margin:20px 0; border-top:2px solid #4CAF50;">
+    
+//     <div style="text-align:center; margin:30px 0; padding:25px; background:linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius:15px; border:2px solid #0ea5e9;">
+//       <h3 style="color:#0369a1; margin-bottom:15px; font-size:20px;">📝 Quick Agreement</h3>
+//       <p style="color:#475569; margin-bottom:20px;">Click the button below to instantly confirm your agreement:</p>
+      
+//       <!-- Button triggers API call without redirecting -->
+//       <button onclick="submitAgreement('${billingEmail}', '${confirmationNumber}', '${agreementId}')" 
+//               style="display:inline-block; background:linear-gradient(135deg, #10b981 0%, #059669 100%); 
+//                      color:white; padding:15px 40px; border:none; border-radius:50px; 
+//                      font-weight:bold; font-size:16px; box-shadow:0 4px 6px rgba(16, 185, 129, 0.3);
+//                      cursor:pointer;">
+//         ✅ Click Here to Agree
+//       </button>
+      
+//       <div id="agreementMessage" style="margin-top:15px; display:none; padding:10px; background:#d1fae5; border-radius:8px;">
+//         ✅ Agreement submitted! Check your email for confirmation.
+//       </div>
+      
+//       <p style="margin-top:15px; color:#64748b; font-size:14px;">
+//         <strong>Instantly confirm your agreement</strong> - No email reply needed
+//       </p>
+//     </div>
+    
+//     <div style="text-align:center; margin:25px 0; padding:20px; background:#fff7ed; border-radius:10px; border-left:4px solid #f97316;">
+//       <p style="color:#ea580c; font-weight:bold; margin-bottom:10px;">OR Reply via Email</p>
+//       <div style="background:white; padding:12px; border-radius:8px; margin:10px 0; font-family:'Courier New', monospace; font-size:16px; border:1px dashed #f59e0b;">
+//         <strong>I AGREE</strong>
+//       </div>
+//       <p style="font-size:14px; color:#92400e;">
+//         Your IP address will be automatically recorded for verification
+//       </p>
+//     </div>
+    
+//     <!-- JavaScript to handle agreement submission -->
+//     <script>
+//       function submitAgreement(email, bookingRef, agreementId) {
+//         // Get the button and message element
+//         const button = event.target;
+//         const messageDiv = document.getElementById('agreementMessage');
+        
+//         // Disable button and show loading
+//         button.disabled = true;
+//         button.innerHTML = '⏳ Processing...';
+//         button.style.opacity = '0.7';
+        
+//         // Collect IP address
+//         fetch('https://api.ipify.org?format=json')
+//           .then(response => response.json())
+//           .then(ipData => {
+//             // Submit agreement to your backend
+//             return fetch('${process.env.BACKEND_URL || 'http://localhost:5000'}/api/agreement/submit-agreement', {
+//               method: 'POST',
+//               headers: {
+//                 'Content-Type': 'application/json',
+//               },
+//               body: JSON.stringify({
+//                 customerEmail: email,
+//                 customerName: email.split('@')[0],
+//                 bookingReference: bookingRef,
+//                 ipAddress: ipData.ip,
+//                 agreementId: agreementId,
+//                 method: 'web_click'
+//               })
+//             });
+//           })
+//           .then(response => response.json())
+//           .then(data => {
+//             if (data.success) {
+//               // Show success message
+//               button.style.display = 'none';
+//               messageDiv.style.display = 'block';
+              
+//               // Optional: Send email confirmation
+//               sendConfirmationEmail(email, bookingRef);
+//             } else {
+//               button.innerHTML = '❌ Failed - Try Again';
+//               button.style.background = '#ef4444';
+//               setTimeout(() => {
+//                 button.disabled = false;
+//                 button.innerHTML = '✅ Click Here to Agree';
+//                 button.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+//                 button.style.opacity = '1';
+//               }, 3000);
+//             }
+//           })
+//           .catch(error => {
+//             console.error('Error:', error);
+//             button.innerHTML = '❌ Error - Try Again';
+//             button.style.background = '#ef4444';
+//             setTimeout(() => {
+//               button.disabled = false;
+//               button.innerHTML = '✅ Click Here to Agree';
+//               button.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+//               button.style.opacity = '1';
+//             }, 3000);
+//           });
+//       }
+      
+//       function sendConfirmationEmail(email, bookingRef) {
+//         // Send a simple confirmation (optional)
+//         fetch('${process.env.BACKEND_URL || 'http://localhost:5000'}/api/agreement/send-confirmation', {
+//           method: 'POST',
+//           headers: {
+//             'Content-Type': 'application/json',
+//           },
+//           body: JSON.stringify({
+//             customerEmail: email,
+//             bookingReference: bookingRef
+//           })
+//         });
+//       }
+//     </script>
+//   `;
+// }
+
+
+// In sendEmailController.js, update the agreement section:
+
+if (includeAgreement) {
+  // Use your backend URL
+  const backendUrl = process.env.BACKEND_URL || 'http://localhost:80';
+  
+  // Create simple agreement link
+  const agreementLink = `${backendUrl}/api/agreement/submit?email=${encodeURIComponent(billingEmail)}&booking=${confirmationNumber}`;
+  
   agreementSection = `
-    <hr style="margin:25px 0; border-top:2px solid #22c55e;">
-
-    <div style="
-      text-align:center;
-      padding:25px;
-      border-radius:14px;
-      background:linear-gradient(135deg,#ecfeff,#f0fdf4);
-      border:2px solid #22c55e;
-    ">
-      <h3 style="color:#15803d; margin-bottom:10px;">
-        📝 Customer Agreement Required
-      </h3>
-
-      <p style="color:#374151; margin-bottom:18px;">
-        Please click the button below to confirm your agreement and allow us to proceed.
-      </p>
-
-      <a href="${agreementLink}"
-         style="
-           display:inline-block;
-           padding:14px 38px;
-           background:#22c55e;
-           color:#ffffff;
-           text-decoration:none;
-           border-radius:999px;
-           font-size:16px;
-           font-weight:700;
-           box-shadow:0 4px 10px rgba(34,197,94,0.35);
-         ">
-        ✅ I Agree
+    <hr style="margin:20px 0; border-top:2px solid #4CAF50;">
+    
+    <div style="text-align:center; margin:30px 0; padding:25px; background:#f0f9ff; border-radius:15px;">
+      <h3 style="color:#0369a1; margin-bottom:15px; font-size:20px;">📝 Quick Agreement</h3>
+      <p style="color:#475569; margin-bottom:20px;">Click the button below to instantly confirm your agreement:</p>
+      
+      <a href="${agreementLink}" 
+         style="display:inline-block; background:#10b981; color:white; padding:15px 40px; 
+                text-decoration:none; border-radius:50px; font-weight:bold; font-size:16px;">
+        ✅ Click Here to Agree
       </a>
-
-      <p style="margin-top:14px; font-size:13px; color:#6b7280;">
-        Your IP address & timestamp will be recorded for verification.
+      
+      <p style="margin-top:15px; color:#64748b; font-size:14px;">
+        <strong>Instantly confirm your agreement</strong> - No email reply needed
+      </p>
+    </div>
+    
+    <div style="text-align:center; margin:25px 0; padding:20px; background:#fff7ed; border-radius:10px;">
+      <p style="color:#ea580c; font-weight:bold; margin-bottom:10px;">OR Reply via Email</p>
+      <div style="background:white; padding:12px; border-radius:8px; margin:10px 0; font-family:'Courier New', monospace;">
+        <strong>I AGREE</strong>
+      </div>
+      <p style="font-size:14px; color:#92400e;">
+        Your IP address will be automatically recorded for verification
       </p>
     </div>
   `;
 }
-
 
     // PART 4: CREDIT CARD INFORMATION (Optional for all)
     let paymentInfoSection = "";

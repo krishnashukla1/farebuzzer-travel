@@ -253,57 +253,189 @@
 // export default router;
 
 
-
-import express from "express";
-import transporter from "../utils/email.js";
-import Email from "../models/Email.js";
+// server/routes/agreement.js
+import express from 'express';
+import { Resend } from 'resend';
+import AgreementLog from '../models/AgreementLog.js';
 
 const router = express.Router();
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-router.post("/confirm", async (req, res) => {
+// Simple agreement endpoint
+router.post('/submit-agreement', async (req, res) => {
   try {
-    const { token } = req.body;
+    const { 
+      customerEmail, 
+      customerName, 
+      bookingReference,
+      ipAddress
+    } = req.body;
 
-    // Decode token
-    const decoded = Buffer.from(token, "base64").toString("utf-8");
-    const [email, confirmationNumber] = decoded.split(":");
+    console.log('📧 Processing agreement for:', customerEmail, bookingReference);
 
-    // Capture IP
-    const ip =
-      req.headers["x-forwarded-for"]?.split(",")[0] ||
-      req.socket.remoteAddress;
-
-    // Send email to ADMIN
-    await transporter.sendMail({
-      from: `"FareBuzzer Agreement" <${process.env.GMAIL_USER}>`,
-      to: "besttripmakers@gmail.com",
-      subject: "Customer Agreement Accepted",
+    // 1. Send notification to YOU (besttripmakers@gmail.com)
+    const adminEmail = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || 'FareBuzzer <besttripmakers@gmail.com>',
+      to: process.env.ADMIN_EMAIL || 'besttripmakers@gmail.com',
+      subject: `✅ Customer Agreed - ${bookingReference}`,
       html: `
-        <h3>Agreement Confirmed</h3>
-        <p><b>Email:</b> ${email}</p>
-        <p><b>Confirmation No:</b> ${confirmationNumber}</p>
-        <p><b>IP Address:</b> ${ip}</p>
-        <p><b>Date:</b> ${new Date().toLocaleString()}</p>
+        <!DOCTYPE html>
+        <html>
+        <body style="font-family: Arial, sans-serif;">
+          <h2 style="color: #10b981;">🎉 Customer Agreement Received</h2>
+          
+          <div style="background: #f0f9ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h3 style="color: #0369a1;">Customer Details</h3>
+            <p><strong>Customer Name:</strong> ${customerName}</p>
+            <p><strong>Customer Email:</strong> ${customerEmail}</p>
+            <p><strong>Booking Reference:</strong> ${bookingReference}</p>
+            <p><strong>IP Address:</strong> ${ipAddress}</p>
+            <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+            <p><strong>Method:</strong> Button Click</p>
+          </div>
+          
+          <div style="background: #d1fae5; padding: 15px; border-radius: 8px;">
+            <h4 style="color: #065f46;">✅ ACTION REQUIRED</h4>
+            <p>Customer has agreed to proceed with their request.</p>
+            <p>Please process the booking changes.</p>
+          </div>
+        </body>
+        </html>
+      `,
+      text: `
+CUSTOMER AGREEMENT RECEIVED
+===========================
+
+Customer: ${customerName}
+Email: ${customerEmail}
+Booking: ${bookingReference}
+IP Address: ${ipAddress}
+Time: ${new Date().toLocaleString()}
+Method: Button Click
+
+ACTION: Customer has agreed. Please proceed with booking changes.
       `
     });
 
-    // Save in DB
-    await Email.create({
-      type: "agreement",
-      from: email,
-      subject: "Agreement Accepted",
-      meta: {
-        confirmationNumber,
-        ipAddress: ip,
-        agreedAt: new Date()
-      }
+    console.log('✅ Notification sent to:', process.env.ADMIN_EMAIL);
+
+    // 2. Send confirmation to customer
+    try {
+      await resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || 'FareBuzzer Support <besttripmakers@gmail.com>',
+        to: customerEmail,
+        subject: `✅ Agreement Confirmed - ${bookingReference}`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <body style="font-family: Arial, sans-serif;">
+            <div style="text-align: center; padding: 20px;">
+              <h2 style="color: #10b981;">✅ Agreement Confirmed</h2>
+            </div>
+            
+            <div style="max-width: 600px; margin: 0 auto; padding: 30px;">
+              <p>Dear ${customerName},</p>
+              <p>Thank you for your response. We have received your agreement and will now proceed with your request.</p>
+              
+              <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <p><strong>Booking Reference:</strong> ${bookingReference}</p>
+                <p><strong>Confirmation Time:</strong> ${new Date().toLocaleString()}</p>
+              </div>
+              
+              <p>Our team will process this request and send you a completion confirmation shortly.</p>
+              
+              <p>Best regards,<br>
+              <strong>FareBuzzer Support Team</strong></p>
+            </div>
+          </body>
+          </html>
+        `
+      });
+      console.log('✅ Confirmation sent to customer:', customerEmail);
+    } catch (emailError) {
+      console.error('Failed to send customer confirmation:', emailError);
+    }
+
+    // 3. Log to database (optional)
+    try {
+      const agreementLog = new AgreementLog({
+        customerEmail,
+        customerName,
+        bookingReference,
+        ipAddress,
+        method: 'web_click',
+        timestamp: new Date()
+      });
+      await agreementLog.save();
+      console.log('✅ Agreement logged to database');
+    } catch (dbError) {
+      console.error('Database logging error:', dbError);
+    }
+
+    res.json({
+      success: true,
+      message: 'Agreement submitted successfully'
     });
 
-    res.json({ status: "success" });
+  } catch (error) {
+    console.error('❌ Agreement error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to submit agreement',
+      error: error.message
+    });
+  }
+});
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ status: "fail" });
+// Simple GET endpoint for direct link clicks
+router.get('/submit', async (req, res) => {
+  try {
+    const { email, booking } = req.query;
+    
+    if (!email || !booking) {
+      return res.send('Missing email or booking reference');
+    }
+    
+    // Get IP from request
+    const ipAddress = req.headers['x-forwarded-for']?.split(',')[0] || 
+                      req.headers['x-real-ip'] || 
+                      req.ip || 
+                      'Unknown';
+    
+    // Send notification
+    await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || 'FareBuzzer <besttripmakers@gmail.com>',
+      to: process.env.ADMIN_EMAIL || 'besttripmakers@gmail.com',
+      subject: `✅ Link Click Agreement - ${booking}`,
+      html: `
+        <h3>Customer clicked agreement link</h3>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Booking:</strong> ${booking}</p>
+        <p><strong>IP:</strong> ${ipAddress}</p>
+        <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+      `
+    });
+    
+    // Show success page
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+          .success { color: #10b981; font-size: 24px; }
+        </style>
+      </head>
+      <body>
+        <div class="success">✅ Agreement Submitted!</div>
+        <p>Your agreement has been received. You can close this window.</p>
+      </body>
+      </html>
+    `);
+    
+  } catch (error) {
+    console.error('GET agreement error:', error);
+    res.send('Error processing agreement');
   }
 });
 

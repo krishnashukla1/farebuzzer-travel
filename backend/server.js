@@ -70,11 +70,8 @@ import flightStatusRoutes from "./routes/flightStatusRoutes.js";
 import "./services/emailCron.js";
 
 
-// import agreementRoutes from './routes/agreement.js';
-// import emailWebhookRoutes from './routes/emailWebhook.js';
-
-import agreementRoutes from "./routes/agreement.js";
-
+import agreementRoutes from './routes/agreement.js';
+import emailWebhookRoutes from './routes/emailWebhook.js';
 
 
 
@@ -140,14 +137,10 @@ app.use("/api/weekly-off", weeklyOffRoutes);
 app.use("/api/leaves", leaveRoutes);
 
 app.use("/api", flightStatusRoutes);
+app.use('/api/agreement', agreementRoutes);
+app.use('/api/webhook', emailWebhookRoutes);
 
 
-// app.use('/api/agreement', agreementRoutes);
-// app.use('/api/webhook', emailWebhookRoutes);
-
-
-app.set("trust proxy", true);
-app.use("/api/agreement", agreementRoutes);
 
 
 

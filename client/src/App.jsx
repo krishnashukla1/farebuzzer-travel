@@ -44,6 +44,8 @@ import BreakRequest from "./components3/BreakRequest";
 
 import MyWeeklyOff from "./components3/UserWeeklyOff"
 
+import AgreementPage from './components2/AgreementPage'
+
 
 const App = () => {
   const token = localStorage.getItem("token");
@@ -79,6 +81,7 @@ const App = () => {
                       <Route path="/enquiries" element={<Enquiries />} />
                       <Route path="/add-enquiry" element={<AddEnquiry />} />
                       <Route path="/send-email" element={<SendEmail />} />
+                      <Route path="/agree/:token" element={<AgreementPage />} />
                        
         <Route path="/flight-search" element={<FlightSearch />} />
                       {/* <Route path="/weekly-off" element={<WeeklyOff />} /> */}

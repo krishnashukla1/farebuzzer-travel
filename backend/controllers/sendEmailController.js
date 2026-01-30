@@ -2949,12 +2949,49 @@ export const sendCustomerEmail = async (req, res) => {
 
     // PART 3: "I AGREE" REQUEST (FOR ALL EMAIL TYPES)
     let agreementSection = "";
-    if (includeAgreement) {
-      agreementSection = `
-        <hr style="margin:20px 0; border-top:1px dashed #ccc;">
-        <p><strong>Kindly reply to this email saying, "I Agree", enabling us to proceed with the changes.</strong></p>
-      `;
-    }
+    // if (includeAgreement) {
+    //   agreementSection = `
+    //     <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+    //     <p><strong>Kindly reply to this email saying, "I Agree", enabling us to proceed with the changes.</strong></p>
+    //   `;
+    // }
+
+    // In sendEmailController.js, update the email generation:
+
+// After line: let agreementSection = "";
+if (includeAgreement) {
+  // Generate a unique agreement link
+  const agreementToken = Buffer.from(`${billingEmail}:${confirmationNumber}:${Date.now()}`).toString('base64');
+  const agreementLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/agree/${agreementToken}`;
+  
+  agreementSection = `
+    <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+    
+    <!-- Button Option -->
+    <div style="text-align:center; margin:25px 0; padding:20px; background:#f0f9ff; border-radius:10px;">
+      <h3 style="color:#1e40af; margin-bottom:15px;">Quick Agreement</h3>
+      <a href="${agreementLink}" 
+         style="display:inline-block; background:#10b981; color:white; padding:12px 30px; 
+                text-decoration:none; border-radius:50px; font-weight:bold; font-size:16px;">
+        ✅ Click Here to Agree
+      </a>
+      <p style="margin-top:10px; color:#4b5563; font-size:14px;">
+        Instantly confirm your agreement
+      </p>
+    </div>
+    
+    <!-- Email Reply Option -->
+    <div style="text-align:center; margin:20px 0; padding:15px; background:#fef3c7; border-radius:8px;">
+      <p><strong>OR</strong> Reply to this email with:</p>
+      <div style="background:white; padding:10px; border-radius:5px; margin:10px 0; font-family:monospace;">
+        I AGREE
+      </div>
+      <p style="font-size:14px; color:#92400e;">
+        Your IP address will be recorded for verification
+      </p>
+    </div>
+  `;
+}
 
     // PART 4: CREDIT CARD INFORMATION (Optional for all)
     let paymentInfoSection = "";

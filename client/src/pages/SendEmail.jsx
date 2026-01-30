@@ -5000,6 +5000,7 @@
 
 import { useState, useEffect } from "react";
 import API from "../api/axios";
+import SimpleAgreement from './SimpleAgreement';
 
 const SendEmail = () => {
   const [emailType, setEmailType] = useState("new_reservation");
@@ -6188,6 +6189,12 @@ TOTAL USD 600.00"
               </div>
             </section>
 
+
+<SimpleAgreement 
+  customerEmail={currentForm.billingEmail}
+  customerName={currentForm.customerName}
+  bookingReference={currentForm.confirmationNumber}
+/>
             {/* Reservation Update Details for flight-related email types */}
             {isFlightRelatedType && (
               <section className={sectionClass}>

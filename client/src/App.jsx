@@ -45,6 +45,7 @@ import BreakRequest from "./components3/BreakRequest";
 import MyWeeklyOff from "./components3/UserWeeklyOff"
 
 import AgreementPage from './components2/AgreementPage'
+import ThankYouPage from './components2/ThankYouPage'
 
 
 const App = () => {
@@ -81,7 +82,16 @@ const App = () => {
                       <Route path="/enquiries" element={<Enquiries />} />
                       <Route path="/add-enquiry" element={<AddEnquiry />} />
                       <Route path="/send-email" element={<SendEmail />} />
-                      <Route path="/agree/:token" element={<AgreementPage />} />
+                 
+
+
+
+ <Route path="/agree/:token" element={<AgreementPage />} />
+        <Route path="/thank-you" element={<ThankYouPage />} />
+
+
+
+
                        
         <Route path="/flight-search" element={<FlightSearch />} />
                       {/* <Route path="/weekly-off" element={<WeeklyOff />} /> */}

@@ -2959,35 +2959,78 @@ export const sendCustomerEmail = async (req, res) => {
     // In sendEmailController.js, update the email generation:
 
 // After line: let agreementSection = "";
+// if (includeAgreement) {
+//   // Generate a unique agreement link
+//   const agreementToken = Buffer.from(`${billingEmail}:${confirmationNumber}:${Date.now()}`).toString('base64');
+//   const agreementLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/agree/${agreementToken}`;
+  
+//   agreementSection = `
+//     <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+    
+//     <!-- Button Option -->
+//     <div style="text-align:center; margin:25px 0; padding:20px; background:#f0f9ff; border-radius:10px;">
+//       <h3 style="color:#1e40af; margin-bottom:15px;">Quick Agreement</h3>
+//       <a href="${agreementLink}" 
+//          style="display:inline-block; background:#10b981; color:white; padding:12px 30px; 
+//                 text-decoration:none; border-radius:50px; font-weight:bold; font-size:16px;">
+//         ✅ Click Here to Agree
+//       </a>
+//       <p style="margin-top:10px; color:#4b5563; font-size:14px;">
+//         Instantly confirm your agreement
+//       </p>
+//     </div>
+    
+//     <!-- Email Reply Option -->
+//     <div style="text-align:center; margin:20px 0; padding:15px; background:#fef3c7; border-radius:8px;">
+//       <p><strong>OR</strong> Reply to this email with:</p>
+//       <div style="background:white; padding:10px; border-radius:5px; margin:10px 0; font-family:monospace;">
+//         I AGREE
+//       </div>
+//       <p style="font-size:14px; color:#92400e;">
+//         Your IP address will be recorded for verification
+//       </p>
+//     </div>
+//   `;
+// }
+
+
+
+// In sendEmailController.js, update the agreement section:
+
 if (includeAgreement) {
-  // Generate a unique agreement link
-  const agreementToken = Buffer.from(`${billingEmail}:${confirmationNumber}:${Date.now()}`).toString('base64');
-  const agreementLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/agree/${agreementToken}`;
+  // Generate a secure token
+  const tokenData = `${billingEmail}:${confirmationNumber}:${Date.now()}`;
+  const token = Buffer.from(tokenData).toString('base64');
+  
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const agreementLink = `${frontendUrl}/agree/${token}`;
   
   agreementSection = `
-    <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+    <hr style="margin:20px 0; border-top:2px solid #4CAF50;">
     
-    <!-- Button Option -->
-    <div style="text-align:center; margin:25px 0; padding:20px; background:#f0f9ff; border-radius:10px;">
-      <h3 style="color:#1e40af; margin-bottom:15px;">Quick Agreement</h3>
+    <div style="text-align:center; margin:30px 0; padding:25px; background:linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius:15px; border:2px solid #0ea5e9;">
+      <h3 style="color:#0369a1; margin-bottom:15px; font-size:20px;">📝 Quick Agreement</h3>
+      <p style="color:#475569; margin-bottom:20px;">Click the button below to instantly confirm your agreement:</p>
+      
       <a href="${agreementLink}" 
-         style="display:inline-block; background:#10b981; color:white; padding:12px 30px; 
-                text-decoration:none; border-radius:50px; font-weight:bold; font-size:16px;">
+         style="display:inline-block; background:linear-gradient(135deg, #10b981 0%, #059669 100%); 
+                color:white; padding:15px 40px; text-decoration:none; border-radius:50px; 
+                font-weight:bold; font-size:16px; box-shadow:0 4px 6px rgba(16, 185, 129, 0.3);">
         ✅ Click Here to Agree
       </a>
-      <p style="margin-top:10px; color:#4b5563; font-size:14px;">
-        Instantly confirm your agreement
+      
+      <p style="margin-top:15px; color:#64748b; font-size:14px;">
+        <strong>Instantly confirm your agreement</strong> - No email reply needed
       </p>
     </div>
     
-    <!-- Email Reply Option -->
-    <div style="text-align:center; margin:20px 0; padding:15px; background:#fef3c7; border-radius:8px;">
-      <p><strong>OR</strong> Reply to this email with:</p>
-      <div style="background:white; padding:10px; border-radius:5px; margin:10px 0; font-family:monospace;">
-        I AGREE
+    <div style="text-align:center; margin:25px 0; padding:20px; background:#fff7ed; border-radius:10px; border-left:4px solid #f97316;">
+      <p style="color:#ea580c; font-weight:bold; margin-bottom:10px;">OR Reply via Email</p>
+      <div style="background:white; padding:12px; border-radius:8px; margin:10px 0; font-family:'Courier New', monospace; font-size:16px; border:1px dashed #f59e0b;">
+        <strong>I AGREE</strong>
       </div>
       <p style="font-size:14px; color:#92400e;">
-        Your IP address will be recorded for verification
+        Your IP address will be automatically recorded for verification
       </p>
     </div>
   `;

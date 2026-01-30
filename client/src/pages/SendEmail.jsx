@@ -5000,7 +5000,7 @@
 
 import { useState, useEffect } from "react";
 import API from "../api/axios";
-import SimpleAgreement from './SimpleAgreement';
+import SimpleAgreement from '../components2/SimpleAgreement';
 
 const SendEmail = () => {
   const [emailType, setEmailType] = useState("new_reservation");

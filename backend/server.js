@@ -155,7 +155,7 @@ app.use('/api/webhook', emailWebhookRoutes);
 app.use('/api/email', emailReplyRoutes);
 
 
-app.use("/api/paypal", paymentRoutes);
+app.use("/api/payment", paymentRoutes);
 
 
 

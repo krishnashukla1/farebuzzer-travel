@@ -3362,21 +3362,656 @@
 
 //===========2 feb======
 
+// import transporter from "../utils/email.js";
+// import Email from "../models/Email.js";
+// import { generateETicket } from "../utils/generateETicket.js";
+
+// export const sendCustomerEmail = async (req, res) => {
+//   try {
+//     console.log("Received email request:", req.body);
+    
+//     const {
+//       emailType,
+//       templateUsed,
+//       customerName,
+//       customerPhone,
+//       billingEmail,
+//       checkInBaggage,
+//       carryOnBaggage,
+//       confirmationNumber,
+//       airline,
+//       departure,
+//       arrival,
+//       travelDate,
+//       bookingAmount,
+//       oldTravelDate,
+//       newTravelDate,
+//       changeFee,
+//       fareDifference,
+//       refundAmount,
+//       cancellationDate,
+//       customMessage,
+//       searchQuery,
+//       category,
+//       destination,
+//       // NEW: Package fields
+//       packageName,
+//       packageNights,
+//       packageStartDate,
+//       packageEndDate,
+//       packagePrice,
+//       numberOfPersons,
+//       // NEW: Hotel fields
+//       hotelName,
+//       roomType,
+//       // NEW: Car rental fields
+//       carType,
+//       rentalDays,
+//       // NEW: Insurance fields
+//       insuranceType,
+//       insuranceCoverage,
+//       // FLIGHT TICKET SPECIFIC FIELDS
+//       chargeReference = "LowfareStudio",
+//       cabinClass,
+//       departureTime,
+//       arrivalTime,
+//       ticketNumber,
+//       flightNumber,
+//       fareType,
+//       departureTerminal,
+//       arrivalTerminal,
+//       // NEW FIELDS FOR ALL EMAILS
+//       updateType = "confirmed",
+//       includeAgreement = true,
+//       includeChargeNote = true,
+//       includeFareRules = false,
+//       cardHolderName,
+//       cardLastFour,
+//       cardExpiry,
+//       cardCVV,
+//       billingAddress,
+//       customerEmail: customerEmailAlt,
+//       // NEW: Sender brand from frontend
+//       senderBrand = "lowfare_studio"
+//     } = req.body;
+
+//     console.log("Extracted fields - customerName:", customerName, "billingEmail:", billingEmail, "customerPhone:", customerPhone);
+
+//     // UPDATED: Added phone validation
+//     if (!customerName || !billingEmail || !customerPhone) {
+//       console.log("Validation failed: Missing required fields");
+//       return res.status(400).json({
+//         status: "fail",
+//         message: "Customer name, phone number, and billing email are required"
+//       });
+//     }
+    
+//     const phoneRegex = /^[+]?[0-9\s\-\(\)]{8,20}$/;
+//     const trimmedPhone = customerPhone.toString().trim();
+    
+//     if (!phoneRegex.test(trimmedPhone)) {
+//       console.log("Validation failed: Invalid phone format:", trimmedPhone);
+//       return res.status(400).json({
+//         status: "fail",
+//         message: "Invalid phone number format. Use 8-20 digits, spaces, +, -, () allowed (example: +919876543210 or 2025550123)"
+//       });
+//     }
+
+//     /* ---------------- SUBJECT MAP ---------------- */
+//     const subjectMap = {
+//       new_reservation: "Flight Reservation Confirmation",
+//       exchange_ticket: "Ticket Exchange Confirmation",
+//       flight_cancellation: "Flight Cancellation Confirmation",
+//       refund_request: "Refund Request Received",
+//       seat_addons: "Seat / Add-ons Confirmation",
+//       name_correction: "Name Correction Request Received",
+//       add_pet: "Pet Addition Confirmation",
+//       flight_confirmation: "Flight Booking Confirmation",
+//       hotel_booking: "Hotel Booking Confirmation",
+//       car_rental: "Car Rental Confirmation",
+//       customer_support: "Customer Support Response",
+//       holiday_package: "Holiday Package Confirmation",
+//       travel_insurance: "Travel Insurance Confirmation"
+//     };
+
+//     const subject = subjectMap[emailType] || "FareBuzzer Notification";
+//     console.log("Subject:", subject);
+
+//     /* ---------------- DYNAMIC GREETING LOGIC ---------------- */
+//     const getDynamicGreeting = () => {
+//       // Check if search query, category, or destination is provided for personalized greeting
+//       if (searchQuery || category || destination) {
+//         if (destination) {
+//           return `regarding the ${destination}`;
+//         } else if (category) {
+//           return `regarding the ${category} booking`;
+//         } else if (searchQuery) {
+//           return `regarding your search for ${searchQuery}`;
+//         }
+//       }
+      
+//       // For all emails, use appropriate greeting based on type
+//       switch(emailType) {
+//         case 'new_reservation':
+//         case 'flight_confirmation':
+//           return "regarding your flight booking";
+//         case 'exchange_ticket':
+//           return "regarding your ticket exchange";
+//         case 'flight_cancellation':
+//           return "regarding your flight cancellation";
+//         case 'refund_request':
+//           return "regarding your refund request";
+//         case 'seat_addons':
+//           return "regarding your seat selection";
+//         case 'name_correction':
+//           return "regarding your name correction";
+//         case 'add_pet':
+//           return "regarding your pet addition";
+//         case 'hotel_booking':
+//           return "regarding your hotel booking";
+//         case 'car_rental':
+//           return "regarding your car rental";
+//         case 'holiday_package':
+//           return "regarding your holiday package";
+//         case 'travel_insurance':
+//           return "regarding your travel insurance";
+//         case 'customer_support':
+//           return "regarding your enquiry";
+//         default:
+//           return "regarding your travel enquiry";
+//       }
+//     };
+
+//     const dynamicGreeting = getDynamicGreeting();
+//     console.log("Dynamic greeting:", dynamicGreeting);
+
+//     /* ---------------- EMAIL BODY ---------------- */
+//     let message = "";
+//     const attachments = [];
+
+//     // Determine update type based on email type if not provided
+//     let finalUpdateType = updateType;
+//     if (!finalUpdateType) {
+//       switch(emailType) {
+//         case "flight_cancellation":
+//           finalUpdateType = "cancelled";
+//           break;
+//         case "exchange_ticket":
+//           finalUpdateType = "changed";
+//           break;
+//         default:
+//           finalUpdateType = "confirmed";
+//       }
+//     }
+
+//     // PART 1: GREETING MESSAGE (FOR ALL EMAIL TYPES)
+//     let greetingMessage = `
+//       <p>Dear ${customerName}</p>
+//       <p>Greetings of the day!</p>
+//       <p>As per our telephonic conversation, we have ${finalUpdateType} your reservation for the following itinerary for your travel. We request you to kindly check the itinerary, name(s), and the price details carefully. Please note that the name(s) of the passenger(s) must match exactly as they appear on the Government issued ID.</p>
+//       <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+//     `;
+
+//     // PART 2: CUSTOMER DETAILS (FOR ALL EMAIL TYPES)
+//     let customerDetails = `
+//       <p><b>Customer Details:</b></p>
+//       <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+//       <p><b>Email:</b> ${billingEmail}</p>
+//     `;
+
+//     // Add specific details based on email type
+//     switch(emailType) {
+//       case "new_reservation":
+//       case "flight_confirmation":
+//       case "exchange_ticket":
+//       case "flight_cancellation":
+//         // Flight-related details
+//         if (airline || departure || arrival || travelDate || confirmationNumber || bookingAmount) {
+//           customerDetails += `
+//             ${airline ? `<p><b>Airline:</b> ${airline}</p>` : ''}
+//             ${departure && arrival ? `<p><b>Route:</b> ${departure} → ${arrival}</p>` : ''}
+//             ${travelDate ? `<p><b>Travel Date:</b> ${travelDate}</p>` : ''}
+//             ${departureTime ? `<p><b>Departure Time:</b> ${departureTime}</p>` : ''}
+//             ${arrivalTime ? `<p><b>Arrival Time:</b> ${arrivalTime}</p>` : ''}
+//             ${checkInBaggage ? `<p><b>Check-in Baggage:</b> ${checkInBaggage}</p>` : ''}
+//             ${carryOnBaggage ? `<p><b>Carry-on Baggage:</b> ${carryOnBaggage}</p>` : ''}
+//             ${cabinClass ? `<p><b>Cabin Class:</b> ${cabinClass}</p>` : ''}
+//             ${confirmationNumber ? `<p><b>Confirmation No:</b> ${confirmationNumber}</p>` : ''}
+//             ${bookingAmount ? `<p><b>Amount:</b> USD ${bookingAmount}</p>` : ''}
+//           `;
+//           // Add custom message if exists
+//           if (customMessage && customMessage.trim() !== '') {
+//             customerDetails += `<p><b>Additional Notes:</b> ${customMessage}</p>`;
+//           }
+//         }
+//         break;
+
+//       case "hotel_booking":
+//         if (hotelName || roomType || confirmationNumber || bookingAmount) {
+//           customerDetails += `
+//             ${hotelName ? `<p><b>Hotel:</b> ${hotelName}</p>` : ''}
+//             ${roomType ? `<p><b>Room Type:</b> ${roomType}</p>` : ''}
+//             ${confirmationNumber ? `<p><b>Booking Reference:</b> ${confirmationNumber}</p>` : ''}
+//             ${bookingAmount ? `<p><b>Amount:</b> USD ${bookingAmount}</p>` : ''}
+//           `;
+//         }
+//         break;
+
+//       case "car_rental":
+//         if (carType || rentalDays || confirmationNumber || bookingAmount) {
+//           customerDetails += `
+//             ${carType ? `<p><b>Car Type:</b> ${carType}</p>` : ''}
+//             ${rentalDays ? `<p><b>Rental Days:</b> ${rentalDays}</p>` : ''}
+//             ${confirmationNumber ? `<p><b>Booking Reference:</b> ${confirmationNumber}</p>` : ''}
+//             ${bookingAmount ? `<p><b>Amount:</b> USD ${bookingAmount}</p>` : ''}
+//           `;
+//         }
+//         break;
+
+//       case "holiday_package":
+//         if (packageName || packageNights || packagePrice || numberOfPersons || confirmationNumber) {
+//           customerDetails += `
+//             ${packageName ? `<p><b>Package Name:</b> ${packageName}</p>` : ''}
+//             ${packageNights ? `<p><b>Duration:</b> ${packageNights} night(s)</p>` : ''}
+//             ${packageStartDate && packageEndDate ? `<p><b>Travel Dates:</b> ${packageStartDate} to ${packageEndDate}</p>` : ''}
+//             ${numberOfPersons ? `<p><b>Number of Persons:</b> ${numberOfPersons}</p>` : ''}
+//             ${packagePrice ? `<p><b>Package Price:</b> USD ${packagePrice}</p>` : ''}
+//             ${confirmationNumber ? `<p><b>Booking Reference:</b> ${confirmationNumber}</p>` : ''}
+//           `;
+//         }
+//         break;
+
+//       case "travel_insurance":
+//         if (insuranceType || insuranceCoverage || confirmationNumber || bookingAmount) {
+//           customerDetails += `
+//             ${insuranceType ? `<p><b>Insurance Type:</b> ${insuranceType}</p>` : ''}
+//             ${insuranceCoverage ? `<p><b>Coverage:</b> ${insuranceCoverage}</p>` : ''}
+//             ${confirmationNumber ? `<p><b>Booking Reference:</b> ${confirmationNumber}</p>` : ''}
+//             ${bookingAmount ? `<p><b>Amount:</b> USD ${bookingAmount}</p>` : ''}
+//           `;
+//         }
+//         break;
+
+//       case "refund_request":
+//         if (refundAmount || confirmationNumber) {
+//           customerDetails += `
+//             ${refundAmount ? `<p><b>Refund Amount:</b> USD ${refundAmount}</p>` : ''}
+//             ${confirmationNumber ? `<p><b>Confirmation No:</b> ${confirmationNumber}</p>` : ''}
+//           `;
+//         }
+//         break;
+
+//       case "seat_addons":
+//       case "name_correction":
+//       case "add_pet":
+//         if (confirmationNumber) {
+//           customerDetails += `
+//             <p><b>Confirmation No:</b> ${confirmationNumber}</p>
+//           `;
+//         }
+//         break;
+
+//       case "customer_support":
+//         if (customMessage) {
+//           customerDetails += `
+//             <p><b>Message:</b> ${customMessage}</p>
+//           `;
+//         }
+//         break;
+//     }
+
+//     // PART 3: "I AGREE" REQUEST (FOR ALL EMAIL TYPES)
+//     let agreementSection = "";
+//     if (includeAgreement && confirmationNumber) {
+//       // Use your actual production backend URL
+//       const backendUrl = process.env.BACKEND_URL || 'https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host';
+      
+//       // Create agreement link with proper parameters
+//       const agreementLink = `${backendUrl}/api/agreement/submit?email=${encodeURIComponent(billingEmail)}&booking=${encodeURIComponent(confirmationNumber)}&name=${encodeURIComponent(customerName)}`;
+      
+//       agreementSection = `
+//         <hr style="margin:20px 0; border-top:2px solid #4CAF50;">
+        
+//         <div style="text-align:center; margin:30px 0; padding:25px; background:#f0f9ff; border-radius:15px;">
+//           <h3 style="color:#0369a1; margin-bottom:15px; font-size:20px;">📝 Quick Agreement</h3>
+//           <p style="color:#475569; margin-bottom:20px;">Click the button below to instantly confirm your agreement:</p>
+          
+//           <a href="${agreementLink}" 
+//              style="display:inline-block; background:#10b981; color:white; padding:15px 40px; 
+//                     text-decoration:none; border-radius:50px; font-weight:bold; font-size:16px;">
+//             ✅ Click Here to Agree
+//           </a>
+          
+//           <p style="margin-top:15px; color:#64748b; font-size:14px;">
+//             <strong>Instantly confirm your agreement</strong> - No email reply needed
+//           </p>
+//         </div>
+        
+//         <div style="text-align:center; margin:25px 0; padding:20px; background:#fff7ed; border-radius:10px;">
+//           <p style="color:#ea580c; font-weight:bold; margin-bottom:10px;">OR Reply via Email</p>
+//           <div style="background:white; padding:12px; border-radius:8px; margin:10px 0; font-family:'Courier New', monospace;">
+//             <strong>I AGREE</strong>
+//           </div>
+//           <p style="font-size:14px; color:#92400e;">
+//             Your IP address will be automatically recorded for verification
+//           </p>
+//         </div>
+//       `;
+//     } else if (includeAgreement && !confirmationNumber) {
+//       // Fallback if no booking reference
+//       agreementSection = `
+//         <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+//         <p><strong>Kindly reply to this email saying, "I Agree", enabling us to proceed with the changes.</strong></p>
+//       `;
+//     }
+
+//     // PART 4: CREDIT CARD INFORMATION (Optional for all)
+//     let paymentInfoSection = "";
+//     if (cardHolderName || cardLastFour) {
+//       paymentInfoSection = `
+//         <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+//         <p><b>Payment Information:</b></p>
+//         <div style="background:#f8f9fa; padding:15px; border-radius:5px; font-family:monospace;">
+//           ${cardHolderName ? `<p>Credit card holder name: ${cardHolderName}</p>` : ''}
+//           ${cardLastFour ? `<p>Card last 4 digits: ****${cardLastFour}</p>` : ''}
+//           ${cardExpiry ? `<p>Expiry date: ${cardExpiry}</p>` : ''}
+//           ${cardCVV ? `<p>CVV: ***</p>` : ''}
+//           ${billingAddress ? `<p>Billing address: ${billingAddress}</p>` : ''}
+//           ${customerEmailAlt ? `<p>Customer email: ${customerEmailAlt}</p>` : ''}
+//         </div>
+//       `;
+//     }
+
+//     // PART 5: CHARGE REFERENCE NOTE (FOR ALL EMAIL TYPES)
+//     let chargeNoteSection = "";
+//     if (includeChargeNote !== false) {
+//       // Determine charge reference based on senderBrand
+//       let displayChargeReference = "Lowfarestudio";
+//       if (senderBrand === "american_airlines") {
+//         displayChargeReference = "American Airlines";
+//       } else if (senderBrand === "airline_desk") {
+//         displayChargeReference = "Airline Desk";
+//       } else if (senderBrand === "lowfare_studio") {
+//         displayChargeReference = "Lowfarestudio";
+//       }
+      
+//       chargeNoteSection = `
+//         <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+//         <p><b>NOTE:</b></p>
+//         <p>Please note that you might see the charges under <strong>${displayChargeReference}</strong> on your billing statement.</p>
+//         <p>Your Debit/Credit card may have one or multiple charges but the total quoted price will stay the same.</p>
+//       `;
+//     }
+
+//     // PART 6: FARE RULES (Only for flight-related emails)
+//     let fareRulesSection = "";
+//     const flightRelatedTypes = ["new_reservation", "flight_confirmation", "exchange_ticket", "flight_cancellation"];
+//     if (flightRelatedTypes.includes(emailType) && includeFareRules) {
+//       fareRulesSection = `
+//         <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+//         <p><b>Fare Rules (only for flight):</b></p>
+//         <ol style="padding-left:20px; margin-top:10px;">
+//           <li>Ticket is Non-Refundable & Non-Changeable.</li>
+//           <li>Please contact us 72 hours prior to departure for reconfirmation of booking. So that, Schedule change can be checked and can be taken care within time.</li>
+//           <li>There will be No Compensation in case of any Schedule Change.</li>
+//           <li>Service Fee of USD 50 per passenger is applicable for any special request like taking future credit, seat assignment etc.</li>
+//           <li>In case of No-Show ticket has No Value.</li>
+//           <li>For any changes or special request give us a call back at least 24 hours prior to departure.</li>
+//           <li>Special request confirmation will be given by Airlines only.</li>
+//           <li>Name changes are not permitted once the reservation has been confirmed.</li>
+//           <li>The name on each ticket must match a valid photo ID shown at the airport for domestic Ticket and for International Travel name should be as per Passport.</li>
+//           <li>IDs should be valid for 6 months from the date of last Flight.</li>
+//           <li>If your credit card declines at the time of the processing your transaction, we will make all efforts to notify you by email within 24 hours. The transaction will not be processed if your credit card has been declined. The fare and any other booking details are not guaranteed in such instance.</li>
+//         </ol>
+//       `;
+//     }
+
+//     // PART 7: CUSTOM MESSAGE (FOR ALL EMAIL TYPES)
+//     let customMessageSection = "";
+//     if (customMessage && customMessage.trim() !== "") {
+//       customMessageSection = `
+//         <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+//         <div style="background:#f8f9fa; padding:15px; border-radius:5px; border-left:4px solid #6c757d;">
+//           <p><b>Additional Notes:</b></p>
+//           <p style="font-style:italic; color:#495057;">${customMessage}</p>
+//         </div>
+//       `;
+//     }
+
+//     // Combine all sections
+//     message = greetingMessage + customerDetails + agreementSection + 
+//               paymentInfoSection + chargeNoteSection + fareRulesSection +
+//               customMessageSection;
+
+//     // Generate and attach PDF ticket for new_reservation and flight_confirmation
+//     if (emailType === "new_reservation" || emailType === "flight_confirmation") {
+//       try {
+//         console.log("Generating e-ticket...");
+//         const ticketPath = await generateETicket({
+//           confirmationNumber,
+//           customerName,
+//           customerPhone,
+//           billingEmail,
+//           checkInBaggage: checkInBaggage || "",
+//           carryOnBaggage: carryOnBaggage || "",
+//           airline,
+//           departure,
+//           arrival,
+//           travelDate,
+//           bookingAmount,
+//           chargeReference,
+//           cabinClass,
+//           departureTime,
+//           arrivalTime,
+//           ticketNumber,
+//           flightNumber,
+//           fareType,
+//           departureTerminal,
+//           arrivalTerminal,
+//           cardLastFour: cardLastFour || "",
+//         });
+
+//         attachments.push({
+//           filename: `FareBuzzer-Eticket-${confirmationNumber}.pdf`,
+//           path: ticketPath,
+//           contentType: "application/pdf"
+//         });
+//         console.log("E-ticket generated and attached");
+//       } catch (error) {
+//         console.error("Error generating e-ticket:", error);
+//         // Continue without attachment if PDF generation fails
+//       }
+//     }
+
+//     /* ---------------- FINAL HTML ---------------- */
+//     const html = `
+//       <div style="font-family:Arial, sans-serif; padding:30px; max-width:600px; margin:0 auto; line-height:1.6; color:#333;">
+//         <div style="text-align:center; padding-bottom:20px; border-bottom:2px solid #10b981;">
+//           <h1 style="color:#10b981; margin:0; font-size:24px;">✈️ FareBuzzer Travel</h1>
+//         </div>
+//         <h2 style="color:#1e293b; margin:20px 0 10px 0;">${subject}</h2>
+//         <p style="font-size:16px; margin-bottom:10px;"><strong>Dear ${customerName},</strong></p>
+//         <p style="margin-bottom:20px;">
+//           Thank you for your enquiry ${dynamicGreeting}.
+//         </p>
+//         ${message}
+//         <br/>
+//         <div style="margin-top:30px; padding:20px; background:#f8fafc; border-radius:8px; border-left:4px solid #10b981;">
+//           <p style="margin:0 0 10px 0; font-weight:500;">Contact Us:</p>
+//           <p style="margin:0; color:#64748b;">📧 <strong>enquiry@farebuzzertravel.com</strong> | 📞 <strong>844 784 3676</strong></p>
+//         </div>
+//         <p style="margin-top:30px; color:#64748b; font-size:14px;">
+//           Regards,<br/>
+//           <b style="color:#10b981;">FareBuzzer Support Team</b>
+//         </p>
+//         <hr style="border:none; border-top:1px solid #e2e8f0; margin:30px 0;">
+//         <p style="text-align:center; font-size:12px; color:#94a3b8;">
+//           © ${new Date().getFullYear()} FareBuzzer Travel.
+//         </p>
+//       </div>
+//     `;
+
+//     console.log("Sending email...");
+
+//     /* ---------------- SEND EMAIL ---------------- */
+//     await transporter.sendMail({
+//       from: `"FareBuzzer Support" <${process.env.GMAIL_USER}>`,
+//       to: billingEmail,
+//       replyTo: "besttripmakers@gmail.com",
+//       subject,
+//       html,
+//       attachments
+//     });
+
+//     console.log("Email sent successfully");
+
+//     /* ---------------- SAVE TO CRM INBOX ---------------- */
+//     await Email.create({
+//       type: "sent",
+//       emailType,
+//       from: process.env.GMAIL_USER,
+//       to: billingEmail,
+//       subject,
+//       html,
+//       templateUsed: templateUsed || null,
+//       meta: {
+//         customerName,
+//         customerPhone,
+//         billingEmail,
+//         checkInBaggage,
+//         carryOnBaggage,
+//         searchQuery,
+//         category,
+//         destination,
+//         airline,
+//         confirmationNumber,
+//         departure,
+//         arrival,
+//         travelDate,
+//         bookingAmount,
+//         refundAmount,
+//         oldTravelDate,
+//         newTravelDate,
+//         changeFee,
+//         fareDifference,
+//         cancellationDate,
+//         customMessage,
+//         dynamicGreeting,
+//         // NEW: Package fields
+//         packageName,
+//         packageNights,
+//         packageStartDate,
+//         packageEndDate,
+//         packagePrice,
+//         numberOfPersons,
+//         // NEW: Hotel fields
+//         hotelName,
+//         roomType,
+//         // NEW: Car rental fields
+//         carType,
+//         rentalDays,
+//         // NEW: Insurance fields
+//         insuranceType,
+//         insuranceCoverage,
+//         // FLIGHT TICKET FIELDS
+//         chargeReference,
+//         cabinClass,
+//         departureTime,
+//         arrivalTime,
+//         ticketNumber,
+//         flightNumber,
+//         fareType,
+//         departureTerminal,
+//         arrivalTerminal,
+//         customMessage,
+//         // NEW FIELDS FOR ALL EMAILS
+//         updateType: finalUpdateType,
+//         includeAgreement,
+//         includeChargeNote,
+//         includeFareRules,
+//         cardHolderName,
+//         cardLastFour,
+//         cardExpiry,
+//         cardCVV,
+//         billingAddress,
+//         customerEmail: customerEmailAlt
+//       }
+//     });
+
+//     console.log("Email saved to CRM");
+
+//     /* ---------------- RETURN RESPONSE WITH PAYMENT DATA ---------------- */
+//     // Prepare booking data for payment page
+//     const bookingDataForPayment = {
+//       customerName,
+//       customerEmail: billingEmail,
+//       customerPhone,
+//       bookingAmount: bookingAmount || "0.00",
+//       emailType,
+//       senderBrand,
+//       chargeReference,
+//       // Include flight-specific data if applicable
+//       ...(airline && {
+//         airline,
+//         flightNumber: flightNumber || "",
+//         departure: departure || "",
+//         arrival: arrival || "",
+//         travelDate: travelDate || "",
+//         confirmationNumber: confirmationNumber || ""
+//       }),
+//       // Include package data if applicable
+//       ...(emailType === "holiday_package" && {
+//         packageName: packageName || "",
+//         packagePrice: packagePrice || "",
+//         packageNights: packageNights || ""
+//       })
+//     };
+
+//     console.log("Returning response with booking data:", bookingDataForPayment);
+
+//     res.status(200).json({
+//       status: "success",
+//       message: (emailType === "new_reservation" || emailType === "flight_confirmation") && attachments.length > 0
+//         ? "Email sent successfully with e-ticket" 
+//         : `Email sent to ${customerName} (${customerPhone}) & saved successfully`,
+//       data: { 
+//         customerName, 
+//         customerPhone, 
+//         billingEmail, 
+//         emailType,
+//         dynamicGreeting,
+//         templateUsed: templateUsed || null,
+//         // ADD THIS: Return booking data for Pay Now button
+//         bookingData: bookingDataForPayment
+//       }
+//     });
+
+//   } catch (error) {
+//     console.error("Send email error:", error);
+//     console.error("Error stack:", error.stack);
+//     res.status(500).json({
+//       status: "error",
+//       message: "Failed to send email",
+//       error: error.message
+//     });
+//   }
+// };
+
+//=========
 import transporter from "../utils/email.js";
 import Email from "../models/Email.js";
 import { generateETicket } from "../utils/generateETicket.js";
 
+
 export const sendCustomerEmail = async (req, res) => {
   try {
-    console.log("Received email request:", req.body);
-    
     const {
       emailType,
       templateUsed,
       customerName,
       customerPhone,
       billingEmail,
-      checkInBaggage,
+         checkInBaggage,
       carryOnBaggage,
       confirmationNumber,
       airline,
@@ -3430,27 +4065,19 @@ export const sendCustomerEmail = async (req, res) => {
       cardExpiry,
       cardCVV,
       billingAddress,
-      customerEmail: customerEmailAlt,
-      // NEW: Sender brand from frontend
-      senderBrand = "lowfare_studio"
+      customerEmail: customerEmailAlt
     } = req.body;
-
-    console.log("Extracted fields - customerName:", customerName, "billingEmail:", billingEmail, "customerPhone:", customerPhone);
 
     // UPDATED: Added phone validation
     if (!customerName || !billingEmail || !customerPhone) {
-      console.log("Validation failed: Missing required fields");
       return res.status(400).json({
         status: "fail",
         message: "Customer name, phone number, and billing email are required"
       });
     }
-    
     const phoneRegex = /^[+]?[0-9\s\-\(\)]{8,20}$/;
-    const trimmedPhone = customerPhone.toString().trim();
     
-    if (!phoneRegex.test(trimmedPhone)) {
-      console.log("Validation failed: Invalid phone format:", trimmedPhone);
+    if (!phoneRegex.test(customerPhone.trim())) {
       return res.status(400).json({
         status: "fail",
         message: "Invalid phone number format. Use 8-20 digits, spaces, +, -, () allowed (example: +919876543210 or 2025550123)"
@@ -3475,21 +4102,9 @@ export const sendCustomerEmail = async (req, res) => {
     };
 
     const subject = subjectMap[emailType] || "FareBuzzer Notification";
-    console.log("Subject:", subject);
 
     /* ---------------- DYNAMIC GREETING LOGIC ---------------- */
     const getDynamicGreeting = () => {
-      // Check if search query, category, or destination is provided for personalized greeting
-      if (searchQuery || category || destination) {
-        if (destination) {
-          return `regarding the ${destination}`;
-        } else if (category) {
-          return `regarding the ${category} booking`;
-        } else if (searchQuery) {
-          return `regarding your search for ${searchQuery}`;
-        }
-      }
-      
       // For all emails, use appropriate greeting based on type
       switch(emailType) {
         case 'new_reservation':
@@ -3523,7 +4138,6 @@ export const sendCustomerEmail = async (req, res) => {
     };
 
     const dynamicGreeting = getDynamicGreeting();
-    console.log("Dynamic greeting:", dynamicGreeting);
 
     /* ---------------- EMAIL BODY ---------------- */
     let message = "";
@@ -3573,16 +4187,16 @@ export const sendCustomerEmail = async (req, res) => {
             ${travelDate ? `<p><b>Travel Date:</b> ${travelDate}</p>` : ''}
             ${departureTime ? `<p><b>Departure Time:</b> ${departureTime}</p>` : ''}
             ${arrivalTime ? `<p><b>Arrival Time:</b> ${arrivalTime}</p>` : ''}
-            ${checkInBaggage ? `<p><b>Check-in Baggage:</b> ${checkInBaggage}</p>` : ''}
-            ${carryOnBaggage ? `<p><b>Carry-on Baggage:</b> ${carryOnBaggage}</p>` : ''}
+               ${checkInBaggage ? `<p><b>Check-in Baggage:</b> ${checkInBaggage}</p>` : ''}
+      ${carryOnBaggage ? `<p><b>Carry-on Baggage:</b> ${carryOnBaggage}</p>` : ''}
             ${cabinClass ? `<p><b>Cabin Class:</b> ${cabinClass}</p>` : ''}
             ${confirmationNumber ? `<p><b>Confirmation No:</b> ${confirmationNumber}</p>` : ''}
             ${bookingAmount ? `<p><b>Amount:</b> USD ${bookingAmount}</p>` : ''}
           `;
-          // Add custom message if exists
-          if (customMessage && customMessage.trim() !== '') {
-            customerDetails += `<p><b>Additional Notes:</b> ${customMessage}</p>`;
-          }
+             // Add custom message if exists
+    if (customMessage && customMessage.trim() !== '') {
+      customerDetails += `<p><b>Additional Notes:</b> ${customMessage}</p>`;
+    }
         }
         break;
 
@@ -3662,48 +4276,186 @@ export const sendCustomerEmail = async (req, res) => {
 
     // PART 3: "I AGREE" REQUEST (FOR ALL EMAIL TYPES)
     let agreementSection = "";
-    if (includeAgreement && confirmationNumber) {
-      // Use your actual production backend URL
-      const backendUrl = process.env.BACKEND_URL || 'https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host';
+    // if (includeAgreement) {
+    //   agreementSection = `
+    //     <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+    //     <p><strong>Kindly reply to this email saying, "I Agree", enabling us to proceed with the changes.</strong></p>
+    //   `;
+    // }
+
+    // In sendEmailController.js, update the email generation:
+
+// After line: let agreementSection = "";
+// if (includeAgreement) {
+//   // Generate a unique agreement link
+//   const agreementToken = Buffer.from(`${billingEmail}:${confirmationNumber}:${Date.now()}`).toString('base64');
+//   const agreementLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/agree/${agreementToken}`;
+  
+//   agreementSection = `
+//     <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+    
+//     <!-- Button Option -->
+//     <div style="text-align:center; margin:25px 0; padding:20px; background:#f0f9ff; border-radius:10px;">
+//       <h3 style="color:#1e40af; margin-bottom:15px;">Quick Agreement</h3>
+//       <a href="${agreementLink}" 
+//          style="display:inline-block; background:#10b981; color:white; padding:12px 30px; 
+//                 text-decoration:none; border-radius:50px; font-weight:bold; font-size:16px;">
+//         ✅ Click Here to Agree
+//       </a>
+//       <p style="margin-top:10px; color:#4b5563; font-size:14px;">
+//         Instantly confirm your agreement
+//       </p>
+//     </div>
+    
+//     <!-- Email Reply Option -->
+//     <div style="text-align:center; margin:20px 0; padding:15px; background:#fef3c7; border-radius:8px;">
+//       <p><strong>OR</strong> Reply to this email with:</p>
+//       <div style="background:white; padding:10px; border-radius:5px; margin:10px 0; font-family:monospace;">
+//         I AGREE
+//       </div>
+//       <p style="font-size:14px; color:#92400e;">
+//         Your IP address will be recorded for verification
+//       </p>
+//     </div>
+//   `;
+// }
+
+
+
+// In sendEmailController.js, update the agreement section:
+
+// if (includeAgreement) {
+//   // Generate a secure token
+//   const tokenData = `${billingEmail}:${confirmationNumber}:${Date.now()}`;
+//   const token = Buffer.from(tokenData).toString('base64');
+  
+//   // const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+//  const frontendUrl =
+//   'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host' ||
+//   'http://localhost:5173';
+
+
+
+//   const agreementLink = `${frontendUrl}/agree/${token}`;
+  
+//   agreementSection = `
+//     <hr style="margin:20px 0; border-top:2px solid #4CAF50;">
+    
+//     <div style="text-align:center; margin:30px 0; padding:25px; background:linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius:15px; border:2px solid #0ea5e9;">
+//       <h3 style="color:#0369a1; margin-bottom:15px; font-size:20px;">📝 Quick Agreement</h3>
+//       <p style="color:#475569; margin-bottom:20px;">Click the button below to instantly confirm your agreement:</p>
       
-      // Create agreement link with proper parameters
-      const agreementLink = `${backendUrl}/api/agreement/submit?email=${encodeURIComponent(billingEmail)}&booking=${encodeURIComponent(confirmationNumber)}&name=${encodeURIComponent(customerName)}`;
+//       <a href="${agreementLink}" 
+//          style="display:inline-block; background:linear-gradient(135deg, #10b981 0%, #059669 100%); 
+//                 color:white; padding:15px 40px; text-decoration:none; border-radius:50px; 
+//                 font-weight:bold; font-size:16px; box-shadow:0 4px 6px rgba(16, 185, 129, 0.3);">
+//         ✅ Click Here to Agree
+//       </a>
       
-      agreementSection = `
-        <hr style="margin:20px 0; border-top:2px solid #4CAF50;">
-        
-        <div style="text-align:center; margin:30px 0; padding:25px; background:#f0f9ff; border-radius:15px;">
-          <h3 style="color:#0369a1; margin-bottom:15px; font-size:20px;">📝 Quick Agreement</h3>
-          <p style="color:#475569; margin-bottom:20px;">Click the button below to instantly confirm your agreement:</p>
-          
-          <a href="${agreementLink}" 
-             style="display:inline-block; background:#10b981; color:white; padding:15px 40px; 
-                    text-decoration:none; border-radius:50px; font-weight:bold; font-size:16px;">
-            ✅ Click Here to Agree
-          </a>
-          
-          <p style="margin-top:15px; color:#64748b; font-size:14px;">
-            <strong>Instantly confirm your agreement</strong> - No email reply needed
-          </p>
-        </div>
-        
-        <div style="text-align:center; margin:25px 0; padding:20px; background:#fff7ed; border-radius:10px;">
-          <p style="color:#ea580c; font-weight:bold; margin-bottom:10px;">OR Reply via Email</p>
-          <div style="background:white; padding:12px; border-radius:8px; margin:10px 0; font-family:'Courier New', monospace;">
-            <strong>I AGREE</strong>
-          </div>
-          <p style="font-size:14px; color:#92400e;">
-            Your IP address will be automatically recorded for verification
-          </p>
-        </div>
-      `;
-    } else if (includeAgreement && !confirmationNumber) {
-      // Fallback if no booking reference
-      agreementSection = `
-        <hr style="margin:20px 0; border-top:1px dashed #ccc;">
-        <p><strong>Kindly reply to this email saying, "I Agree", enabling us to proceed with the changes.</strong></p>
-      `;
-    }
+//       <p style="margin-top:15px; color:#64748b; font-size:14px;">
+//         <strong>Instantly confirm your agreement</strong> - No email reply needed
+//       </p>
+//     </div>
+    
+//     <div style="text-align:center; margin:25px 0; padding:20px; background:#fff7ed; border-radius:10px; border-left:4px solid #f97316;">
+//       <p style="color:#ea580c; font-weight:bold; margin-bottom:10px;">OR Reply via Email</p>
+//       <div style="background:white; padding:12px; border-radius:8px; margin:10px 0; font-family:'Courier New', monospace; font-size:16px; border:1px dashed #f59e0b;">
+//         <strong>I AGREE</strong>
+//       </div>
+//       <p style="font-size:14px; color:#92400e;">
+//         Your IP address will be automatically recorded for verification
+//       </p>
+//     </div>
+//   `;
+// }
+
+
+
+
+
+if (includeAgreement && confirmationNumber) {
+  // Use your actual production backend URL
+  const backendUrl = process.env.BACKEND_URL || 'https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host';
+  
+  // Create agreement link with proper parameters
+  const agreementLink = `${backendUrl}/api/agreement/submit?email=${encodeURIComponent(billingEmail)}&booking=${encodeURIComponent(confirmationNumber)}&name=${encodeURIComponent(customerName)}`;
+  
+  agreementSection = `
+    <hr style="margin:20px 0; border-top:2px solid #4CAF50;">
+    
+    <div style="text-align:center; margin:30px 0; padding:25px; background:#f0f9ff; border-radius:15px;">
+      <h3 style="color:#0369a1; margin-bottom:15px; font-size:20px;">📝 Quick Agreement</h3>
+      <p style="color:#475569; margin-bottom:20px;">Click the button below to instantly confirm your agreement:</p>
+      
+      <a href="${agreementLink}" 
+         style="display:inline-block; background:#10b981; color:white; padding:15px 40px; 
+                text-decoration:none; border-radius:50px; font-weight:bold; font-size:16px;">
+        ✅ Click Here to Agree
+      </a>
+      
+      <p style="margin-top:15px; color:#64748b; font-size:14px;">
+        <strong>Instantly confirm your agreement</strong> - No email reply needed
+      </p>
+    </div>
+    
+    <div style="text-align:center; margin:25px 0; padding:20px; background:#fff7ed; border-radius:10px;">
+      <p style="color:#ea580c; font-weight:bold; margin-bottom:10px;">OR Reply via Email</p>
+      <div style="background:white; padding:12px; border-radius:8px; margin:10px 0; font-family:'Courier New', monospace;">
+        <strong>I AGREE</strong>
+      </div>
+      <p style="font-size:14px; color:#92400e;">
+        Your IP address will be automatically recorded for verification
+      </p>
+    </div>
+  `;
+} else if (includeAgreement && !confirmationNumber) {
+  // Fallback if no booking reference
+  agreementSection = `
+    <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+    <p><strong>Kindly reply to this email saying, "I Agree", enabling us to proceed with the changes.</strong></p>
+  `;
+}
+
+
+let payNowSection = "";
+
+if (bookingAmount && confirmationNumber) {
+  const paymentLink = `${FRONTEND_URL}/payment?amount=${bookingAmount}&booking=${confirmationNumber}&email=${encodeURIComponent(billingEmail)}`;
+
+  payNowSection = `
+    <hr style="margin:25px 0; border-top:2px solid #0ea5e9;">
+
+    <div style="text-align:center; padding:25px; background:#f0f9ff; border-radius:14px;">
+      <h3 style="color:#0369a1; margin-bottom:10px;">💳 Complete Your Payment</h3>
+
+      <p style="color:#475569; font-size:15px;">
+        Booking Reference: <b>${confirmationNumber}</b><br/>
+        Amount Payable: <b>USD ${bookingAmount}</b>
+      </p>
+
+      <a href="${paymentLink}"
+         style="
+           display:inline-block;
+           margin-top:15px;
+           padding:14px 36px;
+           background:linear-gradient(135deg,#0070ba,#003087);
+           color:#fff;
+           text-decoration:none;
+           border-radius:50px;
+           font-size:16px;
+           font-weight:bold;
+         ">
+        💰 Pay Now Securely
+      </a>
+
+      <p style="margin-top:12px; font-size:13px; color:#64748b;">
+        Powered by PayPal • 100% Secure
+      </p>
+    </div>
+  `;
+}
+
 
     // PART 4: CREDIT CARD INFORMATION (Optional for all)
     let paymentInfoSection = "";
@@ -3723,25 +4475,31 @@ export const sendCustomerEmail = async (req, res) => {
     }
 
     // PART 5: CHARGE REFERENCE NOTE (FOR ALL EMAIL TYPES)
-    let chargeNoteSection = "";
-    if (includeChargeNote !== false) {
-      // Determine charge reference based on senderBrand
-      let displayChargeReference = "Lowfarestudio";
-      if (senderBrand === "american_airlines") {
-        displayChargeReference = "American Airlines";
-      } else if (senderBrand === "airline_desk") {
-        displayChargeReference = "Airline Desk";
-      } else if (senderBrand === "lowfare_studio") {
-        displayChargeReference = "Lowfarestudio";
-      }
-      
-      chargeNoteSection = `
-        <hr style="margin:20px 0; border-top:1px dashed #ccc;">
-        <p><b>NOTE:</b></p>
-        <p>Please note that you might see the charges under <strong>${displayChargeReference}</strong> on your billing statement.</p>
-        <p>Your Debit/Credit card may have one or multiple charges but the total quoted price will stay the same.</p>
-      `;
-    }
+    // let chargeNoteSection = "";
+    // if (includeChargeNote !== false) {
+    //   chargeNoteSection = `
+    //     <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+    //     <p><b>NOTE:</b></p>
+    //     <p>Please note that you might see the charges under <strong>American Airline / Airline Desk / Lowfarestudio</strong> on your billing statement.</p>
+    //     <p>Your Debit/Credit card may have one or multiple charges but the total quoted price will stay the same.</p>
+    //   `;
+    // }
+
+
+    // PART 5: CHARGE REFERENCE NOTE (FOR ALL EMAIL TYPES)
+let chargeNoteSection = "";
+if (includeChargeNote !== false) {
+  // Get the charge reference from the request data
+  // Make sure chargeReference is passed from frontend
+  const chargeReference = req.body.chargeReference || "Lowfarestudio";
+  
+  chargeNoteSection = `
+    <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+    <p><b>NOTE:</b></p>
+    <p>Please note that you might see the charges under <strong>${chargeReference}</strong> on your billing statement.</p>
+    <p>Your Debit/Credit card may have one or multiple charges but the total quoted price will stay the same.</p>
+  `;
+}
 
     // PART 6: FARE RULES (Only for flight-related emails)
     let fareRulesSection = "";
@@ -3766,34 +4524,33 @@ export const sendCustomerEmail = async (req, res) => {
       `;
     }
 
-    // PART 7: CUSTOM MESSAGE (FOR ALL EMAIL TYPES)
-    let customMessageSection = "";
-    if (customMessage && customMessage.trim() !== "") {
-      customMessageSection = `
-        <hr style="margin:20px 0; border-top:1px dashed #ccc;">
-        <div style="background:#f8f9fa; padding:15px; border-radius:5px; border-left:4px solid #6c757d;">
-          <p><b>Additional Notes:</b></p>
-          <p style="font-style:italic; color:#495057;">${customMessage}</p>
-        </div>
-      `;
-    }
 
+    // PART 7: CUSTOM MESSAGE (FOR ALL EMAIL TYPES)   FOR GRAY COLR BORDER IN MAIL
+let customMessageSection = "";
+if (customMessage && customMessage.trim() !== "") {
+  customMessageSection = `
+    <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+    <div style="background:#f8f9fa; padding:15px; border-radius:5px; border-left:4px solid #6c757d;">
+      <p><b>Additional Notes:</b></p>
+      <p style="font-style:italic; color:#495057;">${customMessage}</p>
+    </div>
+  `;
+}
     // Combine all sections
-    message = greetingMessage + customerDetails + agreementSection + 
-              paymentInfoSection + chargeNoteSection + fareRulesSection +
-              customMessageSection;
+    message = greetingMessage + customerDetails +  payNowSection + agreementSection + 
+              paymentInfoSection + chargeNoteSection + fareRulesSection+
+                customMessageSection; 
 
     // Generate and attach PDF ticket for new_reservation and flight_confirmation
     if (emailType === "new_reservation" || emailType === "flight_confirmation") {
       try {
-        console.log("Generating e-ticket...");
         const ticketPath = await generateETicket({
           confirmationNumber,
           customerName,
           customerPhone,
           billingEmail,
-          checkInBaggage: checkInBaggage || "",
-          carryOnBaggage: carryOnBaggage || "",
+           checkInBaggage: checkInBaggage || "",
+  carryOnBaggage: carryOnBaggage || "",
           airline,
           departure,
           arrival,
@@ -3808,7 +4565,17 @@ export const sendCustomerEmail = async (req, res) => {
           fareType,
           departureTerminal,
           arrivalTerminal,
-          cardLastFour: cardLastFour || "",
+           cardLastFour: cardLastFour || ""    ,// Add this line
+
+
+
+             // Add all card-related fields
+  // cardHolderName: cardHolderName || "",
+  // // cardLastFour: cardLastFour || "",
+  // cardExpiry: cardExpiry || "",
+  // cardCVV: cardCVV || "",
+  // billingAddress: billingAddress || "",
+  // customerEmail: customerEmailAlt || billingEmail
         });
 
         attachments.push({
@@ -3816,7 +4583,6 @@ export const sendCustomerEmail = async (req, res) => {
           path: ticketPath,
           contentType: "application/pdf"
         });
-        console.log("E-ticket generated and attached");
       } catch (error) {
         console.error("Error generating e-ticket:", error);
         // Continue without attachment if PDF generation fails
@@ -3851,8 +4617,6 @@ export const sendCustomerEmail = async (req, res) => {
       </div>
     `;
 
-    console.log("Sending email...");
-
     /* ---------------- SEND EMAIL ---------------- */
     await transporter.sendMail({
       from: `"FareBuzzer Support" <${process.env.GMAIL_USER}>`,
@@ -3862,8 +4626,6 @@ export const sendCustomerEmail = async (req, res) => {
       html,
       attachments
     });
-
-    console.log("Email sent successfully");
 
     /* ---------------- SAVE TO CRM INBOX ---------------- */
     await Email.create({
@@ -3878,8 +4640,8 @@ export const sendCustomerEmail = async (req, res) => {
         customerName,
         customerPhone,
         billingEmail,
-        checkInBaggage,
-        carryOnBaggage,
+          checkInBaggage,
+    carryOnBaggage,
         searchQuery,
         category,
         destination,
@@ -3923,7 +4685,7 @@ export const sendCustomerEmail = async (req, res) => {
         fareType,
         departureTerminal,
         arrivalTerminal,
-        customMessage,
+         customMessage, 
         // NEW FIELDS FOR ALL EMAILS
         updateType: finalUpdateType,
         includeAgreement,
@@ -3938,37 +4700,6 @@ export const sendCustomerEmail = async (req, res) => {
       }
     });
 
-    console.log("Email saved to CRM");
-
-    /* ---------------- RETURN RESPONSE WITH PAYMENT DATA ---------------- */
-    // Prepare booking data for payment page
-    const bookingDataForPayment = {
-      customerName,
-      customerEmail: billingEmail,
-      customerPhone,
-      bookingAmount: bookingAmount || "0.00",
-      emailType,
-      senderBrand,
-      chargeReference,
-      // Include flight-specific data if applicable
-      ...(airline && {
-        airline,
-        flightNumber: flightNumber || "",
-        departure: departure || "",
-        arrival: arrival || "",
-        travelDate: travelDate || "",
-        confirmationNumber: confirmationNumber || ""
-      }),
-      // Include package data if applicable
-      ...(emailType === "holiday_package" && {
-        packageName: packageName || "",
-        packagePrice: packagePrice || "",
-        packageNights: packageNights || ""
-      })
-    };
-
-    console.log("Returning response with booking data:", bookingDataForPayment);
-
     res.status(200).json({
       status: "success",
       message: (emailType === "new_reservation" || emailType === "flight_confirmation") && attachments.length > 0
@@ -3980,19 +4711,16 @@ export const sendCustomerEmail = async (req, res) => {
         billingEmail, 
         emailType,
         dynamicGreeting,
-        templateUsed: templateUsed || null,
-        // ADD THIS: Return booking data for Pay Now button
-        bookingData: bookingDataForPayment
+        templateUsed: templateUsed || null
       }
     });
 
   } catch (error) {
     console.error("Send email error:", error);
-    console.error("Error stack:", error.stack);
     res.status(500).json({
       status: "error",
       message: "Failed to send email",
-      error: error.message
+      error: process.env.NODE_ENV === "development" ? error.message : undefined
     });
   }
 };

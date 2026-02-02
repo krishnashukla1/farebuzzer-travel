@@ -4463,66 +4463,152 @@ export const sendCustomerEmail = async (req, res) => {
     // }
 
 
-    let payNowButtonSection = "";
-if (bookingAmount && bookingAmount !== "0" && bookingAmount !== "0.00") {
+//     let payNowButtonSection = "";
+// if (bookingAmount && bookingAmount !== "0" && bookingAmount !== "0.00") {
   
-  // Debug logging
-  console.log('Generating payment link for:', {
-    customerName,
-    billingEmail,
-    bookingAmount,
-    confirmationNumber
-  });
+//   // Debug logging
+//   console.log('Generating payment link for:', {
+//     customerName,
+//     billingEmail,
+//     bookingAmount,
+//     confirmationNumber
+//   });
   
-  const frontendUrl = process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host';
+//   const frontendUrl = process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host';
   
-  // Validate URL
-  if (!frontendUrl || frontendUrl.includes('localhost') || frontendUrl.includes('127.0.0.1')) {
-    console.error('❌ Invalid frontend URL for email:', frontendUrl);
-    // Optionally, provide alternative instructions
-    payNowButtonSection = `
-      <div style="text-align:center; margin:30px 0; padding:25px; background:#fef2f2; border-radius:15px;">
-        <p style="color:#dc2626;">Payment system temporarily unavailable.</p>
-        <p>Please contact support to complete your payment.</p>
-      </div>
-    `;
-  } else {
-    // Create secure payment link
-    const params = new URLSearchParams({
-      customerName: customerName || '',
-      email: billingEmail || '',
-      phone: customerPhone || '',
-      amount: bookingAmount,
-      bookingRef: confirmationNumber || '',
-      timestamp: Date.now().toString() // Prevent caching
-    });
+//   // Validate URL
+//   if (!frontendUrl || frontendUrl.includes('localhost') || frontendUrl.includes('127.0.0.1')) {
+//     console.error('❌ Invalid frontend URL for email:', frontendUrl);
+//     // Optionally, provide alternative instructions
+//     payNowButtonSection = `
+//       <div style="text-align:center; margin:30px 0; padding:25px; background:#fef2f2; border-radius:15px;">
+//         <p style="color:#dc2626;">Payment system temporarily unavailable.</p>
+//         <p>Please contact support to complete your payment.</p>
+//       </div>
+//     `;
+//   } else {
+//     // Create secure payment link
+//     const params = new URLSearchParams({
+//       customerName: customerName || '',
+//       email: billingEmail || '',
+//       phone: customerPhone || '',
+//       amount: bookingAmount,
+//       bookingRef: confirmationNumber || '',
+//       timestamp: Date.now().toString() // Prevent caching
+//     });
     
-    const paymentLink = `${frontendUrl}/payment?${params.toString()}`;
+//     const paymentLink = `${frontendUrl}/payment?${params.toString()}`;
     
-    console.log('Generated payment link:', paymentLink);
+//     console.log('Generated payment link:', paymentLink);
     
-    payNowButtonSection = `
-      <hr style="margin:20px 0; border-top:2px solid #10b981;">
+//     payNowButtonSection = `
+//       <hr style="margin:20px 0; border-top:2px solid #10b981;">
       
-      <div style="text-align:center; margin:30px 0; padding:25px; background:#f0fff4; border-radius:15px;">
-        <h3 style="color:#065f46;">💳 Complete Your Payment</h3>
-        <p>Amount: <strong>USD ${bookingAmount}</strong></p>
+//       <div style="text-align:center; margin:30px 0; padding:25px; background:#f0fff4; border-radius:15px;">
+//         <h3 style="color:#065f46;">💳 Complete Your Payment</h3>
+//         <p>Amount: <strong>USD ${bookingAmount}</strong></p>
         
-        <!-- Primary Payment Button -->
+//         <!-- Primary Payment Button -->
+//         <a href="${paymentLink}" 
+//            style="display:inline-block; background:#10b981; color:white; 
+//                   padding:15px 30px; text-decoration:none; border-radius:8px; 
+//                   font-weight:bold; margin:15px 0;">
+//           Pay Now - USD ${bookingAmount}
+//         </a>
+        
+//         <!-- Alternative: Direct PayPal Link as fallback -->
+//         <div style="margin-top:15px; font-size:12px; color:#6b7280;">
+//           <p>If the button doesn't work, copy this link:</p>
+//           <p style="word-break:break-all; background:#f3f4f6; padding:8px; border-radius:4px;">
+//             ${paymentLink}
+//           </p>
+//         </div>
+//       </div>
+//     `;
+//   }
+// }
+
+
+// ✅ NEW: DIRECT PAYPAL PAYMENT LINK
+let payNowButtonSection = "";
+if (bookingAmount && bookingAmount !== "0" && bookingAmount !== "0.00") {
+  try {
+    // Step 1: Create PayPal Order First
+    const paypalOrder = await fetch('https://api-m.sandbox.paypal.com/v2/checkout/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${Buffer.from(`${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_SECRET}`).toString('base64')}`,
+        'PayPal-Request-Id': confirmationNumber || `order_${Date.now()}`
+      },
+      body: JSON.stringify({
+        intent: 'CAPTURE',
+        purchase_units: [{
+          amount: {
+            currency_code: 'USD',
+            value: bookingAmount
+          },
+          description: `Booking for ${customerName}`,
+          custom_id: confirmationNumber || '',
+          invoice_id: confirmationNumber || `INV_${Date.now()}`
+        }],
+        application_context: {
+          brand_name: 'FareBuzzer Travel',
+          landing_page: 'BILLING',
+          user_action: 'PAY_NOW',
+          return_url: `${process.env.FRONTEND_URL}/payment-success`,
+          cancel_url: `${process.env.FRONTEND_URL}/payment-cancel`
+        }
+      })
+    });
+
+    const orderData = await paypalOrder.json();
+    
+    if (orderData.id && orderData.links) {
+      // Find the PayPal approval link
+      const approvalLink = orderData.links.find(link => link.rel === 'approve');
+      
+      if (approvalLink) {
+        // DIRECT PAYPAL LINK
+        const directPayPalLink = approvalLink.href;
+        
+        payNowButtonSection = `
+          <hr style="margin:20px 0; border-top:2px solid #10b981;">
+          
+          <div style="text-align:center; margin:30px 0; padding:25px; background:linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%); border-radius:15px; border:2px solid #10b981;">
+            <h3 style="color:#065f46; margin-bottom:15px; font-size:22px;">💳 Secure Payment</h3>
+            <p style="color:#374151; margin-bottom:10px; font-size:16px;">
+              Your booking amount: <strong style="color:#065f46; font-size:20px;">USD ${bookingAmount}</strong>
+            </p>
+            
+            <!-- DIRECT PAYPAL LINK -->
+            <a href="${directPayPalLink}" 
+               style="display:inline-block; background:linear-gradient(135deg, #10b981 0%, #059669 100%); 
+                      color:white; padding:18px 45px; text-decoration:none; border-radius:50px; 
+                      font-weight:bold; font-size:18px; box-shadow:0 4px 6px rgba(16, 185, 129, 0.3);
+                      transition:all 0.3s ease;">
+              💳 Pay Now with PayPal - USD ${bookingAmount}
+            </a>
+            
+            <p style="margin-top:15px; color:#047857; font-size:14px;">
+              <strong>Secure payment via PayPal & Credit Cards</strong>
+            </p>
+          </div>
+        `;
+      }
+    }
+  } catch (error) {
+    console.error("Error creating PayPal order:", error);
+    // Fallback to regular payment page
+    const frontendUrl = process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host';
+    const paymentLink = `${frontendUrl}/payment?customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(billingEmail)}&phone=${encodeURIComponent(customerPhone)}&amount=${bookingAmount}&bookingRef=${confirmationNumber || ''}`;
+    
+    payNowButtonSection = `
+      <div style="text-align:center;">
         <a href="${paymentLink}" 
-           style="display:inline-block; background:#10b981; color:white; 
-                  padding:15px 30px; text-decoration:none; border-radius:8px; 
-                  font-weight:bold; margin:15px 0;">
+           style="display:inline-block; background:#10b981; color:white; padding:15px 30px; text-decoration:none; border-radius:8px;">
           Pay Now - USD ${bookingAmount}
         </a>
-        
-        <!-- Alternative: Direct PayPal Link as fallback -->
-        <div style="margin-top:15px; font-size:12px; color:#6b7280;">
-          <p>If the button doesn't work, copy this link:</p>
-          <p style="word-break:break-all; background:#f3f4f6; padding:8px; border-radius:4px;">
-            ${paymentLink}
-          </p>
-        </div>
       </div>
     `;
   }

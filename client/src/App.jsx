@@ -59,13 +59,24 @@ const App = () => {
   return (
     <Router>
       <Routes>
+
+           {/* ========== PUBLIC ROUTES ========== */}
+        {/* ✅ Payment route ALWAYS public rahe - token check se bahar rakhein */}
+        <Route path="/payment" element={<Payment />} />
+        
+        {/* ✅ Agreement routes bhi public rakhein */}
+        <Route path="/agree/:token" element={<AgreementPage />} />
+        <Route path="/thank-you" element={<ThankYouPage />} />
+
+
+
         {/* PUBLIC */}
         {!token && (
           <>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="*" element={<Navigate to="/login" replace />} />
-            <Route path="/payment" element={<Payment />} />
+         
 
           </>
         )}
@@ -93,8 +104,8 @@ const App = () => {
 
 {/* <Route path="/payment" element={<Payment />} />  */}
 
- <Route path="/agree/:token" element={<AgreementPage />} />
-        <Route path="/thank-you" element={<ThankYouPage />} />
+ {/* <Route path="/agree/:token" element={<AgreementPage />} />
+        <Route path="/thank-you" element={<ThankYouPage />} /> */}
 
 
 

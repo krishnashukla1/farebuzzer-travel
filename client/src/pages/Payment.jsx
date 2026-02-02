@@ -964,7 +964,7 @@ function Payment() {
 
                 {/* Amount Section */}
                 <div style={{ marginBottom: "25px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
+                    {/* <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
                         <label style={{ fontSize: "16px", color: "#555", fontWeight: "500" }}>
                             Payment Amount (USD)
                         </label>
@@ -973,7 +973,7 @@ function Payment() {
                                 Pre-filled from booking
                             </span>
                         )}
-                    </div>
+                    </div> */}
 
                     <div style={{ position: "relative" }}>
                         <div style={{ position: "absolute", left: "15px", top: "50%", transform: "translateY(-50%)", fontSize: "20px", color: "#003087" }}>

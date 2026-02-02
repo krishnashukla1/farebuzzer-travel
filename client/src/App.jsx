@@ -65,6 +65,8 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="*" element={<Navigate to="/login" replace />} />
+            <Route path="/payment" element={<Payment />} />
+
           </>
         )}
 
@@ -89,7 +91,7 @@ const App = () => {
                       <Route path="/send-email" element={<SendEmail />} />
                  
 
-<Route path="/payment" element={<Payment />} /> 
+{/* <Route path="/payment" element={<Payment />} />  */}
 
  <Route path="/agree/:token" element={<AgreementPage />} />
         <Route path="/thank-you" element={<ThankYouPage />} />

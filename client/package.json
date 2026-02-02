@@ -23,7 +23,9 @@
     "react-router-dom": "^7.11.0",
     "recharts": "^3.6.0",
     "tailwindcss": "^4.1.18",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+        "@paypal/checkout-server-sdk": "^1.0.3",
+    "@paypal/react-paypal-js": "^8.9.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

@@ -879,6 +879,91 @@ return (
 
 }
 
+const styles = {
+  page: {
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #eef2f7, #d9e4f5)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+  card: {
+    width: "100%",
+    maxWidth: 460,
+    background: "#fff",
+    borderRadius: 18,
+    boxShadow: "0 20px 40px rgba(0,0,0,0.12)",
+    overflow: "hidden",
+  },
+  header: {
+    background: "linear-gradient(135deg, #0047ab, #0066ff)",
+    color: "#fff",
+    padding: "24px 20px",
+    textAlign: "center",
+  },
+  logo: {
+    margin: 0,
+    fontSize: 22,
+    fontWeight: 700,
+  },
+  sub: {
+    marginTop: 6,
+    fontSize: 13,
+    opacity: 0.9,
+  },
+  section: {
+    padding: 20,
+    borderBottom: "1px solid #eee",
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: 600,
+    marginBottom: 12,
+    color: "#0047ab",
+  },
+  infoRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  amountBox: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "baseline",
+    background: "#f4f7fb",
+    padding: 16,
+    borderRadius: 12,
+  },
+  currency: {
+    fontSize: 20,
+    marginRight: 4,
+    color: "#0047ab",
+  },
+  amount: {
+    fontSize: 32,
+    fontWeight: 700,
+    color: "#0047ab",
+  },
+  amountNote: {
+    fontSize: 12,
+    textAlign: "center",
+    marginTop: 8,
+    color: "#777",
+  },
+  paypal: {
+    padding: 20,
+  },
+  footer: {
+    fontSize: 11,
+    textAlign: "center",
+    padding: 12,
+    color: "#666",
+  },
+};
+
+
 export default Payment;
 
 //=======code 3 merge code 1 code 2

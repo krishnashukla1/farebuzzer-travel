@@ -44,6 +44,14 @@
 //========================dynamic port===============
 
 import dotenv from "dotenv";
+dotenv.config();
+// Quick check – helps you see immediately if .env loaded
+console.log("PAYPAL_CLIENT_ID loaded?", !!process.env.PAYPAL_CLIENT_ID);
+console.log("First 10 chars:", process.env.PAYPAL_CLIENT_ID?.slice(0, 10) || "missing");
+console.log("PAYPAL_MODE:", process.env.PAYPAL_MODE || "not set");
+
+
+
 import express from "express";
 import cors from "cors";
 // import dotenv from "dotenv";
@@ -74,9 +82,10 @@ import agreementRoutes from './routes/agreement.js';
 import emailWebhookRoutes from './routes/emailWebhook.js';
 import emailReplyRoutes from './routes/emailReply.js';
 
+import paymentRoutes from "./routes/paymentRoutes.js";
 
 
-dotenv.config();
+// dotenv.config();
 
 // Connect DB
 connectDB();
@@ -144,6 +153,9 @@ app.use("/api", flightStatusRoutes);
 app.use('/api/agreement', agreementRoutes);
 app.use('/api/webhook', emailWebhookRoutes);
 app.use('/api/email', emailReplyRoutes);
+
+
+app.use("/api/paypal", paymentRoutes);
 
 
 

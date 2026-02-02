@@ -48,6 +48,11 @@ import AgreementPage from './components2/AgreementPage'
 import ThankYouPage from './components2/ThankYouPage'
 
 
+
+import Payment from "./pages/Payment";
+
+
+
 const App = () => {
   const token = localStorage.getItem("token");
 
@@ -84,7 +89,7 @@ const App = () => {
                       <Route path="/send-email" element={<SendEmail />} />
                  
 
-
+<Route path="/payment" element={<Payment />} /> 
 
  <Route path="/agree/:token" element={<AgreementPage />} />
         <Route path="/thank-you" element={<ThankYouPage />} />

@@ -963,7 +963,6 @@ const styles = {
   },
 };
 
-
 export default Payment;
 
 //=======code 3 merge code 1 code 2

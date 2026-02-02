@@ -975,7 +975,7 @@ function Payment() {
                         )}
                     </div> */}
 
-                    <div style={{ position: "relative" }}>
+                    {/* <div style={{ position: "relative" }}>
                         <div style={{ position: "absolute", left: "15px", top: "50%", transform: "translateY(-50%)", fontSize: "20px", color: "#003087" }}>
                             $
                         </div>
@@ -997,7 +997,7 @@ function Payment() {
                             onFocus={(e) => e.target.style.borderColor = "#3b82f6"}
                             onBlur={(e) => e.target.style.borderColor = "#e2e8f0"}
                         />
-                    </div>
+                    </div> */}
 
                     {amount && (
                         <div
@@ -1031,10 +1031,14 @@ function Payment() {
                             style={{
                                 layout: "vertical",
                                 color: "blue",
+            // color: "gold",
+
                                 shape: "rect",
                                 label: "paypal",
                                 height: 48,
                             }}
+
+
                             createOrder={async () => {
                                 const res = await fetch(
                                     "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/create-order",

@@ -232,7 +232,7 @@ function Payment() {
       };
 
       // Send to your backend
-      const response = await fetch("https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payments/record", {
+      const response = await fetch("https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/record", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(paymentRecord)
@@ -392,7 +392,7 @@ function Payment() {
         {/* PayPal Button */}
         {paypalLoaded ? (
           <div style={{ marginBottom: "20px" }}>
-            <PayPalButtons
+            {/* <PayPalButtons
               disabled={!amount || Number(amount) <= 0}
               style={{
                 layout: "vertical",
@@ -404,7 +404,7 @@ function Payment() {
               createOrder={async () => {
                 try {
                   const res = await fetch(
-                    "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/paypal/create-order",
+                    "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/create-order",
                     {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
@@ -430,7 +430,7 @@ function Payment() {
               onApprove={async (data) => {
                 try {
                   const res = await fetch(
-                    "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/paypal/capture-order",
+                    "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/capture-order",
                     {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
@@ -455,7 +455,46 @@ function Payment() {
                 console.error("PayPal error:", err);
                 alert("PayPal payment failed. Please try again or use a different payment method.");
               }}
-            />
+            /> */}
+
+<PayPalButtons
+  disabled={!amount || Number(amount) <= 0}
+  createOrder={async () => {
+    const res = await fetch(
+      "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/create-order",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount,
+          customerName: customerInfo.name,
+          customerEmail: customerInfo.email,
+          bookingRef: customerInfo.bookingRef,
+        }),
+      }
+    );
+
+    const data = await res.json();
+    return data.id;
+  }}
+  onApprove={async (data) => {
+    const res = await fetch(
+      "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/capture-order",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderID: data.orderID }),
+      }
+    );
+
+    const result = await res.json();
+    if (result.status === "COMPLETED") {
+      await handlePaymentSuccess(result);
+    }
+  }}
+/>
+
+
           </div>
         ) : (
           <div style={{ textAlign: "center", padding: "20px", background: "#f8fafc", borderRadius: "10px", marginBottom: "20px" }}>

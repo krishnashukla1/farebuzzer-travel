@@ -7736,104 +7736,251 @@ END OF ITINERARY`;
     navigate("/payment", { state: { bookingData: paymentData } });
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   const phone = (currentForm.customerPhone || "").trim();
+  //   const phoneRegex = /^[+0-9\s\-\(\)]{8,20}$/;
+
+  //   if (phone === "") {
+  //     setErrorMessage("Phone number is required");
+  //     return;
+  //   }
+
+  //   if (!phoneRegex.test(phone)) {
+  //     setErrorMessage(
+  //       "Invalid phone number format. Use only numbers, spaces, +, -, () (8–20 characters)"
+  //     );
+  //     return;
+  //   }
+
+  //   // Additional validation for flight ticket form
+  //   if (isFlightTicketForm) {
+  //     if (!flightForm.confirmationNumber) {
+  //       setErrorMessage("Confirmation Number is required for flight tickets");
+  //       return;
+  //     }
+  //     if (!flightForm.airline) {
+  //       setErrorMessage("Airline Name is required");
+  //       return;
+  //     }
+  //     if (!flightForm.flightNumber) {
+  //       setErrorMessage("Flight Number is required");
+  //       return;
+  //     }
+  //     if (!flightForm.departure) {
+  //       setErrorMessage("Departure is required");
+  //       return;
+  //     }
+  //     if (!flightForm.arrival) {
+  //       setErrorMessage("Arrival is required");
+  //       return;
+  //     }
+  //     if (!flightForm.travelDate) {
+  //       setErrorMessage("Travel Date is required");
+  //       return;
+  //     }
+  //   }
+
+  //   // Validation for update type for flight-related emails
+  //   const flightRelatedTypes = ["exchange_ticket", "flight_cancellation", "flight_confirmation", "new_reservation"];
+  //   if (flightRelatedTypes.includes(emailType) && !currentForm.updateType) {
+  //     setErrorMessage("Update Type is required for flight-related emails");
+  //     return;
+  //   }
+
+  //   setLoading(true);
+  //   setSuccessMessage("");
+  //   setErrorMessage("");
+
+  //   try {
+  //     let requestData;
+
+  //     if (isFlightTicketForm) {
+  //       // For flight ticket forms
+  //       requestData = {
+  //         emailType,
+  //         ...flightForm,
+  //         chargeReference: 
+  //           senderBrand === "lowfare_studio" ? "LowfareStudio" :
+  //           senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk",
+  //         templateUsed: null, // No templates for flight tickets
+  //         // Include update fields for flight ticket forms
+  //         updateType: flightForm.updateType || "confirmed",
+  //         includeAgreement: flightForm.includeAgreement !== false,
+  //         includeChargeNote: flightForm.includeChargeNote !== false,
+  //         includeFareRules: flightForm.includeFareRules || false,
+  //         cardHolderName: flightForm.cardHolderName || "",
+  //         cardLastFour: flightForm.cardLastFour || "",
+  //         cardExpiry: flightForm.cardExpiry || "",
+  //         cardCVV: flightForm.cardCVV || "",
+  //         billingAddress: flightForm.billingAddress || "",
+  //         customerEmail: flightForm.customerEmail || "",
+  //         // NEW: Include parsed segments if available
+  //         parsedSegments: parsedSegments.length > 0 ? parsedSegments : []
+  //       };
+  //     } else {
+  //       // For general forms
+  //       requestData = {
+  //         emailType,
+  //         ...generalForm,
+  //         templateUsed: selectedTemplate || null,
+  //         chargeReference: 
+  //           senderBrand === "lowfare_studio" ? "LowfareStudio" :
+  //           senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk"
+  //       };
+  //     }
+
+  //     const response = await API.post("/email/send", requestData);
+
+  //     // Store booking data for payment page
+  //     const bookingDataForPayment = {
+  //       customerName: currentForm.customerName,
+  //       customerEmail: currentForm.billingEmail,
+  //       customerPhone: currentForm.customerPhone,
+  //       bookingAmount: currentForm.bookingAmount || "0.00",
+  //       emailType: emailType,
+  //       senderBrand: senderBrand,
+  //       ...(isFlightTicketForm && {
+  //         airline: flightForm.airline,
+  //         flightNumber: flightForm.flightNumber,
+  //         departure: flightForm.departure,
+  //         arrival: flightForm.arrival,
+  //         travelDate: flightForm.travelDate,
+  //         confirmationNumber: flightForm.confirmationNumber
+  //       }),
+  //       ...(emailType === "holiday_package" && {
+  //         packageName: generalForm.packageName,
+  //         packagePrice: generalForm.packagePrice,
+  //         packageNights: generalForm.packageNights
+  //       })
+  //     };
+
+  //     setBookingData(bookingDataForPayment);
+  //     setEmailSent(true);
+      
+  //     const greeting = response.data?.data?.dynamicGreeting ? `(${response.data.data.dynamicGreeting})` : '';
+  //     setSuccessMessage(`Email sent successfully! ${greeting} Click "Pay Now" below to proceed to payment.`);
+
+  //   } catch (err) {
+  //     setErrorMessage(err.response?.data?.message || "Failed to send email");
+  //     setEmailSent(false);
+  //     setBookingData(null);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const phone = (currentForm.customerPhone || "").trim();
-    const phoneRegex = /^[+0-9\s\-\(\)]{8,20}$/;
+  const phone = (currentForm.customerPhone || "").trim();
+  const phoneRegex = /^[+0-9\s\-\(\)]{8,20}$/;
 
-    if (phone === "") {
-      setErrorMessage("Phone number is required");
+  if (phone === "") {
+    setErrorMessage("Phone number is required");
+    return;
+  }
+
+  if (!phoneRegex.test(phone)) {
+    setErrorMessage(
+      "Invalid phone number format. Use only numbers, spaces, +, -, () (8–20 characters)"
+    );
+    return;
+  }
+
+  // Additional validation for flight ticket form
+  if (isFlightTicketForm) {
+    if (!flightForm.confirmationNumber) {
+      setErrorMessage("Confirmation Number is required for flight tickets");
       return;
     }
-
-    if (!phoneRegex.test(phone)) {
-      setErrorMessage(
-        "Invalid phone number format. Use only numbers, spaces, +, -, () (8–20 characters)"
-      );
+    if (!flightForm.airline) {
+      setErrorMessage("Airline Name is required");
       return;
     }
+    if (!flightForm.flightNumber) {
+      setErrorMessage("Flight Number is required");
+      return;
+    }
+    if (!flightForm.departure) {
+      setErrorMessage("Departure is required");
+      return;
+    }
+    if (!flightForm.arrival) {
+      setErrorMessage("Arrival is required");
+      return;
+    }
+    if (!flightForm.travelDate) {
+      setErrorMessage("Travel Date is required");
+      return;
+    }
+  }
 
-    // Additional validation for flight ticket form
+  // Validation for update type for flight-related emails
+  const flightRelatedTypes = ["exchange_ticket", "flight_cancellation", "flight_confirmation", "new_reservation"];
+  if (flightRelatedTypes.includes(emailType) && !currentForm.updateType) {
+    setErrorMessage("Update Type is required for flight-related emails");
+    return;
+  }
+
+  setLoading(true);
+  setSuccessMessage("");
+  setErrorMessage("");
+
+  try {
+    let requestData;
+
     if (isFlightTicketForm) {
-      if (!flightForm.confirmationNumber) {
-        setErrorMessage("Confirmation Number is required for flight tickets");
-        return;
-      }
-      if (!flightForm.airline) {
-        setErrorMessage("Airline Name is required");
-        return;
-      }
-      if (!flightForm.flightNumber) {
-        setErrorMessage("Flight Number is required");
-        return;
-      }
-      if (!flightForm.departure) {
-        setErrorMessage("Departure is required");
-        return;
-      }
-      if (!flightForm.arrival) {
-        setErrorMessage("Arrival is required");
-        return;
-      }
-      if (!flightForm.travelDate) {
-        setErrorMessage("Travel Date is required");
-        return;
-      }
+      // For flight ticket forms
+      requestData = {
+        emailType,
+        ...flightForm,
+        senderBrand, // Make sure senderBrand is included
+        chargeReference: 
+          senderBrand === "lowfare_studio" ? "LowfareStudio" :
+          senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk",
+        templateUsed: null, // No templates for flight tickets
+        // Include update fields for flight ticket forms
+        updateType: flightForm.updateType || "confirmed",
+        includeAgreement: flightForm.includeAgreement !== false,
+        includeChargeNote: flightForm.includeChargeNote !== false,
+        includeFareRules: flightForm.includeFareRules || false,
+        cardHolderName: flightForm.cardHolderName || "",
+        cardLastFour: flightForm.cardLastFour || "",
+        cardExpiry: flightForm.cardExpiry || "",
+        cardCVV: flightForm.cardCVV || "",
+        billingAddress: flightForm.billingAddress || "",
+        customerEmail: flightForm.customerEmail || "",
+        // NEW: Include parsed segments if available
+        parsedSegments: parsedSegments.length > 0 ? parsedSegments : []
+      };
+    } else {
+      // For general forms
+      requestData = {
+        emailType,
+        ...generalForm,
+        senderBrand, // Make sure senderBrand is included
+        templateUsed: selectedTemplate || null,
+        chargeReference: 
+          senderBrand === "lowfare_studio" ? "LowfareStudio" :
+          senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk"
+      };
     }
 
-    // Validation for update type for flight-related emails
-    const flightRelatedTypes = ["exchange_ticket", "flight_cancellation", "flight_confirmation", "new_reservation"];
-    if (flightRelatedTypes.includes(emailType) && !currentForm.updateType) {
-      setErrorMessage("Update Type is required for flight-related emails");
-      return;
-    }
+    console.log("Sending request data:", requestData);
 
-    setLoading(true);
-    setSuccessMessage("");
-    setErrorMessage("");
+    const response = await API.post("/email/send", requestData);
+    
+    console.log("Response received:", response.data);
 
-    try {
-      let requestData;
-
-      if (isFlightTicketForm) {
-        // For flight ticket forms
-        requestData = {
-          emailType,
-          ...flightForm,
-          chargeReference: 
-            senderBrand === "lowfare_studio" ? "LowfareStudio" :
-            senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk",
-          templateUsed: null, // No templates for flight tickets
-          // Include update fields for flight ticket forms
-          updateType: flightForm.updateType || "confirmed",
-          includeAgreement: flightForm.includeAgreement !== false,
-          includeChargeNote: flightForm.includeChargeNote !== false,
-          includeFareRules: flightForm.includeFareRules || false,
-          cardHolderName: flightForm.cardHolderName || "",
-          cardLastFour: flightForm.cardLastFour || "",
-          cardExpiry: flightForm.cardExpiry || "",
-          cardCVV: flightForm.cardCVV || "",
-          billingAddress: flightForm.billingAddress || "",
-          customerEmail: flightForm.customerEmail || "",
-          // NEW: Include parsed segments if available
-          parsedSegments: parsedSegments.length > 0 ? parsedSegments : []
-        };
-      } else {
-        // For general forms
-        requestData = {
-          emailType,
-          ...generalForm,
-          templateUsed: selectedTemplate || null,
-          chargeReference: 
-            senderBrand === "lowfare_studio" ? "LowfareStudio" :
-            senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk"
-        };
-      }
-
-      const response = await API.post("/email/send", requestData);
-
-      // Store booking data for payment page
+    // Store booking data for payment page from backend response
+    if (response.data?.data?.bookingData) {
+      // Use booking data from backend response
+      setBookingData(response.data.data.bookingData);
+    } else {
+      // Fallback: create booking data from form
       const bookingDataForPayment = {
         customerName: currentForm.customerName,
         customerEmail: currentForm.billingEmail,
@@ -7855,21 +8002,32 @@ END OF ITINERARY`;
           packageNights: generalForm.packageNights
         })
       };
-
       setBookingData(bookingDataForPayment);
-      setEmailSent(true);
-      
-      const greeting = response.data?.data?.dynamicGreeting ? `(${response.data.data.dynamicGreeting})` : '';
-      setSuccessMessage(`Email sent successfully! ${greeting} Click "Pay Now" below to proceed to payment.`);
-
-    } catch (err) {
-      setErrorMessage(err.response?.data?.message || "Failed to send email");
-      setEmailSent(false);
-      setBookingData(null);
-    } finally {
-      setLoading(false);
     }
-  };
+    
+    setEmailSent(true);
+    
+    const greeting = response.data?.data?.dynamicGreeting ? `(${response.data.data.dynamicGreeting})` : '';
+    setSuccessMessage(`Email sent successfully! ${greeting} Click "Pay Now" below to proceed to payment.`);
+
+  } catch (err) {
+    console.error("Error sending email:", err);
+    console.error("Error response:", err.response?.data);
+    
+    // Show detailed error message
+    const errorMsg = err.response?.data?.message || 
+                     err.response?.data?.error || 
+                     "Failed to send email. Please check the console for details.";
+    setErrorMessage(errorMsg);
+    
+    setEmailSent(false);
+    setBookingData(null);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   const inputClass =
     "w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200";

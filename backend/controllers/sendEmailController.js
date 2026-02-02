@@ -3368,6 +3368,8 @@ import { generateETicket } from "../utils/generateETicket.js";
 
 export const sendCustomerEmail = async (req, res) => {
   try {
+    console.log("Received email request:", req.body);
+    
     const {
       emailType,
       templateUsed,
@@ -3433,16 +3435,22 @@ export const sendCustomerEmail = async (req, res) => {
       senderBrand = "lowfare_studio"
     } = req.body;
 
+    console.log("Extracted fields - customerName:", customerName, "billingEmail:", billingEmail, "customerPhone:", customerPhone);
+
     // UPDATED: Added phone validation
     if (!customerName || !billingEmail || !customerPhone) {
+      console.log("Validation failed: Missing required fields");
       return res.status(400).json({
         status: "fail",
         message: "Customer name, phone number, and billing email are required"
       });
     }
-    const phoneRegex = /^[+]?[0-9\s\-\(\)]{8,20}$/;
     
-    if (!phoneRegex.test(customerPhone.trim())) {
+    const phoneRegex = /^[+]?[0-9\s\-\(\)]{8,20}$/;
+    const trimmedPhone = customerPhone.toString().trim();
+    
+    if (!phoneRegex.test(trimmedPhone)) {
+      console.log("Validation failed: Invalid phone format:", trimmedPhone);
       return res.status(400).json({
         status: "fail",
         message: "Invalid phone number format. Use 8-20 digits, spaces, +, -, () allowed (example: +919876543210 or 2025550123)"
@@ -3467,6 +3475,7 @@ export const sendCustomerEmail = async (req, res) => {
     };
 
     const subject = subjectMap[emailType] || "FareBuzzer Notification";
+    console.log("Subject:", subject);
 
     /* ---------------- DYNAMIC GREETING LOGIC ---------------- */
     const getDynamicGreeting = () => {
@@ -3514,6 +3523,7 @@ export const sendCustomerEmail = async (req, res) => {
     };
 
     const dynamicGreeting = getDynamicGreeting();
+    console.log("Dynamic greeting:", dynamicGreeting);
 
     /* ---------------- EMAIL BODY ---------------- */
     let message = "";
@@ -3717,9 +3727,7 @@ export const sendCustomerEmail = async (req, res) => {
     if (includeChargeNote !== false) {
       // Determine charge reference based on senderBrand
       let displayChargeReference = "Lowfarestudio";
-      if (chargeReference && chargeReference !== "LowfareStudio") {
-        displayChargeReference = chargeReference;
-      } else if (senderBrand === "american_airlines") {
+      if (senderBrand === "american_airlines") {
         displayChargeReference = "American Airlines";
       } else if (senderBrand === "airline_desk") {
         displayChargeReference = "Airline Desk";
@@ -3758,7 +3766,7 @@ export const sendCustomerEmail = async (req, res) => {
       `;
     }
 
-    // PART 7: CUSTOM MESSAGE (FOR ALL EMAIL TYPES)   FOR GRAY COLR BORDER IN MAIL
+    // PART 7: CUSTOM MESSAGE (FOR ALL EMAIL TYPES)
     let customMessageSection = "";
     if (customMessage && customMessage.trim() !== "") {
       customMessageSection = `
@@ -3778,6 +3786,7 @@ export const sendCustomerEmail = async (req, res) => {
     // Generate and attach PDF ticket for new_reservation and flight_confirmation
     if (emailType === "new_reservation" || emailType === "flight_confirmation") {
       try {
+        console.log("Generating e-ticket...");
         const ticketPath = await generateETicket({
           confirmationNumber,
           customerName,
@@ -3790,7 +3799,7 @@ export const sendCustomerEmail = async (req, res) => {
           arrival,
           travelDate,
           bookingAmount,
-          chargeReference: displayChargeReference || chargeReference,
+          chargeReference,
           cabinClass,
           departureTime,
           arrivalTime,
@@ -3807,6 +3816,7 @@ export const sendCustomerEmail = async (req, res) => {
           path: ticketPath,
           contentType: "application/pdf"
         });
+        console.log("E-ticket generated and attached");
       } catch (error) {
         console.error("Error generating e-ticket:", error);
         // Continue without attachment if PDF generation fails
@@ -3841,6 +3851,8 @@ export const sendCustomerEmail = async (req, res) => {
       </div>
     `;
 
+    console.log("Sending email...");
+
     /* ---------------- SEND EMAIL ---------------- */
     await transporter.sendMail({
       from: `"FareBuzzer Support" <${process.env.GMAIL_USER}>`,
@@ -3850,6 +3862,8 @@ export const sendCustomerEmail = async (req, res) => {
       html,
       attachments
     });
+
+    console.log("Email sent successfully");
 
     /* ---------------- SAVE TO CRM INBOX ---------------- */
     await Email.create({
@@ -3924,6 +3938,8 @@ export const sendCustomerEmail = async (req, res) => {
       }
     });
 
+    console.log("Email saved to CRM");
+
     /* ---------------- RETURN RESPONSE WITH PAYMENT DATA ---------------- */
     // Prepare booking data for payment page
     const bookingDataForPayment = {
@@ -3933,23 +3949,25 @@ export const sendCustomerEmail = async (req, res) => {
       bookingAmount: bookingAmount || "0.00",
       emailType,
       senderBrand,
-      chargeReference: displayChargeReference || chargeReference,
+      chargeReference,
       // Include flight-specific data if applicable
       ...(airline && {
         airline,
-        flightNumber,
-        departure,
-        arrival,
-        travelDate,
-        confirmationNumber
+        flightNumber: flightNumber || "",
+        departure: departure || "",
+        arrival: arrival || "",
+        travelDate: travelDate || "",
+        confirmationNumber: confirmationNumber || ""
       }),
       // Include package data if applicable
       ...(emailType === "holiday_package" && {
-        packageName,
-        packagePrice,
-        packageNights
+        packageName: packageName || "",
+        packagePrice: packagePrice || "",
+        packageNights: packageNights || ""
       })
     };
+
+    console.log("Returning response with booking data:", bookingDataForPayment);
 
     res.status(200).json({
       status: "success",
@@ -3970,10 +3988,11 @@ export const sendCustomerEmail = async (req, res) => {
 
   } catch (error) {
     console.error("Send email error:", error);
+    console.error("Error stack:", error.stack);
     res.status(500).json({
       status: "error",
       message: "Failed to send email",
-      error: process.env.NODE_ENV === "development" ? error.message : undefined
+      error: error.message
     });
   }
 };

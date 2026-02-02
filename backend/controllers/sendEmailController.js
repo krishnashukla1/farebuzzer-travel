@@ -4416,51 +4416,117 @@ export const sendCustomerEmail = async (req, res) => {
       `;
     }
 
-    // ✅ NEW: PAY NOW BUTTON SECTION FOR EMAIL
-    let payNowButtonSection = "";
-    if (bookingAmount && bookingAmount !== "0" && bookingAmount !== "0.00") {
-      // Create a unique payment link for customer
-      const frontendUrl = process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host';
-      const paymentLink = `${frontendUrl}/payment?customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(billingEmail)}&phone=${encodeURIComponent(customerPhone)}&amount=${bookingAmount}&bookingRef=${confirmationNumber || ''}`;
+    // // ✅ NEW: PAY NOW BUTTON SECTION FOR EMAIL
+    // let payNowButtonSection = "";
+    // if (bookingAmount && bookingAmount !== "0" && bookingAmount !== "0.00") {
+    //   // Create a unique payment link for customer
+    //   const frontendUrl = process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host';
+    //   const paymentLink = `${frontendUrl}/payment?customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(billingEmail)}&phone=${encodeURIComponent(customerPhone)}&amount=${bookingAmount}&bookingRef=${confirmationNumber || ''}`;
       
-      payNowButtonSection = `
-        <hr style="margin:20px 0; border-top:2px solid #10b981;">
+    //   payNowButtonSection = `
+    //     <hr style="margin:20px 0; border-top:2px solid #10b981;">
         
-        <div style="text-align:center; margin:30px 0; padding:25px; background:linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%); border-radius:15px; border:2px solid #10b981;">
-          <h3 style="color:#065f46; margin-bottom:15px; font-size:22px;">💳 Secure Payment</h3>
-          <p style="color:#374151; margin-bottom:10px; font-size:16px;">
-            Your booking amount: <strong style="color:#065f46; font-size:20px;">USD ${bookingAmount}</strong>
-          </p>
-          <p style="color:#4b5563; margin-bottom:20px; font-size:14px;">
-            Click the button below to complete your payment securely
-          </p>
+    //     <div style="text-align:center; margin:30px 0; padding:25px; background:linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%); border-radius:15px; border:2px solid #10b981;">
+    //       <h3 style="color:#065f46; margin-bottom:15px; font-size:22px;">💳 Secure Payment</h3>
+    //       <p style="color:#374151; margin-bottom:10px; font-size:16px;">
+    //         Your booking amount: <strong style="color:#065f46; font-size:20px;">USD ${bookingAmount}</strong>
+    //       </p>
+    //       <p style="color:#4b5563; margin-bottom:20px; font-size:14px;">
+    //         Click the button below to complete your payment securely
+    //       </p>
           
-          <a href="${paymentLink}" 
-             style="display:inline-block; background:linear-gradient(135deg, #10b981 0%, #059669 100%); 
-                    color:white; padding:18px 45px; text-decoration:none; border-radius:50px; 
-                    font-weight:bold; font-size:18px; box-shadow:0 4px 6px rgba(16, 185, 129, 0.3);
-                    transition:all 0.3s ease;">
-            💳 Pay Now - USD ${bookingAmount}
-          </a>
+    //       <a href="${paymentLink}" 
+    //          style="display:inline-block; background:linear-gradient(135deg, #10b981 0%, #059669 100%); 
+    //                 color:white; padding:18px 45px; text-decoration:none; border-radius:50px; 
+    //                 font-weight:bold; font-size:18px; box-shadow:0 4px 6px rgba(16, 185, 129, 0.3);
+    //                 transition:all 0.3s ease;">
+    //         💳 Pay Now - USD ${bookingAmount}
+    //       </a>
           
-          <p style="margin-top:15px; color:#047857; font-size:14px;">
-            <strong>Secure payment via PayPal & Credit Cards</strong>
-          </p>
-          <div style="display:flex; justify-content:center; gap:15px; margin-top:10px;">
-            <span style="font-size:12px; color:#6b7280;">✅ SSL Secured</span>
-            <span style="font-size:12px; color:#6b7280;">✅ PayPal Verified</span>
-            <span style="font-size:12px; color:#6b7280;">✅ Instant Confirmation</span>
-          </div>
-        </div>
+    //       <p style="margin-top:15px; color:#047857; font-size:14px;">
+    //         <strong>Secure payment via PayPal & Credit Cards</strong>
+    //       </p>
+    //       <div style="display:flex; justify-content:center; gap:15px; margin-top:10px;">
+    //         <span style="font-size:12px; color:#6b7280;">✅ SSL Secured</span>
+    //         <span style="font-size:12px; color:#6b7280;">✅ PayPal Verified</span>
+    //         <span style="font-size:12px; color:#6b7280;">✅ Instant Confirmation</span>
+    //       </div>
+    //     </div>
         
-        <div style="text-align:center; margin:20px 0; padding:15px; background:#fef3c7; border-radius:8px;">
-          <p style="color:#92400e; font-weight:bold; margin-bottom:8px;">⚠️ Important Note:</p>
-          <p style="color:#92400e; font-size:14px; margin:0;">
-            Your booking will be confirmed only after successful payment. Please complete payment within 24 hours.
+    //     <div style="text-align:center; margin:20px 0; padding:15px; background:#fef3c7; border-radius:8px;">
+    //       <p style="color:#92400e; font-weight:bold; margin-bottom:8px;">⚠️ Important Note:</p>
+    //       <p style="color:#92400e; font-size:14px; margin:0;">
+    //         Your booking will be confirmed only after successful payment. Please complete payment within 24 hours.
+    //       </p>
+    //     </div>
+    //   `;
+    // }
+
+
+    let payNowButtonSection = "";
+if (bookingAmount && bookingAmount !== "0" && bookingAmount !== "0.00") {
+  
+  // Debug logging
+  console.log('Generating payment link for:', {
+    customerName,
+    billingEmail,
+    bookingAmount,
+    confirmationNumber
+  });
+  
+  const frontendUrl = process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host';
+  
+  // Validate URL
+  if (!frontendUrl || frontendUrl.includes('localhost') || frontendUrl.includes('127.0.0.1')) {
+    console.error('❌ Invalid frontend URL for email:', frontendUrl);
+    // Optionally, provide alternative instructions
+    payNowButtonSection = `
+      <div style="text-align:center; margin:30px 0; padding:25px; background:#fef2f2; border-radius:15px;">
+        <p style="color:#dc2626;">Payment system temporarily unavailable.</p>
+        <p>Please contact support to complete your payment.</p>
+      </div>
+    `;
+  } else {
+    // Create secure payment link
+    const params = new URLSearchParams({
+      customerName: customerName || '',
+      email: billingEmail || '',
+      phone: customerPhone || '',
+      amount: bookingAmount,
+      bookingRef: confirmationNumber || '',
+      timestamp: Date.now().toString() // Prevent caching
+    });
+    
+    const paymentLink = `${frontendUrl}/payment?${params.toString()}`;
+    
+    console.log('Generated payment link:', paymentLink);
+    
+    payNowButtonSection = `
+      <hr style="margin:20px 0; border-top:2px solid #10b981;">
+      
+      <div style="text-align:center; margin:30px 0; padding:25px; background:#f0fff4; border-radius:15px;">
+        <h3 style="color:#065f46;">💳 Complete Your Payment</h3>
+        <p>Amount: <strong>USD ${bookingAmount}</strong></p>
+        
+        <!-- Primary Payment Button -->
+        <a href="${paymentLink}" 
+           style="display:inline-block; background:#10b981; color:white; 
+                  padding:15px 30px; text-decoration:none; border-radius:8px; 
+                  font-weight:bold; margin:15px 0;">
+          Pay Now - USD ${bookingAmount}
+        </a>
+        
+        <!-- Alternative: Direct PayPal Link as fallback -->
+        <div style="margin-top:15px; font-size:12px; color:#6b7280;">
+          <p>If the button doesn't work, copy this link:</p>
+          <p style="word-break:break-all; background:#f3f4f6; padding:8px; border-radius:4px;">
+            ${paymentLink}
           </p>
         </div>
-      `;
-    }
+      </div>
+    `;
+  }
+}
 
     // Combine all sections
     message = greetingMessage + customerDetails + agreementSection + 

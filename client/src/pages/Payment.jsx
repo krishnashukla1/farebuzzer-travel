@@ -419,7 +419,7 @@
 
 //                   const data = await res.json();
 //                   console.log("Order created:", data);
-                  
+
 //                   if (!data.id) throw new Error("Order ID not received");
 //                   return data.id;
 //                 } catch (error) {
@@ -1026,7 +1026,7 @@
 //                     bookingRef: decodeURIComponent(ref || "")
 //                 });
 //                 setAmount(amt || "");
-                
+
 //                 setBookingData({
 //                     customerName: decodeURIComponent(name || ""),
 //                     customerEmail: decodeURIComponent(email || ""),
@@ -1070,7 +1070,7 @@
 
 //             // Show success alert
 //             alert("✅ Payment Successful!");
-            
+
 //             // Redirect to success page
 //             navigate("/payment-success", { replace: true });
 //         } catch (err) {
@@ -1427,150 +1427,127 @@ function Payment() {
         </div>
 
         {/* PAYPAL BUTTON */}
-        {/* <div style={{ marginTop: 25 }}>
-          <PayPalButtons
-            disabled={!amount || Number(amount) <= 0}
 
-            createOrder={async () => {
-              const res = await fetch(
-                "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/create-order",
-                {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    amount,
-                    customerName: customerInfo.name,
-                    customerEmail: customerInfo.email,
-                    bookingRef: customerInfo.bookingRef,
-                  }),
-                }
-              );
-
-              const data = await res.json();
-              console.log("ORDER CREATED:", data);
-              return data.id;
-            }}
-
-            onApprove={async (data) => {
-              console.log("ON APPROVE:", data);
-
-              const res = await fetch(
-                "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/capture-order",
-                {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ orderID: data.orderID }),
-                }
-              );
-
-              const result = await res.json();
-              console.log("CAPTURE RESULT:", result);
-
-              if (result.success && result.status === "COMPLETED") {
-                alert("✅ Payment Successful!");
-
-                navigate("/payment-success", {
-                  state: {
-                    orderId: result.orderId,
-                    payer: result.payer,
-                    amount,
-                  },
-                });
-              } else {
-                alert("❌ Payment not completed");
-              }
-            }}
-
-            onError={(err) => {
-              console.error("PayPal Error:", err);
-              alert("❌ Payment failed");
-            }}
-          />
-        </div> */}
 
 
         <div style={{ marginTop: 25 }}>
-  <PayPalButtons
-    disabled={!amount || Number(amount) <= 0}
+          <PayPalButtons
+            disabled={!amount || Number(amount) <= 0}
 
-    // 1️⃣ CREATE ORDER (backend)
-    createOrder={async () => {
-      try {
-        const res = await fetch(
-          "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/create-order",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              amount,
-              customerName: customerInfo.name,
-              customerEmail: customerInfo.email,
-              bookingRef: customerInfo.bookingRef,
-            }),
-          }
-        );
+            // 1️⃣ CREATE ORDER (backend)
+            createOrder={async () => {
+              try {
+                const res = await fetch(
+                  "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/create-order",
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      amount,
+                      customerName: customerInfo.name,
+                      customerEmail: customerInfo.email,
+                      bookingRef: customerInfo.bookingRef,
+                    }),
+                  }
+                );
 
-        const data = await res.json();
-        console.log("ORDER CREATED:", data);
+                const data = await res.json();
+                console.log("ORDER CREATED:", data);
 
-        if (!data.id) {
-          throw new Error("Order ID not received from backend");
-        }
+                if (!data.id) {
+                  throw new Error("Order ID not received from backend");
+                }
 
-        return data.id; // ✅ VERY IMPORTANT
-      } catch (err) {
-        console.error("CREATE ORDER ERROR:", err);
-        alert("❌ Unable to create PayPal order");
+                return data.id; // ✅ VERY IMPORTANT
+              } catch (err) {
+                console.error("CREATE ORDER ERROR:", err);
+                alert("❌ Unable to create PayPal order");
+              }
+            }}
+
+
+
+            // onApprove={async (data) => {
+            //   try {
+            //     const res = await fetch(
+            //       "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/capture-order",
+            //       {
+            //         method: "POST",
+            //         headers: { "Content-Type": "application/json" },
+            //         body: JSON.stringify({ orderID: data.orderID }),
+            //       }
+            //     );
+
+            //     const result = await res.json();
+            //     console.log("CAPTURE RESULT:", result);
+
+            //     if (result?.status === "COMPLETED") {
+            //       alert("✅ Payment Successful");
+
+            //       navigate("/payment-success", {
+            //         replace: true,
+            //         state: {
+            //           orderId: result.id || data.orderID,
+            //           payer: result.payer,
+            //           amount,
+            //         },
+            //       });
+            //     } else {
+            //       alert("❌ Payment not completed");
+            //     }
+            //   } catch (err) {
+            //     console.error("CAPTURE ERROR:", err);
+            //     alert("❌ Payment failed");
+            //   }
+            // }}
+
+
+            // 4️⃣ ERROR HANDLER
+           
+           
+           onApprove={(data) => {
+  // VERY IMPORTANT: return a Promise
+  return fetch(
+    "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/capture-order",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderID: data.orderID }),
+    }
+  )
+    .then((res) => res.json())
+    .then((result) => {
+      console.log("CAPTURE RESULT:", result);
+
+      if (result?.status === "COMPLETED") {
+        alert("✅ Payment Successful");
+
+        navigate("/payment-success", {
+          replace: true,
+          state: {
+            orderId: result.id,
+            payer: result.payer,
+            amount,
+          },
+        });
+      } else {
+        throw new Error("Payment not completed");
       }
-    }}
+    })
+    .catch((err) => {
+      console.error("CAPTURE ERROR:", err);
+      alert("❌ Payment failed");
+      throw err; // 🔥 REQUIRED
+    });
+}}
 
-    // 2️⃣ APPROVE + CAPTURE (backend)
-    onApprove={async (data) => {
-      try {
-        console.log("ON APPROVE:", data);
-
-        const res = await fetch(
-          "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/capture-order",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              orderID: data.orderID,
-            }),
-          }
-        );
-
-        const result = await res.json();
-        console.log("CAPTURE RESULT:", result);
-
-        // 3️⃣ SUCCESS UI + REDIRECT
-        if (result?.success && result?.status === "COMPLETED") {
-          alert("✅ Payment Successful!");
-
-          navigate("/payment-success", {
-            replace: true,
-            state: {
-              orderId: result.orderId,
-              payer: result.payer,
-              amount,
-            },
-          });
-        } else {
-          alert("❌ Payment not completed");
-        }
-      } catch (err) {
-        console.error("CAPTURE ERROR:", err);
-        alert("❌ Payment failed after approval");
-      }
-    }}
-
-    // 4️⃣ ERROR HANDLER
-    onError={(err) => {
-      console.error("PayPal Error:", err);
-      alert("❌ PayPal error occurred");
-    }}
-  />
-</div>
+           
+            onError={(err) => {
+              console.error("PayPal Error:", err);
+              alert("❌ PayPal error occurred");
+            }}
+          />
+        </div>
 
 
 

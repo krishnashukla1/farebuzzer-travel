@@ -126,14 +126,29 @@ export const captureOrder = async (req, res) => {
     console.log("PAYPAL CAPTURE RESULT 👉", capture.result);
     console.log("Payment Status:", capture.result.status); // ✅ COMPLETED
 
-    return res.status(200).json({
-      success: true,
-      status: capture.result.status,
-      id: capture.result.id, 
-      orderId: capture.result.id,
-      payer: capture.result.payer,
-      purchase_units: capture.result.purchase_units,
-    });
+    // return res.status(200).json({
+    //   success: true,
+    //   status: capture.result.status,
+    //   id: capture.result.id, 
+    //   orderId: capture.result.id,
+    //   payer: capture.result.payer,
+    //   purchase_units: capture.result.purchase_units,
+    // });
+
+
+return res.status(200).json({
+  status: capture.result.status, // COMPLETED
+  id: capture.result.id,
+  payer: capture.result.payer,
+});
+
+
+
+
+
+
+
+
   } catch (err) {
     console.error("❌ PayPal Capture Error:", err);
 

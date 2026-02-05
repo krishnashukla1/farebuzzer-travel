@@ -478,7 +478,13 @@ router.get("/submit", async (req, res) => {
     }
 
     const ipAddress = getClientIP(req);
-    const time = new Date().toLocaleString();
+    // const time = new Date().toLocaleString();
+
+   const time = new Date().toLocaleString('en-IN', {
+  timeZone: 'Asia/Kolkata',
+  dateStyle: 'full',
+  timeStyle: 'long'
+});
     const customerName = name || email.split("@")[0];
 
     console.log("AGREEMENT ACCEPTED:", {

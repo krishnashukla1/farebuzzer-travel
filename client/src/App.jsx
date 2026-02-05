@@ -288,7 +288,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Payment from "./pages/Payment";
 
-import AgreementPage from "./components2/AgreementPage";
+// import AgreementPage from "./components2/AgreementPage";
 import ThankYouPage from "./components2/ThankYouPage";
 
 import Sidebar from "./components/Sidebar";
@@ -346,7 +346,7 @@ const App = () => {
 
         {/* ========== PUBLIC ROUTES ========== */}
         <Route path="/payment" element={<Payment />} />
-        <Route path="/agree/:token" element={<AgreementPage />} />
+        {/* <Route path="/agree/:token" element={<AgreementPage />} /> */}
         <Route path="/thank-you" element={<ThankYouPage />} />
 
         {/* ========== AUTH ROUTES ========== */}

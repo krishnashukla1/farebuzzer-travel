@@ -419,7 +419,7 @@
 
 //                   const data = await res.json();
 //                   console.log("Order created:", data);
-
+                  
 //                   if (!data.id) throw new Error("Order ID not received");
 //                   return data.id;
 //                 } catch (error) {
@@ -602,228 +602,123 @@
 
 //============code 2
 
-// import { useState, useEffect } from "react";
-// import { useLocation, useNavigate } from "react-router-dom";
-// import { PayPalButtons } from "@paypal/react-paypal-js";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { PayPalButtons } from "@paypal/react-paypal-js";
 
-// function Payment() {
-//   const location = useLocation();
-//   const navigate = useNavigate();
+function Payment() {
+  const location = useLocation();
+  const navigate = useNavigate();
 
-//   const [amount, setAmount] = useState("");
-//   const [customerInfo, setCustomerInfo] = useState({
-//     name: "",
-//     email: "",
-//     phone: "",
-//     bookingRef: "",
-//   });
+  const [amount, setAmount] = useState("");
+  const [customerInfo, setCustomerInfo] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    bookingRef: "",
+  });
 
-//   /* ----------------------------------------
-//      READ DATA FROM URL OR NAVIGATION STATE
-//   -----------------------------------------*/
-//   useEffect(() => {
-//     if (location.state?.bookingData) {
-//       const b = location.state.bookingData;
-//       setCustomerInfo({
-//         name: b.customerName || "",
-//         email: b.customerEmail || "",
-//         phone: b.customerPhone || "",
-//         bookingRef: b.confirmationNumber || "",
-//       });
-//       setAmount(b.bookingAmount || "");
-//       return;
-//     }
+  /* ----------------------------------------
+     READ DATA FROM URL OR NAVIGATION STATE
+  -----------------------------------------*/
+  useEffect(() => {
+    if (location.state?.bookingData) {
+      const b = location.state.bookingData;
+      setCustomerInfo({
+        name: b.customerName || "",
+        email: b.customerEmail || "",
+        phone: b.customerPhone || "",
+        bookingRef: b.confirmationNumber || "",
+      });
+      setAmount(b.bookingAmount || "");
+      return;
+    }
 
-//     const params = new URLSearchParams(window.location.search);
-//     const name = params.get("customerName");
-//     const email = params.get("email");
-//     const phone = params.get("phone");
-//     const amt = params.get("amount");
-//     const ref = params.get("bookingRef");
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get("customerName");
+    const email = params.get("email");
+    const phone = params.get("phone");
+    const amt = params.get("amount");
+    const ref = params.get("bookingRef");
 
-//     if (name || email || amt) {
-//       setCustomerInfo({
-//         name: name || "",
-//         email: email || "",
-//         phone: phone || "",
-//         bookingRef: ref || "",
-//       });
-//       setAmount(amt || "");
-//     }
-//   }, [location]);
+    if (name || email || amt) {
+      setCustomerInfo({
+        name: name || "",
+        email: email || "",
+        phone: phone || "",
+        bookingRef: ref || "",
+      });
+      setAmount(amt || "");
+    }
+  }, [location]);
 
-//   /* ----------------------------------------
-//      PAYPAL SUCCESS HANDLER
-//   -----------------------------------------*/
-//   const handlePaymentSuccess = async (paypalResult) => {
-//     try {
-//       const capture =
-//         paypalResult?.purchase_units?.[0]?.payments?.captures?.[0];
+  /* ----------------------------------------
+     PAYPAL SUCCESS HANDLER
+  -----------------------------------------*/
+  const handlePaymentSuccess = async (paypalResult) => {
+    try {
+      const capture =
+        paypalResult?.purchase_units?.[0]?.payments?.captures?.[0];
 
-//       const paymentRecord = {
-//         customerName: customerInfo.name,
-//         customerEmail: customerInfo.email,
-//         customerPhone: customerInfo.phone,
-//         bookingRef: customerInfo.bookingRef,
-//         amount,
-//         paymentId: capture?.id || paypalResult.id,
-//         payerEmail: paypalResult?.payer?.email_address || "",
-//         payerId: paypalResult?.payer?.payer_id || "",
-//         status: capture?.status || "COMPLETED",
-//         paymentTime: new Date().toISOString(),
-//       };
+      const paymentRecord = {
+        customerName: customerInfo.name,
+        customerEmail: customerInfo.email,
+        customerPhone: customerInfo.phone,
+        bookingRef: customerInfo.bookingRef,
+        amount,
+        paymentId: capture?.id || paypalResult.id,
+        payerEmail: paypalResult?.payer?.email_address || "",
+        payerId: paypalResult?.payer?.payer_id || "",
+        status: capture?.status || "COMPLETED",
+        paymentTime: new Date().toISOString(),
+      };
 
-//       await fetch(
-//         "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/record",
-//         {
-//           method: "POST",
-//           headers: { "Content-Type": "application/json" },
-//           body: JSON.stringify(paymentRecord),
-//         }
-//       );
+      await fetch(
+        "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/record",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(paymentRecord),
+        }
+      );
 
-//       alert("✅ Payment Successful!");
-//       navigate("/payment-success", { replace: true });
-//     } catch (err) {
-//       console.error("Payment record error:", err);
-//     }
-//   };
+      alert("✅ Payment Successful!");
+      navigate("/payment-success", { replace: true });
+    } catch (err) {
+      console.error("Payment record error:", err);
+    }
+  };
 
-// //   return (
-// //     <div style={{ minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-// //       <div style={{ maxWidth: 500, width: "100%", padding: 24, background: "#fff", borderRadius: 12 }}>
+//   return (
+//     <div style={{ minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+//       <div style={{ maxWidth: 500, width: "100%", padding: 24, background: "#fff", borderRadius: 12 }}>
 
-// //         <h2 style={{ textAlign: "center" }}>✈️ FareBuzzer Travel</h2>
+//         <h2 style={{ textAlign: "center" }}>✈️ FareBuzzer Travel</h2>
 
-// //         {/* CUSTOMER INFO */}
-// //         {customerInfo.name && (
-// //           <div style={{ marginBottom: 16 }}>
-// //             <p><b>Name:</b> {customerInfo.name}</p>
-// //             <p><b>Email:</b> {customerInfo.email}</p>
-// //             <p><b>Phone:</b> {customerInfo.phone}</p>
-// //             <p><b>Booking Ref:</b> {customerInfo.bookingRef}</p>
-// //           </div>
-// //         )}
+//         {/* CUSTOMER INFO */}
+//         {customerInfo.name && (
+//           <div style={{ marginBottom: 16 }}>
+//             <p><b>Name:</b> {customerInfo.name}</p>
+//             <p><b>Email:</b> {customerInfo.email}</p>
+//             <p><b>Phone:</b> {customerInfo.phone}</p>
+//             <p><b>Booking Ref:</b> {customerInfo.bookingRef}</p>
+//           </div>
+//         )}
 
-// //         {/* AMOUNT */}
-// //         <input
-// //           type="number"
-// //           value={amount}
-// //           onChange={(e) => setAmount(e.target.value)}
-// //           placeholder="Amount USD"
-// //           style={{ width: "100%", padding: 12, marginBottom: 20 }}
-// //         />
+//         {/* AMOUNT */}
+//         <input
+//           type="number"
+//           value={amount}
+//           onChange={(e) => setAmount(e.target.value)}
+//           placeholder="Amount USD"
+//           style={{ width: "100%", padding: 12, marginBottom: 20 }}
+//         />
 
-// //         {/* PAYPAL BUTTON */}
-// //         <PayPalButtons
-// //           disabled={!amount || Number(amount) <= 0}
-// //           style={{ layout: "vertical" }}
-
-// //           createOrder={async () => {
-// //             const res = await fetch(
-// //               "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/create-order",
-// //               {
-// //                 method: "POST",
-// //                 headers: { "Content-Type": "application/json" },
-// //                 body: JSON.stringify({
-// //                   amount,
-// //                   customerName: customerInfo.name,
-// //                   customerEmail: customerInfo.email,
-// //                   bookingRef: customerInfo.bookingRef,
-// //                 }),
-// //               }
-// //             );
-
-// //             const data = await res.json();
-// //             console.log("ORDER CREATED:", data.id);
-// //             return data.id;
-// //           }}
-
-// //           onApprove={async (data) => {
-// //             const res = await fetch(
-// //               "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/capture-order",
-// //               {
-// //                 method: "POST",
-// //                 headers: { "Content-Type": "application/json" },
-// //                 body: JSON.stringify({ orderID: data.orderID }),
-// //               }
-// //             );
-
-// //             const result = await res.json();
-// //             console.log("CAPTURE RESULT:", result);
-
-// //             if (
-// //               result?.purchase_units?.[0]?.payments?.captures?.[0]?.status ===
-// //               "COMPLETED"
-// //             ) {
-// //               handlePaymentSuccess(result);
-// //             } else {
-// //               alert("❌ Payment not completed");
-// //             }
-// //           }}
-
-// //           onError={(err) => {
-// //             console.error("PayPal Error:", err);
-// //             alert("❌ PayPal payment failed");
-// //           }}
-// //         />
-// //       </div>
-// //     </div>
-// //   );
-
-// return (
-//   <div style={styles.page}>
-//     <div style={styles.card}>
-//       {/* HEADER */}
-//       <div style={styles.header}>
-//         <h1 style={styles.logo}>✈️ FareBuzzer Travel</h1>
-//         <p style={styles.sub}>Secure Payment Gateway</p>
-//       </div>
-
-//       {/* CUSTOMER DETAILS */}
-//       <div style={styles.section}>
-//         <h3 style={styles.sectionTitle}>Customer Details</h3>
-
-//         <div style={styles.infoRow}>
-//           <span>Name</span>
-//           <b>{customerInfo.name}</b>
-//         </div>
-//         <div style={styles.infoRow}>
-//           <span>Email</span>
-//           <b>{customerInfo.email}</b>
-//         </div>
-//         <div style={styles.infoRow}>
-//           <span>Phone</span>
-//           <b>{customerInfo.phone}</b>
-//         </div>
-//         <div style={styles.infoRow}>
-//           <span>Booking Ref</span>
-//           <b>{customerInfo.bookingRef}</b>
-//         </div>
-//       </div>
-
-//       {/* AMOUNT */}
-//       <div style={styles.section}>
-//         <h3 style={styles.sectionTitle}>Payment Amount (USD)</h3>
-
-//         <div style={styles.amountBox}>
-//           <span style={styles.currency}>$</span>
-//           <span style={styles.amount}>{Number(amount).toFixed(2)}</span>
-//         </div>
-
-//         <p style={styles.amountNote}>All prices are in US Dollars</p>
-//       </div>
-
-//       {/* PAYPAL */}
-//       <div style={styles.paypal}>
+//         {/* PAYPAL BUTTON */}
 //         <PayPalButtons
 //           disabled={!amount || Number(amount) <= 0}
-//           style={{
-//             layout: "vertical",
-//             color: "gold",
-//             shape: "rect",
-//             label: "paypal",
-//           }}
+//           style={{ layout: "vertical" }}
+
 //           createOrder={async () => {
 //             const res = await fetch(
 //               "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/create-order",
@@ -838,9 +733,12 @@
 //                 }),
 //               }
 //             );
+
 //             const data = await res.json();
+//             console.log("ORDER CREATED:", data.id);
 //             return data.id;
 //           }}
+
 //           onApprove={async (data) => {
 //             const res = await fetch(
 //               "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/capture-order",
@@ -852,6 +750,8 @@
 //             );
 
 //             const result = await res.json();
+//             console.log("CAPTURE RESULT:", result);
+
 //             if (
 //               result?.purchase_units?.[0]?.payments?.captures?.[0]?.status ===
 //               "COMPLETED"
@@ -861,109 +761,209 @@
 //               alert("❌ Payment not completed");
 //             }
 //           }}
+
 //           onError={(err) => {
-//             console.error(err);
+//             console.error("PayPal Error:", err);
 //             alert("❌ PayPal payment failed");
 //           }}
 //         />
 //       </div>
-
-//       {/* FOOTER */}
-//       <p style={styles.footer}>
-//         🔒 Payments are securely processed by PayPal
-//       </p>
 //     </div>
-//   </div>
-// );
+//   );
+
+return (
+  <div style={styles.page}>
+    <div style={styles.card}>
+      {/* HEADER */}
+      <div style={styles.header}>
+        <h1 style={styles.logo}>✈️ FareBuzzer Travel</h1>
+        <p style={styles.sub}>Secure Payment Gateway</p>
+      </div>
+
+      {/* CUSTOMER DETAILS */}
+      <div style={styles.section}>
+        <h3 style={styles.sectionTitle}>Customer Details</h3>
+
+        <div style={styles.infoRow}>
+          <span>Name</span>
+          <b>{customerInfo.name}</b>
+        </div>
+        <div style={styles.infoRow}>
+          <span>Email</span>
+          <b>{customerInfo.email}</b>
+        </div>
+        <div style={styles.infoRow}>
+          <span>Phone</span>
+          <b>{customerInfo.phone}</b>
+        </div>
+        <div style={styles.infoRow}>
+          <span>Booking Ref</span>
+          <b>{customerInfo.bookingRef}</b>
+        </div>
+      </div>
+
+      {/* AMOUNT */}
+      <div style={styles.section}>
+        <h3 style={styles.sectionTitle}>Payment Amount (USD)</h3>
+
+        <div style={styles.amountBox}>
+          <span style={styles.currency}>$</span>
+          <span style={styles.amount}>{Number(amount).toFixed(2)}</span>
+        </div>
+
+        <p style={styles.amountNote}>All prices are in US Dollars</p>
+      </div>
+
+      {/* PAYPAL */}
+      <div style={styles.paypal}>
+        <PayPalButtons
+          disabled={!amount || Number(amount) <= 0}
+          style={{
+            layout: "vertical",
+            color: "gold",
+            shape: "rect",
+            label: "paypal",
+          }}
+          createOrder={async () => {
+            const res = await fetch(
+              "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/create-order",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  amount,
+                  customerName: customerInfo.name,
+                  customerEmail: customerInfo.email,
+                  bookingRef: customerInfo.bookingRef,
+                }),
+              }
+            );
+            const data = await res.json();
+            return data.id;
+          }}
+          onApprove={async (data) => {
+            const res = await fetch(
+              "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/capture-order",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ orderID: data.orderID }),
+              }
+            );
+
+            const result = await res.json();
+            if (
+              result?.purchase_units?.[0]?.payments?.captures?.[0]?.status ===
+              "COMPLETED"
+            ) {
+              handlePaymentSuccess(result);
+            } else {
+              alert("❌ Payment not completed");
+            }
+          }}
+          onError={(err) => {
+            console.error(err);
+            alert("❌ PayPal payment failed");
+          }}
+        />
+      </div>
+
+      {/* FOOTER */}
+      <p style={styles.footer}>
+        🔒 Payments are securely processed by PayPal
+      </p>
+    </div>
+  </div>
+);
 
 
-// }
+}
 
-// const styles = {
-//   page: {
-//     minHeight: "100vh",
-//     background: "linear-gradient(135deg, #eef2f7, #d9e4f5)",
-//     display: "flex",
-//     justifyContent: "center",
-//     alignItems: "center",
-//     padding: 16,
-//   },
-//   card: {
-//     width: "100%",
-//     maxWidth: 460,
-//     background: "#fff",
-//     borderRadius: 18,
-//     boxShadow: "0 20px 40px rgba(0,0,0,0.12)",
-//     overflow: "hidden",
-//   },
-//   header: {
-//     background: "linear-gradient(135deg, #0047ab, #0066ff)",
-//     color: "#fff",
-//     padding: "24px 20px",
-//     textAlign: "center",
-//   },
-//   logo: {
-//     margin: 0,
-//     fontSize: 22,
-//     fontWeight: 700,
-//   },
-//   sub: {
-//     marginTop: 6,
-//     fontSize: 13,
-//     opacity: 0.9,
-//   },
-//   section: {
-//     padding: 20,
-//     borderBottom: "1px solid #eee",
-//   },
-//   sectionTitle: {
-//     fontSize: 14,
-//     fontWeight: 600,
-//     marginBottom: 12,
-//     color: "#0047ab",
-//   },
-//   infoRow: {
-//     display: "flex",
-//     justifyContent: "space-between",
-//     fontSize: 14,
-//     marginBottom: 8,
-//   },
-//   amountBox: {
-//     display: "flex",
-//     justifyContent: "center",
-//     alignItems: "baseline",
-//     background: "#f4f7fb",
-//     padding: 16,
-//     borderRadius: 12,
-//   },
-//   currency: {
-//     fontSize: 20,
-//     marginRight: 4,
-//     color: "#0047ab",
-//   },
-//   amount: {
-//     fontSize: 32,
-//     fontWeight: 700,
-//     color: "#0047ab",
-//   },
-//   amountNote: {
-//     fontSize: 12,
-//     textAlign: "center",
-//     marginTop: 8,
-//     color: "#777",
-//   },
-//   paypal: {
-//     padding: 20,
-//   },
-//   footer: {
-//     fontSize: 11,
-//     textAlign: "center",
-//     padding: 12,
-//     color: "#666",
-//   },
-// };
+const styles = {
+  page: {
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #eef2f7, #d9e4f5)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+  card: {
+    width: "100%",
+    maxWidth: 460,
+    background: "#fff",
+    borderRadius: 18,
+    boxShadow: "0 20px 40px rgba(0,0,0,0.12)",
+    overflow: "hidden",
+  },
+  header: {
+    background: "linear-gradient(135deg, #0047ab, #0066ff)",
+    color: "#fff",
+    padding: "24px 20px",
+    textAlign: "center",
+  },
+  logo: {
+    margin: 0,
+    fontSize: 22,
+    fontWeight: 700,
+  },
+  sub: {
+    marginTop: 6,
+    fontSize: 13,
+    opacity: 0.9,
+  },
+  section: {
+    padding: 20,
+    borderBottom: "1px solid #eee",
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: 600,
+    marginBottom: 12,
+    color: "#0047ab",
+  },
+  infoRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  amountBox: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "baseline",
+    background: "#f4f7fb",
+    padding: 16,
+    borderRadius: 12,
+  },
+  currency: {
+    fontSize: 20,
+    marginRight: 4,
+    color: "#0047ab",
+  },
+  amount: {
+    fontSize: 32,
+    fontWeight: 700,
+    color: "#0047ab",
+  },
+  amountNote: {
+    fontSize: 12,
+    textAlign: "center",
+    marginTop: 8,
+    color: "#777",
+  },
+  paypal: {
+    padding: 20,
+  },
+  footer: {
+    fontSize: 11,
+    textAlign: "center",
+    padding: 12,
+    color: "#666",
+  },
+};
 
-// export default Payment;
+export default Payment;
 
 //=======code 3 merge code 1 code 2
 
@@ -1026,7 +1026,7 @@
 //                     bookingRef: decodeURIComponent(ref || "")
 //                 });
 //                 setAmount(amt || "");
-
+                
 //                 setBookingData({
 //                     customerName: decodeURIComponent(name || ""),
 //                     customerEmail: decodeURIComponent(email || ""),
@@ -1070,7 +1070,7 @@
 
 //             // Show success alert
 //             alert("✅ Payment Successful!");
-
+            
 //             // Redirect to success page
 //             navigate("/payment-success", { replace: true });
 //         } catch (err) {
@@ -1330,230 +1330,195 @@
 // export default Payment;
 
 
-//============code 4===================
 
-import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { PayPalButtons } from "@paypal/react-paypal-js";
+//============code 4===5 feb================
 
-function Payment() {
-  const location = useLocation();
-  const navigate = useNavigate();
+// import { useState, useEffect } from "react";
+// import { useLocation, useNavigate } from "react-router-dom";
+// import { PayPalButtons } from "@paypal/react-paypal-js";
 
-  const [amount, setAmount] = useState("");
-  const [customerInfo, setCustomerInfo] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    bookingRef: "",
-  });
+// function Payment() {
+//   const location = useLocation();
+//   const navigate = useNavigate();
 
-  /* ----------------------------------
-     LOAD DATA (state or URL params)
-  -----------------------------------*/
-  useEffect(() => {
-    if (location.state?.bookingData) {
-      const b = location.state.bookingData;
-      setAmount(b.bookingAmount || "");
-      setCustomerInfo({
-        name: b.customerName || "",
-        email: b.customerEmail || "",
-        phone: b.customerPhone || "",
-        bookingRef: b.confirmationNumber || "",
-      });
-    } else {
-      const params = new URLSearchParams(window.location.search);
-      setAmount(params.get("amount") || "");
-      setCustomerInfo({
-        name: params.get("customerName") || "",
-        email: params.get("email") || "",
-        phone: params.get("phone") || "",
-        bookingRef: params.get("bookingRef") || "",
-      });
-    }
-  }, [location]);
+//   const [amount, setAmount] = useState("");
+//   const [customerInfo, setCustomerInfo] = useState({
+//     name: "",
+//     email: "",
+//     phone: "",
+//     bookingRef: "",
+//   });
 
-  /* ----------------------------------
-     UI
-  -----------------------------------*/
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg,#f5f7fa,#c3cfe2)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 20,
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 500,
-          width: "100%",
-          background: "#fff",
-          borderRadius: 20,
-          padding: 30,
-          boxShadow: "0 20px 60px rgba(0,0,0,.15)",
-        }}
-      >
-        <h2 style={{ textAlign: "center", color: "#003087" }}>
-          ✈️ FareBuzzer Travel
-        </h2>
+//   /* ----------------------------------
+//      LOAD DATA (state or URL params)
+//   -----------------------------------*/
+//   useEffect(() => {
+//     if (location.state?.bookingData) {
+//       const b = location.state.bookingData;
+//       setAmount(b.bookingAmount || "");
+//       setCustomerInfo({
+//         name: b.customerName || "",
+//         email: b.customerEmail || "",
+//         phone: b.customerPhone || "",
+//         bookingRef: b.confirmationNumber || "",
+//       });
+//     } else {
+//       const params = new URLSearchParams(window.location.search);
+//       setAmount(params.get("amount") || "");
+//       setCustomerInfo({
+//         name: params.get("customerName") || "",
+//         email: params.get("email") || "",
+//         phone: params.get("phone") || "",
+//         bookingRef: params.get("bookingRef") || "",
+//       });
+//     }
+//   }, [location]);
 
-        {/* CUSTOMER INFO */}
-        {customerInfo.name && (
-          <div style={{ marginTop: 20 }}>
-            <p><b>Name:</b> {customerInfo.name}</p>
-            <p><b>Email:</b> {customerInfo.email}</p>
-            <p><b>Booking Ref:</b> {customerInfo.bookingRef}</p>
-          </div>
-        )}
+//   /* ----------------------------------
+//      UI
+//   -----------------------------------*/
+//   return (
+//     <div
+//       style={{
+//         minHeight: "100vh",
+//         background: "linear-gradient(135deg,#f5f7fa,#c3cfe2)",
+//         display: "flex",
+//         justifyContent: "center",
+//         alignItems: "center",
+//         padding: 20,
+//       }}
+//     >
+//       <div
+//         style={{
+//           maxWidth: 500,
+//           width: "100%",
+//           background: "#fff",
+//           borderRadius: 20,
+//           padding: 30,
+//           boxShadow: "0 20px 60px rgba(0,0,0,.15)",
+//         }}
+//       >
+//         <h2 style={{ textAlign: "center", color: "#003087" }}>
+//           ✈️ FareBuzzer Travel
+//         </h2>
 
-        {/* AMOUNT */}
-        <div style={{ marginTop: 20 }}>
-          <label>Amount (USD)</label>
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            style={{
-              width: "100%",
-              padding: 12,
-              fontSize: 18,
-              marginTop: 8,
-            }}
-          />
-        </div>
+//         {/* CUSTOMER INFO */}
+//         {customerInfo.name && (
+//           <div style={{ marginTop: 20 }}>
+//             <p><b>Name:</b> {customerInfo.name}</p>
+//             <p><b>Email:</b> {customerInfo.email}</p>
+//             <p><b>Booking Ref:</b> {customerInfo.bookingRef}</p>
+//           </div>
+//         )}
 
-        {/* PAYPAL BUTTON */}
+//         {/* AMOUNT */}
+//         <div style={{ marginTop: 20 }}>
+//           <label>Amount (USD)</label>
+//           <input
+//             type="number"
+//             value={amount}
+//             onChange={(e) => setAmount(e.target.value)}
+//             style={{
+//               width: "100%",
+//               padding: 12,
+//               fontSize: 18,
+//               marginTop: 8,
+//             }}
+//           />
+//         </div>
 
-
-
-        <div style={{ marginTop: 25 }}>
-          <PayPalButtons
-            disabled={!amount || Number(amount) <= 0}
-
-            // 1️⃣ CREATE ORDER (backend)
-            createOrder={async () => {
-              try {
-                const res = await fetch(
-                  "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/create-order",
-                  {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      amount,
-                      customerName: customerInfo.name,
-                      customerEmail: customerInfo.email,
-                      bookingRef: customerInfo.bookingRef,
-                    }),
-                  }
-                );
-
-                const data = await res.json();
-                console.log("ORDER CREATED:", data);
-
-                if (!data.id) {
-                  throw new Error("Order ID not received from backend");
-                }
-
-                return data.id; // ✅ VERY IMPORTANT
-              } catch (err) {
-                console.error("CREATE ORDER ERROR:", err);
-                alert("❌ Unable to create PayPal order");
-              }
-            }}
+//         {/* PAYPAL BUTTON */}
 
 
 
-            // onApprove={async (data) => {
-            //   try {
-            //     const res = await fetch(
-            //       "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/capture-order",
-            //       {
-            //         method: "POST",
-            //         headers: { "Content-Type": "application/json" },
-            //         body: JSON.stringify({ orderID: data.orderID }),
-            //       }
-            //     );
+//         <div style={{ marginTop: 25 }}>
+//           <PayPalButtons
+//             disabled={!amount || Number(amount) <= 0}
 
-            //     const result = await res.json();
-            //     console.log("CAPTURE RESULT:", result);
+//             // 1️⃣ CREATE ORDER (backend)
+//             createOrder={async () => {
+//               try {
+//                 const res = await fetch(
+//                   "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/create-order",
+//                   {
+//                     method: "POST",
+//                     headers: { "Content-Type": "application/json" },
+//                     body: JSON.stringify({
+//                       amount,
+//                       customerName: customerInfo.name,
+//                       customerEmail: customerInfo.email,
+//                       bookingRef: customerInfo.bookingRef,
+//                     }),
+//                   }
+//                 );
 
-            //     if (result?.status === "COMPLETED") {
-            //       alert("✅ Payment Successful");
+//                 const data = await res.json();
+//                 console.log("ORDER CREATED:", data);
 
-            //       navigate("/payment-success", {
-            //         replace: true,
-            //         state: {
-            //           orderId: result.id || data.orderID,
-            //           payer: result.payer,
-            //           amount,
-            //         },
-            //       });
-            //     } else {
-            //       alert("❌ Payment not completed");
-            //     }
-            //   } catch (err) {
-            //     console.error("CAPTURE ERROR:", err);
-            //     alert("❌ Payment failed");
-            //   }
-            // }}
+//                 if (!data.id) {
+//                   throw new Error("Order ID not received from backend");
+//                 }
 
-
-            // 4️⃣ ERROR HANDLER
-           
-           
-           onApprove={(data) => {
-  // VERY IMPORTANT: return a Promise
-  return fetch(
-    "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/capture-order",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderID: data.orderID }),
-    }
-  )
-    .then((res) => res.json())
-    .then((result) => {
-      console.log("CAPTURE RESULT:", result);
-
-      if (result?.status === "COMPLETED") {
-        alert("✅ Payment Successful");
-
-        navigate("/payment-success", {
-          replace: true,
-          state: {
-            orderId: result.id,
-            payer: result.payer,
-            amount,
-          },
-        });
-      } else {
-        throw new Error("Payment not completed");
-      }
-    })
-    .catch((err) => {
-      console.error("CAPTURE ERROR:", err);
-      alert("❌ Payment failed");
-      throw err; // 🔥 REQUIRED
-    });
-}}
-
-           
-            onError={(err) => {
-              console.error("PayPal Error:", err);
-              alert("❌ PayPal error occurred");
-            }}
-          />
-        </div>
+//                 return data.id; // ✅ VERY IMPORTANT
+//               } catch (err) {
+//                 console.error("CREATE ORDER ERROR:", err);
+//                 alert("❌ Unable to create PayPal order");
+//               }
+//             }}
 
 
 
-      </div>
-    </div>
-  );
-}
 
-export default Payment;
+
+//             onApprove={(data) => {
+//               // VERY IMPORTANT: return a Promise
+//               return fetch(
+//                 "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/capture-order",
+//                 {
+//                   method: "POST",
+//                   headers: { "Content-Type": "application/json" },
+//                   body: JSON.stringify({ orderID: data.orderID }),
+//                 }
+//               )
+//                 .then((res) => res.json())
+//                 .then((result) => {
+//                   console.log("CAPTURE RESULT:", result);
+
+//                   if (result?.status === "COMPLETED") {
+//                     alert("✅ Payment Successful");
+
+//                     navigate("/payment-success", {
+//                       replace: true,
+//                       state: {
+//                         orderId: result.id,
+//                         payer: result.payer,
+//                         amount,
+//                       },
+//                     });
+//                   } else {
+//                     throw new Error("Payment not completed");
+//                   }
+//                 })
+//                 .catch((err) => {
+//                   console.error("CAPTURE ERROR:", err);
+//                   alert("❌ Payment failed");
+//                   throw err; // 🔥 REQUIRED
+//                 });
+//             }}
+
+
+//             onError={(err) => {
+//               console.error("PayPal Error:", err);
+//               alert("❌ PayPal error occurred");
+//             }}
+//           />
+//         </div>
+
+
+
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default Payment;

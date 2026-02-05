@@ -689,141 +689,36 @@ function Payment() {
     }
   };
 
-//   return (
-//     <div style={{ minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-//       <div style={{ maxWidth: 500, width: "100%", padding: 24, background: "#fff", borderRadius: 12 }}>
+  return (
+    <div style={{ minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <div style={{ maxWidth: 500, width: "100%", padding: 24, background: "#fff", borderRadius: 12 }}>
 
-//         <h2 style={{ textAlign: "center" }}>✈️ FareBuzzer Travel</h2>
+        <h2 style={{ textAlign: "center" }}>✈️ FareBuzzer Travel</h2>
 
-//         {/* CUSTOMER INFO */}
-//         {customerInfo.name && (
-//           <div style={{ marginBottom: 16 }}>
-//             <p><b>Name:</b> {customerInfo.name}</p>
-//             <p><b>Email:</b> {customerInfo.email}</p>
-//             <p><b>Phone:</b> {customerInfo.phone}</p>
-//             <p><b>Booking Ref:</b> {customerInfo.bookingRef}</p>
-//           </div>
-//         )}
+        {/* CUSTOMER INFO */}
+        {customerInfo.name && (
+          <div style={{ marginBottom: 16 }}>
+            <p><b>Name:</b> {customerInfo.name}</p>
+            <p><b>Email:</b> {customerInfo.email}</p>
+            <p><b>Phone:</b> {customerInfo.phone}</p>
+            <p><b>Booking Ref:</b> {customerInfo.bookingRef}</p>
+          </div>
+        )}
 
-//         {/* AMOUNT */}
-//         <input
-//           type="number"
-//           value={amount}
-//           onChange={(e) => setAmount(e.target.value)}
-//           placeholder="Amount USD"
-//           style={{ width: "100%", padding: 12, marginBottom: 20 }}
-//         />
+        {/* AMOUNT */}
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="Amount USD"
+          style={{ width: "100%", padding: 12, marginBottom: 20 }}
+        />
 
-//         {/* PAYPAL BUTTON */}
-//         <PayPalButtons
-//           disabled={!amount || Number(amount) <= 0}
-//           style={{ layout: "vertical" }}
-
-//           createOrder={async () => {
-//             const res = await fetch(
-//               "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/create-order",
-//               {
-//                 method: "POST",
-//                 headers: { "Content-Type": "application/json" },
-//                 body: JSON.stringify({
-//                   amount,
-//                   customerName: customerInfo.name,
-//                   customerEmail: customerInfo.email,
-//                   bookingRef: customerInfo.bookingRef,
-//                 }),
-//               }
-//             );
-
-//             const data = await res.json();
-//             console.log("ORDER CREATED:", data.id);
-//             return data.id;
-//           }}
-
-//           onApprove={async (data) => {
-//             const res = await fetch(
-//               "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/capture-order",
-//               {
-//                 method: "POST",
-//                 headers: { "Content-Type": "application/json" },
-//                 body: JSON.stringify({ orderID: data.orderID }),
-//               }
-//             );
-
-//             const result = await res.json();
-//             console.log("CAPTURE RESULT:", result);
-
-//             if (
-//               result?.purchase_units?.[0]?.payments?.captures?.[0]?.status ===
-//               "COMPLETED"
-//             ) {
-//               handlePaymentSuccess(result);
-//             } else {
-//               alert("❌ Payment not completed");
-//             }
-//           }}
-
-//           onError={(err) => {
-//             console.error("PayPal Error:", err);
-//             alert("❌ PayPal payment failed");
-//           }}
-//         />
-//       </div>
-//     </div>
-//   );
-
-return (
-  <div style={styles.page}>
-    <div style={styles.card}>
-      {/* HEADER */}
-      <div style={styles.header}>
-        <h1 style={styles.logo}>✈️ FareBuzzer Travel</h1>
-        <p style={styles.sub}>Secure Payment Gateway</p>
-      </div>
-
-      {/* CUSTOMER DETAILS */}
-      <div style={styles.section}>
-        <h3 style={styles.sectionTitle}>Customer Details</h3>
-
-        <div style={styles.infoRow}>
-          <span>Name</span>
-          <b>{customerInfo.name}</b>
-        </div>
-        <div style={styles.infoRow}>
-          <span>Email</span>
-          <b>{customerInfo.email}</b>
-        </div>
-        <div style={styles.infoRow}>
-          <span>Phone</span>
-          <b>{customerInfo.phone}</b>
-        </div>
-        <div style={styles.infoRow}>
-          <span>Booking Ref</span>
-          <b>{customerInfo.bookingRef}</b>
-        </div>
-      </div>
-
-      {/* AMOUNT */}
-      <div style={styles.section}>
-        <h3 style={styles.sectionTitle}>Payment Amount (USD)</h3>
-
-        <div style={styles.amountBox}>
-          <span style={styles.currency}>$</span>
-          <span style={styles.amount}>{Number(amount).toFixed(2)}</span>
-        </div>
-
-        <p style={styles.amountNote}>All prices are in US Dollars</p>
-      </div>
-
-      {/* PAYPAL */}
-      <div style={styles.paypal}>
+        {/* PAYPAL BUTTON */}
         <PayPalButtons
           disabled={!amount || Number(amount) <= 0}
-          style={{
-            layout: "vertical",
-            color: "gold",
-            shape: "rect",
-            label: "paypal",
-          }}
+          style={{ layout: "vertical" }}
+
           createOrder={async () => {
             const res = await fetch(
               "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/create-order",
@@ -838,9 +733,12 @@ return (
                 }),
               }
             );
+
             const data = await res.json();
+            console.log("ORDER CREATED:", data.id);
             return data.id;
           }}
+
           onApprove={async (data) => {
             const res = await fetch(
               "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/capture-order",
@@ -852,6 +750,8 @@ return (
             );
 
             const result = await res.json();
+            console.log("CAPTURE RESULT:", result);
+
             if (
               result?.purchase_units?.[0]?.payments?.captures?.[0]?.status ===
               "COMPLETED"
@@ -861,20 +761,120 @@ return (
               alert("❌ Payment not completed");
             }
           }}
+
           onError={(err) => {
-            console.error(err);
+            console.error("PayPal Error:", err);
             alert("❌ PayPal payment failed");
           }}
         />
       </div>
-
-      {/* FOOTER */}
-      <p style={styles.footer}>
-        🔒 Payments are securely processed by PayPal
-      </p>
     </div>
-  </div>
-);
+  );
+
+// return (
+//   <div style={styles.page}>
+//     <div style={styles.card}>
+//       {/* HEADER */}
+//       <div style={styles.header}>
+//         <h1 style={styles.logo}>✈️ FareBuzzer Travel</h1>
+//         <p style={styles.sub}>Secure Payment Gateway</p>
+//       </div>
+
+//       {/* CUSTOMER DETAILS */}
+//       <div style={styles.section}>
+//         <h3 style={styles.sectionTitle}>Customer Details</h3>
+
+//         <div style={styles.infoRow}>
+//           <span>Name</span>
+//           <b>{customerInfo.name}</b>
+//         </div>
+//         <div style={styles.infoRow}>
+//           <span>Email</span>
+//           <b>{customerInfo.email}</b>
+//         </div>
+//         <div style={styles.infoRow}>
+//           <span>Phone</span>
+//           <b>{customerInfo.phone}</b>
+//         </div>
+//         <div style={styles.infoRow}>
+//           <span>Booking Ref</span>
+//           <b>{customerInfo.bookingRef}</b>
+//         </div>
+//       </div>
+
+//       {/* AMOUNT */}
+//       <div style={styles.section}>
+//         <h3 style={styles.sectionTitle}>Payment Amount (USD)</h3>
+
+//         <div style={styles.amountBox}>
+//           <span style={styles.currency}>$</span>
+//           <span style={styles.amount}>{Number(amount).toFixed(2)}</span>
+//         </div>
+
+//         <p style={styles.amountNote}>All prices are in US Dollars</p>
+//       </div>
+
+//       {/* PAYPAL */}
+//       <div style={styles.paypal}>
+//         <PayPalButtons
+//           disabled={!amount || Number(amount) <= 0}
+//           style={{
+//             layout: "vertical",
+//             color: "gold",
+//             shape: "rect",
+//             label: "paypal",
+//           }}
+//           createOrder={async () => {
+//             const res = await fetch(
+//               "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/create-order",
+//               {
+//                 method: "POST",
+//                 headers: { "Content-Type": "application/json" },
+//                 body: JSON.stringify({
+//                   amount,
+//                   customerName: customerInfo.name,
+//                   customerEmail: customerInfo.email,
+//                   bookingRef: customerInfo.bookingRef,
+//                 }),
+//               }
+//             );
+//             const data = await res.json();
+//             return data.id;
+//           }}
+//           onApprove={async (data) => {
+//             const res = await fetch(
+//               "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/capture-order",
+//               {
+//                 method: "POST",
+//                 headers: { "Content-Type": "application/json" },
+//                 body: JSON.stringify({ orderID: data.orderID }),
+//               }
+//             );
+
+//             const result = await res.json();
+//             if (
+//               result?.purchase_units?.[0]?.payments?.captures?.[0]?.status ===
+//               "COMPLETED"
+//             ) {
+//               handlePaymentSuccess(result);
+//             } else {
+//               alert("❌ Payment not completed");
+//             }
+//           }}
+//           onError={(err) => {
+//             console.error(err);
+//             alert("❌ PayPal payment failed");
+//           }}
+//         />
+//       </div>
+
+//       {/* FOOTER */}
+//       <p style={styles.footer}>
+//         🔒 Payments are securely processed by PayPal
+//       </p>
+//     </div>
+//   </div>
+// );
 
 
 }

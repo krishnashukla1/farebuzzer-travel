@@ -153,8 +153,8 @@ app.use("/api", flightStatusRoutes);
 
 
 app.use('/api/agreement', agreementRoutes);
-app.use('/api/webhook', emailWebhookRoutes);
-app.use('/api/email', emailReplyRoutes);
+// app.use('/api/webhook', emailWebhookRoutes);
+// app.use('/api/email', emailReplyRoutes);
 
 
 app.use("/api/payment", paymentRoutes);

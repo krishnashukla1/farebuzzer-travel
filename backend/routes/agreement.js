@@ -302,179 +302,8 @@
 
 // export default router;
 
-//=================5 feb==========
+//=========5 feb========
 
-// import express from "express";
-// import { Resend } from "resend";
-
-// const router = express.Router();
-// const resend = new Resend(process.env.RESEND_API_KEY);
-
-// // If app is behind proxy (Vercel / Nginx)
-// router.set("trust proxy", true);
-
-// /**
-//  * Helper: Get real client IP
-//  */
-// const getClientIP = (req) => {
-//   const forwarded = req.headers["x-forwarded-for"];
-//   if (forwarded) return forwarded.split(",")[0].trim();
-//   if (req.headers["x-real-ip"]) return req.headers["x-real-ip"];
-//   // return req.ip || "Unknown";
-
-//   const getClientIP = (req) => {
-//   const xff = req.headers["x-forwarded-for"];
-//   if (xff) return xff.split(",")[0].trim();
-//   return req.socket?.remoteAddress || req.ip || "Unknown";
-// };
-
-// };
-
-// /**
-//  * ============================
-//  * GET — Agreement via Email Link
-//  * ============================
-//  */
-// router.get("/submit", async (req, res) => {
-//   try {
-//     const { email, booking, name } = req.query;
-
-//     if (!email || !booking) {
-//       return res.status(400).send(`
-//         <html>
-//           <body style="font-family:Arial;text-align:center;padding:50px;background:#fef3c7;">
-//             <h2 style="color:#dc2626;">❌ Missing Information</h2>
-//             <p>Please contact support with your booking reference.</p>
-//             <a href="mailto:besttripmakers@gmail.com">Contact Support</a>
-//           </body>
-//         </html>
-//       `);
-//     }
-
-//     const safeEmail = String(email).toLowerCase().trim();
-//     const customerName =
-//       name?.toString().trim() || safeEmail.split("@")[0];
-
-//     const ipAddress = getClientIP(req);
-//     const timestamp = new Date().toLocaleString();
-
-//     console.log("✅ Agreement clicked:", {
-//       email: safeEmail,
-//       booking,
-//       ipAddress,
-//     });
-
-//     /**
-//      * ============================
-//      * 1. Notify Admin
-//      * ============================
-//      */
-//     await resend.emails.send({
-//       from:
-//         process.env.RESEND_FROM_EMAIL ||
-//         "FareBuzzer <besttripmakers@gmail.com>",
-//       to: process.env.ADMIN_EMAIL || "besttripmakers@gmail.com",
-//       subject: `✅ Customer Agreement - ${booking}`,
-//       html: `
-//         <h2>Customer Agreement Received</h2>
-//         <p><strong>Name:</strong> ${customerName}</p>
-//         <p><strong>Email:</strong> ${safeEmail}</p>
-//         <p><strong>Booking:</strong> ${booking}</p>
-//         <p><strong>IP:</strong> ${ipAddress}</p>
-//         <p><strong>Time:</strong> ${timestamp}</p>
-//       `,
-//       text: `
-// Customer Agreement Received
-
-// Name: ${customerName}
-// Email: ${safeEmail}
-// Booking: ${booking}
-// IP: ${ipAddress}
-// Time: ${timestamp}
-//       `,
-//     });
-
-//     /**
-//      * ============================
-//      * 2. Confirm to Customer
-//      * ============================
-//      */
-//     await resend.emails.send({
-//       from:
-//         process.env.RESEND_FROM_EMAIL ||
-//         "FareBuzzer Support <besttripmakers@gmail.com>",
-//       to: safeEmail,
-//       subject: `Agreement Confirmed - ${booking}`,
-//       html: `
-//         <p>Dear ${customerName},</p>
-//         <p>Your agreement has been successfully recorded.</p>
-//         <p><strong>Booking:</strong> ${booking}</p>
-//         <p><strong>Time:</strong> ${timestamp}</p>
-//         <p>— FareBuzzer Support</p>
-//       `,
-//     });
-
-//     /**
-//      * ============================
-//      * 3. Success Page
-//      * ============================
-//      */
-//     return res.send(`
-//       <html>
-//         <body style="font-family:Arial;text-align:center;padding:40px;background:#ecfeff;">
-//           <h1 style="color:#10b981;">✅ Agreement Submitted</h1>
-//           <p><strong>Booking:</strong> ${booking}</p>
-//           <p><strong>Email:</strong> ${safeEmail}</p>
-//           <p><strong>Time:</strong> ${timestamp}</p>
-//           <p>You can safely close this window.</p>
-//         </body>
-//       </html>
-//     `);
-//   } catch (error) {
-//     console.error("❌ Agreement Error:", error);
-//     return res.status(500).send(`
-//       <html>
-//         <body style="font-family:Arial;text-align:center;padding:50px;background:#fee2e2;">
-//           <h2 style="color:#dc2626;">❌ Error Processing Agreement</h2>
-//           <p>Please reply to the original email with "I AGREE"</p>
-//         </body>
-//       </html>
-//     `);
-//   }
-// });
-
-// /**
-//  * ============================
-//  * POST — API Agreement (optional)
-//  * ============================
-//  */
-// router.post("/submit-agreement", async (req, res) => {
-//   try {
-//     const { email, booking, name } = req.body;
-
-//     if (!email || !booking) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Email and booking are required",
-//       });
-//     }
-
-//     // You can reuse the same email logic here if needed
-
-//     return res.json({
-//       success: true,
-//       message: "Agreement submitted successfully",
-//     });
-//   } catch (error) {
-//     console.error("❌ POST Agreement Error:", error);
-//     return res.status(500).json({
-//       success: false,
-//       message: "Server error",
-//     });
-//   }
-// });
-
-// export default router;
 
 
 
@@ -501,6 +330,17 @@ const getClientIP = (req) => {
  */
 router.get("/submit", async (req, res) => {
   try {
+
+
+
+    // 🔍 TEMP DEBUG — REMOVE AFTER TESTING
+    console.log("RAW IP DEBUG:", {
+      reqIp: req.ip,
+      xff: req.headers["x-forwarded-for"],
+      remote: req.socket?.remoteAddress,
+    });
+
+
     const { email, booking, name } = req.query;
 
     if (!email || !booking) {

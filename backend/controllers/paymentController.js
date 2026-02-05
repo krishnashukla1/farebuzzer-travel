@@ -129,6 +129,7 @@ export const captureOrder = async (req, res) => {
     return res.status(200).json({
       success: true,
       status: capture.result.status,
+      id: capture.result.id, 
       orderId: capture.result.id,
       payer: capture.result.payer,
       purchase_units: capture.result.purchase_units,

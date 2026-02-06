@@ -4,7 +4,7 @@ import User from "../models/User.js";
 import {
   getAllUsers,
   updateMe,
-  adminUpdateUser
+  adminUpdateUser,adminDeleteUser
 } from "../controllers/userController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import adminMiddleware from "../middleware/adminMiddleware.js";
@@ -29,5 +29,8 @@ router.put("/me", authMiddleware, updateMe);
 
 // 🔹 Admin: Update ANY user
 router.put("/:id", authMiddleware, adminMiddleware, adminUpdateUser);
+
+router.delete("/:id", authMiddleware, adminMiddleware, adminDeleteUser);
+
 
 export default router;

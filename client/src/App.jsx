@@ -289,7 +289,7 @@ import Signup from "./pages/Signup";
 import Payment from "./pages/Payment";
 
 // import AgreementPage from "./components2/AgreementPage";
-import ThankYouPage from "./components2/ThankYouPage";
+// import ThankYouPage from "./components2/ThankYouPage";
 
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";

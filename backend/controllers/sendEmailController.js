@@ -4323,17 +4323,12 @@ export const sendCustomerEmail = async (req, res) => {
           <p style="margin-top:15px; color:#64748b; font-size:14px;">
             <strong>Instantly confirm your agreement</strong> - No email reply needed
           </p>
-        </div>
-        
-        <div style="text-align:center; margin:25px 0; padding:20px; background:#fff7ed; border-radius:10px;">
-          <p style="color:#ea580c; font-weight:bold; margin-bottom:10px;">OR Reply via Email</p>
-          <div style="background:white; padding:12px; border-radius:8px; margin:10px 0; font-family:'Courier New', monospace;">
-            <strong>I AGREE</strong>
-          </div>
-          <p style="font-size:14px; color:#92400e;">
+            <p style="font-size:14px; color:#92400e;">
             Your IP address will be automatically recorded for verification
           </p>
         </div>
+        
+       
       `;
     } else if (includeAgreement && !confirmationNumber) {
       // Fallback if no booking reference

@@ -514,16 +514,114 @@ router.get("/submit", async (req, res) => {
        SUCCESS PAGE
     ========================= */
     return res.send(`
-      <html>
-        <body style="font-family:Arial;text-align:center;padding:40px">
-          <h1 style="color:green">✅ Agreement Submitted</h1>
-          <p><strong>Booking:</strong> ${booking}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Time:</strong> ${time}</p>
-          <p>You can safely close this window.</p>
-        </body>
-      </html>
-    `);
+ 
+<html>
+  <body style="
+    margin:0;
+    padding:0;
+    background:#f4f7fb;
+    font-family: 'Segoe UI', Arial, sans-serif;
+  ">
+    <div style="
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    ">
+      <div style="
+        background:#ffffff;
+        max-width:520px;
+        width:100%;
+        border-radius:12px;
+        box-shadow:0 15px 35px rgba(0,0,0,0.12);
+        padding:30px;
+        text-align:center;
+      ">
+        
+        <div style="font-size:56px; color:#22c55e;">✅</div>
+
+        <h1 style="
+          margin:10px 0;
+          font-size:24px;
+          color:#15803d;
+        ">
+          Agreement Submitted Successfully
+        </h1>
+
+        <p style="
+          font-size:14px;
+          color:#555;
+          margin-bottom:25px;
+        ">
+          Thank you for confirming your agreement.  
+          This action has been securely recorded.
+        </p>
+
+        <div style="
+          background:#f9fafb;
+          border-radius:8px;
+          padding:16px;
+          text-align:left;
+          margin-bottom:24px;
+        ">
+          <div style="margin-bottom:10px;">
+            <span style="color:#6b7280;font-size:13px;">Booking Reference</span><br/>
+            <strong style="color:#111827;">${booking}</strong>
+          </div>
+
+          <div style="margin-bottom:10px;">
+            <span style="color:#6b7280;font-size:13px;">Email Address</span><br/>
+            <strong style="color:#111827;">${email}</strong>
+          </div>
+
+          <div>
+            <span style="color:#6b7280;font-size:13px;">Submission Time</span><br/>
+            <strong style="color:#111827;">${time}</strong>
+          </div>
+        </div>
+
+        <p style="
+          font-size:13px;
+          color:#374151;
+          line-height:1.6;
+          margin-bottom:22px;
+        ">
+          You may safely close this window.  
+          A confirmation email has been sent for your records.
+        </p>
+
+        <button onclick="window.close()" style="
+          background:#2563eb;
+          color:#fff;
+          border:none;
+          padding:12px 22px;
+          border-radius:6px;
+          font-size:14px;
+          font-weight:600;
+          cursor:pointer;
+        ">
+          Close Window
+        </button>
+
+        <div style="
+          margin-top:20px;
+          font-size:12px;
+          color:#9ca3af;
+        ">
+          Secure Agreement System • Farebuzzer Travel
+        </div>
+
+      </div>
+    </div>
+  </body>
+</html>
+`);
+
+
+
+
+
   } catch (err) {
     console.error("AGREEMENT ERROR:", err);
     return res.status(500).send("Failed to process agreement");

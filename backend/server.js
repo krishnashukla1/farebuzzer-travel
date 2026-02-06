@@ -79,8 +79,8 @@ import "./services/emailCron.js";
 
 
 import agreementRoutes from './routes/agreement.js';
-import emailWebhookRoutes from './routes/emailWebhook.js';
-import emailReplyRoutes from './routes/emailReply.js';
+// import emailWebhookRoutes from './routes/emailWebhook.js';
+// import emailReplyRoutes from './routes/emailReply.js';
 
 import paymentRoutes from "./routes/paymentRoutes.js";
 
@@ -153,8 +153,8 @@ app.use("/api", flightStatusRoutes);
 
 
 app.use('/api/agreement', agreementRoutes);
-app.use('/api/webhook', emailWebhookRoutes);
-app.use('/api/email', emailReplyRoutes);
+// app.use('/api/webhook', emailWebhookRoutes);
+// app.use('/api/email', emailReplyRoutes);
 
 
 app.use("/api/payment", paymentRoutes);

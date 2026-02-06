@@ -347,7 +347,7 @@ const App = () => {
         {/* ========== PUBLIC ROUTES ========== */}
         <Route path="/payment" element={<Payment />} />
         {/* <Route path="/agree/:token" element={<AgreementPage />} /> */}
-        <Route path="/thank-you" element={<ThankYouPage />} />
+        {/* <Route path="/thank-you" element={<ThankYouPage />} /> */}
 
         {/* ========== AUTH ROUTES ========== */}
         <Route path="/login" element={<Login />} />

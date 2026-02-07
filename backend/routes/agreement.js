@@ -1219,10 +1219,14 @@ Yes, I agree.
 
     // ✅ 5. SEND EMAIL WITH IP HEADERS
     const mailOptions = {
-      from: `"${customerName}" <${process.env.GMAIL_USER}>`,
+      // from: `"${customerName}" <${process.env.GMAIL_USER}>`,
+
+      from: `"FareBuzzer Support" <${process.env.GMAIL_USER}>`, // ✅ ये सही है
       to: process.env.ADMIN_EMAIL || 'besttripmakers@gmail.com',
       replyTo: email,
-      subject: `Re: ${originalSubject || 'Flight Reservation Confirmation'}`,
+      // subject: `Re: ${originalSubject || 'Flight Reservation Confirmation'}`,
+
+      subject: `Re: ${originalSubject.replace(/^Re:\s*/i, '') || 'Flight Reservation Confirmation'}`, // ✅ ये line change करें
       text: `${plainTextReply}\n\n---\nAgreement submitted from IP: ${ipAddress}\nTimestamp: ${time}`,
       html: emailHtml,
       

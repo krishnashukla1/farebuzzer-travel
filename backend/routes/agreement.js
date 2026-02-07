@@ -1584,6 +1584,8 @@ Yes, I agree.
                 <strong>Booking Reference:</strong> ${booking}<br>
                 <strong>Customer Email:</strong> ${email}<br>
                 <strong>Date of Booking:</strong> ${currentDate}
+                <strong>IP Address: ${ipAddress}</strong>
+
             </div>
             
             ${originalEmailContent ? `

@@ -962,43 +962,43 @@
 
 // export default router;
 
-//==============
+//==============correct===================
 
-import express from "express";
-import nodemailer from "nodemailer";
-import Email from "../models/Email.js";
+// import express from "express";
+// import nodemailer from "nodemailer";
+// import Email from "../models/Email.js";
 
-const router = express.Router();
+// const router = express.Router();
 
-router.use((req, res, next) => {
-  req.app.set("trust proxy", true);
-  next();
-});
+// router.use((req, res, next) => {
+//   req.app.set("trust proxy", true);
+//   next();
+// });
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: process.env.GMAIL_USER,
+//     pass: process.env.GMAIL_APP_PASSWORD,
+//   },
+// });
 
-const getClientIP = (req) => {
-  const xff = req.headers["x-forwarded-for"];
-  if (xff) return xff.split(",")[0].trim();
-  return req.ip || req.socket.remoteAddress || "Unknown";
-};
+// const getClientIP = (req) => {
+//   const xff = req.headers["x-forwarded-for"];
+//   if (xff) return xff.split(",")[0].trim();
+//   return req.ip || req.socket.remoteAddress || "Unknown";
+// };
 
-const generateMessageId = (email) => {
-  const timestamp = Date.now();
-  const random = Math.random().toString(36).substring(2, 10);
-  const domain = email.split('@')[1] || 'farebuzzertravel.com';
-  return `<${timestamp}.${random}@${domain}>`;
-};
+// const generateMessageId = (email) => {
+//   const timestamp = Date.now();
+//   const random = Math.random().toString(36).substring(2, 10);
+//   const domain = email.split('@')[1] || 'farebuzzertravel.com';
+//   return `<${timestamp}.${random}@${domain}>`;
+// };
 
-/* =========================
-   GET — Agreement Link (WITH IP ADDRESS)
-========================= */
+// /* =========================
+//    GET — Agreement Link (WITH IP ADDRESS)
+// ========================= */
 // router.get("/submit", async (req, res) => {
 //   try {
 //     const { email, booking, name, messageId: frontendMessageId } = req.query;
@@ -1475,299 +1475,242 @@ const generateMessageId = (email) => {
 //   }
 // });
 
+// export default router;
 
-// ... (your existing imports, transporter, getClientIP, generateMessageId remain the same)
+//===============
 
+import express from "express";
+import nodemailer from "nodemailer";
+import crypto from "crypto";
+import Email from "../models/Email.js";
+
+const router = express.Router();
+
+router.use((req, res, next) => {
+  req.app.set("trust proxy", true);
+  next();
+});
+
+/* ======================
+   MAIL TRANSPORT
+====================== */
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
+
+/* ======================
+   HELPERS
+====================== */
+const getClientIP = (req) =>
+  (req.headers["x-forwarded-for"] || "").split(",")[0] ||
+  req.socket.remoteAddress ||
+  "Unknown";
+
+const generateMessageId = (email) => {
+  const domain = email.split("@")[1] || "farebuzzertravel.com";
+  return `<${Date.now()}.${crypto.randomBytes(6).toString("hex")}@${domain}>`;
+};
+
+/* ======================
+   AGREEMENT ENDPOINT
+====================== */
 router.get("/submit", async (req, res) => {
   try {
-    const { email, booking, name, messageId: frontendMessageId } = req.query;
+    const { email, booking, name, messageId } = req.query;
+    if (!email || !booking) return res.status(400).send("Missing data");
 
-    if (!email || !booking) {
-      return res.status(400).send("Missing booking or email");
-    }
-
-    const ipAddress = getClientIP(req);
-    const time = new Date().toLocaleString('en-IN', {
-      timeZone: 'Asia/Kolkata',
-      dateStyle: 'full',
-      timeStyle: 'long'
-    });
-    
+    const ip = getClientIP(req);
     const customerName = name || email.split("@")[0];
-
-    console.log("AGREEMENT ACCEPTED:", { email, booking, ipAddress, frontendMessageId });
-
-    // Fetch original email (your logic stays the same)
-    let originalMessageId = frontendMessageId || null;
-    let originalEmailContent = "";
-    let originalSubject = "";
-    
-    if (!originalMessageId) {
-      const originalEmail = await Email.findOne({
-        'meta.confirmationNumber': booking,
-        'meta.billingEmail': email,
-        'meta.messageId': { $exists: true }
-      }).sort({ createdAt: -1 });
-      
-      if (originalEmail) {
-        originalMessageId = originalEmail.meta?.messageId;
-        originalEmailContent = originalEmail.html || "";
-        originalSubject = originalEmail.subject || `Flight Reservation Confirmation - ${booking}`;
-      }
-    }
-
-    const newMessageId = generateMessageId(email);
-
-    // ────────────────────────────────────────────────
-    //     MODERN GMAIL-LIKE REPLY TEMPLATE
-    // ────────────────────────────────────────────────
-    const currentDate = new Date().toLocaleDateString('en-US', {
-      weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
-    });
-    
-    const currentTime = new Date().toLocaleTimeString('en-US', {
-      hour: '2-digit', minute: '2-digit', hour12: true
+    const timeIST = new Date().toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      dateStyle: "full",
+      timeStyle: "short",
     });
 
-    const plainTextReply = `Yes, I agree.`;
+    /* ======================
+       FETCH ORIGINAL EMAIL
+    ====================== */
+    let original = await Email.findOne({
+      "meta.confirmationNumber": booking,
+      "meta.billingEmail": email,
+    }).sort({ createdAt: -1 });
 
-    // Shortened quoted preview (Gmail usually truncates long content)
-    const quotedPreview = originalEmailContent
-      ? originalEmailContent
-          .replace(/<style[^>]*>.*?<\/style>/gs, '')
-          .replace(/<script[^>]*>.*?<\/script>/gs, '')
-          .replace(/<[^>]+>/g, ' ')
-          .replace(/\s+/g, ' ')
-          .trim()
-          .substring(0, 320) + (originalEmailContent.length > 320 ? "..." : "")
-      : `Flight booking confirmation for ${booking}.`;
+    const originalMessageId = messageId || original?.meta?.messageId || null;
+    const originalSubject =
+      original?.subject || `Flight Reservation Confirmation – ${booking}`;
 
+    /* ======================
+       GMAIL-STYLE HTML
+    ====================== */
     const emailHtml = `
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Re: ${originalSubject || 'Flight Reservation Confirmation'}</title>
-  <style type="text/css">
-    /* Reset & base */
-    body, table, td, div, p, a { margin:0; padding:0; }
-    body { 
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-      background: #f0f2f5; 
-      color: #202124; 
-      line-height: 1.5; 
-      font-size: 14px;
-    }
-    a { color: #1a73e8; text-decoration: none; }
-    a:hover { text-decoration: underline; }
+<html>
+<body style="margin:0;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#202124">
 
-    .email-container {
-      max-width: 580px;
-      margin: 0 auto;
-      background: #fff;
-      border: 1px solid #dadce0;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    .header {
-      padding: 16px 24px;
-      border-bottom: 1px solid #dadce0;
-      background: #fafafa;
-      font-size: 13px;
-      color: #5f6368;
-    }
-    .header strong { color: #202124; font-weight: 500; }
-
-    .content {
-      padding: 24px;
-      font-size: 15px;
-      color: #202124;
-    }
-
-    .quoted {
-      margin-top: 32px;
-      padding-left: 20px;
-      border-left: 3px solid #dadce0;
-      color: #5f6368;
-      font-size: 14px;
-    }
-    .quoted .on-date {
-      color: #5f6368;
-      font-size: 13px;
-      margin-bottom: 12px;
-    }
-
-    .ip-box {
-      margin: 20px 0;
-      padding: 16px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      font-size: 13px;
-      color: #334155;
-    }
-    .ip-box .label {
-      color: #64748b;
-      font-weight: 500;
-    }
-    .ip-box .value {
-      color: #1e293b;
-      font-family: 'Consolas', 'Courier New', monospace;
-    }
-
-    .security {
-      margin-top: 16px;
-      padding: 12px 16px;
-      background: #e3f2fd;
-      border-left: 4px solid #1a73e8;
-      border-radius: 0 4px 4px 0;
-      font-size: 13px;
-      color: #174ea6;
-    }
-
-    @media screen and (max-width: 600px) {
-      .email-container { border-radius: 0; border: none; }
-      .content { padding: 20px 16px; }
-    }
-  </style>
-</head>
-<body>
-
-<div class="email-container">
-
-  <!-- New message / reply part -->
-  <div class="header">
-    <strong>From:</strong> ${customerName} <${email}><br>
-    <strong>Date:</strong> ${currentDate} at ${currentTime}<br>
-    <strong>To:</strong> FareBuzzer Support <besttripmakers@gmail.com><br>
-    <strong>Subject:</strong> Re: ${originalSubject || 'Flight Reservation Confirmation'}
+<!-- REPLY HEADER -->
+<div style="padding:18px 24px;border-bottom:1px solid #e0e0e0">
+  <div style="font-size:14px">
+    <strong>${customerName}</strong> &lt;${email}&gt;
   </div>
-
-  <div class="content">
-
-    <div style="margin-bottom: 24px;">
-      Yes, I agree.
-    </div>
-
-    <div class="ip-box">
-      <div><span class="label">Agreement submitted from:</span><br>
-      <span class="value">IP: ${ipAddress}</span></div>
-      
-      <div style="margin-top: 10px;">
-        <span class="label">Timestamp:</span> ${time}<br>
-        <span class="label">User-Agent:</span> ${(req.headers['user-agent'] || '—').substring(0, 90)}...
-      </div>
-      
-      <div style="margin-top: 12px; font-size: 12px; color: #64748b;">
-        🔒 Recorded for verification & security purposes
-      </div>
-    </div>
-
-    <div class="security">
-      <strong>✓ Digital Agreement Confirmed</strong><br>
-      Submitted from verified IP: <strong>${ipAddress}</strong>
-    </div>
-
-    <!-- Quoted original message -->
-    <div class="quoted">
-      <div class="on-date">
-        On ${currentDate} at ${currentTime}, FareBuzzer Support <besttripmakers@gmail.com> wrote:
-      </div>
-
-      <div style="background:#f8f9fa; padding:16px; border-radius:4px;">
-        <!-- You can improve this part by keeping more structured original content -->
-        <div style="margin-bottom: 12px; font-weight:500;">
-          Flight Reservation Confirmation – ${booking}
-        </div>
-        
-        <div style="margin-bottom: 8px;">
-          Dear ${customerName},
-        </div>
-        
-        <div style="margin-bottom: 16px;">
-          Thank you for confirming your agreement.
-        </div>
-
-        <div style="font-size:13px; color:#5f6368;">
-          Booking Reference: <strong>${booking}</strong><br>
-          Customer Email: <strong>${email}</strong>
-        </div>
-
-        ${quotedPreview ? `
-        <div style="margin-top:16px; padding:12px; background:#fff; border:1px solid #e2e8f0; border-radius:4px; font-size:13px;">
-          ${quotedPreview}
-        </div>` : ''}
-
-      </div>
-    </div>
-
+  <div style="font-size:12px;color:#5f6368;margin-top:4px">
+    to FareBuzzer Support • ${timeIST}
   </div>
-
 </div>
 
-<!-- Hidden tracking info -->
-<div style="display:none;">
-  Message-ID: ${newMessageId}
-  In-Reply-To: ${originalMessageId || 'N/A'}
-  Booking: ${booking}
-  IP: ${ipAddress}
-  UA: ${req.headers['user-agent'] || 'Unknown'}
-  TS: ${new Date().toISOString()}
+<!-- REPLY BODY -->
+<div style="padding:24px;font-size:15px;line-height:1.6">
+  Yes, I agree.
+</div>
+
+<!-- SECURITY NOTE -->
+<div style="
+  margin:0 24px 24px;
+  padding:14px 16px;
+  background:#f8f9fa;
+  border-left:4px solid #1a73e8;
+  font-size:12px;
+  color:#3c4043;
+  border-radius:4px
+">
+  <strong>Agreement verified</strong><br/>
+  IP Address: <b>${ip}</b><br/>
+  Timestamp: ${timeIST}
+</div>
+
+<!-- QUOTED EMAIL -->
+<div style="
+  margin:0 24px 30px;
+  padding-left:14px;
+  border-left:2px solid #dadce0;
+  color:#5f6368;
+  font-size:14px
+">
+  <div style="margin-bottom:10px">
+    On ${timeIST}, FareBuzzer Support wrote:
+  </div>
+  <div style="background:#f8f9fa;padding:14px;border-radius:4px">
+    <strong>Flight Booking Confirmation</strong><br/>
+    Booking Ref: ${booking}<br/>
+    Customer: ${email}
+  </div>
 </div>
 
 </body>
 </html>
-    `;
+`;
 
-    // ────────────────────────────────────────────────
-    //   mailOptions (mostly unchanged, just cleaner)
-    // ────────────────────────────────────────────────
-    const mailOptions = {
+    /* ======================
+       SEND EMAIL
+    ====================== */
+    const newMessageId = generateMessageId(email);
+
+    await transporter.sendMail({
       from: `"${customerName}" <${process.env.GMAIL_USER}>`,
-      to: process.env.ADMIN_EMAIL || 'besttripmakers@gmail.com',
+      to: process.env.ADMIN_EMAIL,
       replyTo: email,
-      subject: `Re: ${originalSubject || 'Flight Reservation Confirmation'}`,
-      text: `${plainTextReply}\n\n---\nSubmitted from IP: ${ipAddress} | ${time}`,
+      subject: `Re: ${originalSubject}`,
+      text: "Yes, I agree.",
       html: emailHtml,
       headers: {
-        'Message-ID': newMessageId,
+        "Message-ID": newMessageId,
         ...(originalMessageId && {
-          'In-Reply-To': originalMessageId,
-          'References': originalMessageId
+          "In-Reply-To": originalMessageId,
+          References: originalMessageId,
         }),
-        'Thread-Topic': originalSubject || `Flight Booking ${booking}`,
-        'X-Booking-Reference': booking,
-        'X-Customer-IP': ipAddress,
-        'X-Forwarded-For': req.headers['x-forwarded-for'] || ipAddress,
-        'X-User-Agent': req.headers['user-agent'] || 'Unknown',
-        'X-Agreement-Type': 'customer-acceptance'
-      }
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    // Save to DB (your logic stays the same)
-    await Email.create({
-      // ... your existing create logic ...
-      html: emailHtml,
-      meta: {
-        // ... your meta ...
-        emailStyle: "modern-gmail-reply-2025",
-      }
+        "X-Customer-IP": ip,
+        "X-Agreement": "Accepted",
+      },
     });
 
-    // ────────────────────────────────────────────────
-    //   Success page (you can style this separately)
-    // ────────────────────────────────────────────────
-    // Keep or improve your success HTML page as you like...
+    /* ======================
+       SAVE DB
+    ====================== */
+    await Email.create({
+      type: "received",
+      emailType: "agreement_accepted",
+      from: email,
+      subject: `Re: ${originalSubject}`,
+      html: emailHtml,
+      meta: {
+        billingEmail: email,
+        confirmationNumber: booking,
+        ipAddress: ip,
+        messageId: newMessageId,
+        originalMessageId,
+        agreementHash: crypto
+          .createHash("sha256")
+          .update(email + booking + ip)
+          .digest("hex"),
+      },
+    });
 
-    return res.send(`<html> ... your success page ... </html>`);
+    /* ======================
+       SUCCESS PAGE
+    ====================== */
+    return res.send(`
+<!DOCTYPE html>
+<html>
+<body style="margin:0;background:#f5f7fb;font-family:Inter,Arial">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center">
+    <div style="
+      background:#fff;
+      width:460px;
+      border-radius:14px;
+      padding:32px;
+      box-shadow:0 25px 60px rgba(0,0,0,.12);
+      text-align:center
+    ">
+      <div style="font-size:56px">✅</div>
+      <h2 style="margin:12px 0;color:#0f5132">Agreement Submitted</h2>
+      <p style="font-size:14px;color:#6b7280">
+        Your consent has been securely recorded.
+      </p>
 
+      <div style="
+        background:#0f172a;
+        color:#60a5fa;
+        padding:16px;
+        border-radius:10px;
+        font-family:monospace;
+        margin:20px 0
+      ">
+        IP Address<br/>
+        <strong style="font-size:18px">${ip}</strong>
+      </div>
+
+      <div style="font-size:13px;color:#374151">
+        Booking Reference<br/>
+        <strong>${booking}</strong>
+      </div>
+
+      <button onclick="window.close()" style="
+        margin-top:22px;
+        background:#2563eb;
+        color:#fff;
+        border:none;
+        padding:12px 22px;
+        border-radius:8px;
+        font-weight:600;
+        cursor:pointer
+      ">
+        Close
+      </button>
+
+      <div style="margin-top:18px;font-size:11px;color:#9ca3af">
+        FareBuzzer • Secure Agreement System
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+`);
   } catch (err) {
-    console.error("AGREEMENT ERROR:", err);
-    return res.status(500).send("Failed to process agreement");
+    console.error(err);
+    res.status(500).send("Failed to submit agreement");
   }
 });
 

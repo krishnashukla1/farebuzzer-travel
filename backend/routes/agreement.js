@@ -633,14 +633,345 @@
 
 
 //=========
+
+// import express from "express";
+// import nodemailer from "nodemailer";
+// import Email from "../models/Email.js"; // ✅ Email model import करें
+
+// const router = express.Router();
+
+// /* =========================
+//    TRUST PROXY (IMPORTANT)
+// ========================= */
+// router.use((req, res, next) => {
+//   req.app.set("trust proxy", true);
+//   next();
+// });
+
+// /* =========================
+//    EMAIL SETUP (GMAIL)
+// ========================= */
+// const transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: process.env.GMAIL_USER,
+//     pass: process.env.GMAIL_APP_PASSWORD,
+//   },
+// });
+
+// /* =========================
+//    HELPER: GET REAL IP
+// ========================= */
+// const getClientIP = (req) => {
+//   const xff = req.headers["x-forwarded-for"];
+//   if (xff) return xff.split(",")[0].trim();
+//   return req.ip || req.socket.remoteAddress || "Unknown";
+// };
+
+// /* =========================
+//    HELPER: GENERATE MESSAGE-ID
+// ========================= */
+// const generateMessageId = (email) => {
+//   const timestamp = Date.now();
+//   const random = Math.random().toString(36).substring(2, 10);
+//   const domain = email.split('@')[1] || 'farebuzzertravel.com';
+//   return `<${timestamp}.${random}@${domain}>`;
+// };
+
+// /* =========================
+//    GET — Agreement Link (UPDATED FOR CHAIN MAIL)
+// ========================= */
+// router.get("/submit", async (req, res) => {
+//   try {
+//     const { email, booking, name, messageId: frontendMessageId } = req.query;
+
+//     if (!email || !booking) {
+//       return res.status(400).send("Missing booking or email");
+//     }
+
+//     const ipAddress = getClientIP(req);
+//     const time = new Date().toLocaleString('en-IN', {
+//       timeZone: 'Asia/Kolkata',
+//       dateStyle: 'full',
+//       timeStyle: 'long'
+//     });
+    
+//     const customerName = name || email.split("@")[0];
+
+//     console.log("AGREEMENT ACCEPTED:", {
+//       email,
+//       booking,
+//       ipAddress,
+//       frontendMessageId
+//     });
+
+//     // ✅ 1. ORIGINAL EMAIL का Message-ID FETCH करें
+//     let originalMessageId = frontendMessageId || null;
+    
+//     if (!originalMessageId) {
+//       // Database से search करें अगर frontend से नहीं आया
+//       const originalEmail = await Email.findOne({
+//         'meta.confirmationNumber': booking,
+//         'meta.billingEmail': email,
+//         'meta.messageId': { $exists: true }
+//       }).sort({ createdAt: -1 });
+      
+//       if (originalEmail && originalEmail.meta?.messageId) {
+//         originalMessageId = originalEmail.meta.messageId;
+//         console.log("Found original Message-ID from DB:", originalMessageId);
+//       }
+//     }
+
+//     // ✅ 2. NEW Message-ID GENERATE करें
+//     const newMessageId = generateMessageId(email);
+//     console.log("Generated new Message-ID:", newMessageId);
+//     console.log("Threading with In-Reply-To:", originalMessageId);
+
+//     // ✅ 3. EMAIL HTML TEMPLATE
+//     const emailHtml = `
+//       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+//         <h2 style="color: #15803d;">✅ Customer Accepted Agreement</h2>
+        
+//         <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin: 15px 0;">
+//           <p style="margin: 0; font-size: 14px; color: #0369a1;">
+//             <strong>📋 Thread Reference:</strong> ${originalMessageId ? 'Replying to booking thread' : 'New agreement notification'}
+//             ${originalMessageId ? `<br/><small>Original Message-ID: ${originalMessageId}</small>` : ''}
+//           </p>
+//         </div>
+        
+//         <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+//           <tr style="background: #f8fafc;">
+//             <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>Name:</strong></td>
+//             <td style="padding: 10px; border: 1px solid #e2e8f0;">${customerName}</td>
+//           </tr>
+//           <tr>
+//             <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>Email:</strong></td>
+//             <td style="padding: 10px; border: 1px solid #e2e8f0;">${email}</td>
+//           </tr>
+//           <tr style="background: #f8fafc;">
+//             <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>Booking:</strong></td>
+//             <td style="padding: 10px; border: 1px solid #e2e8f0;">${booking}</td>
+//           </tr>
+//           <tr>
+//             <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>IP Address:</strong></td>
+//             <td style="padding: 10px; border: 1px solid #e2e8f0;">${ipAddress}</td>
+//           </tr>
+//           <tr style="background: #f8fafc;">
+//             <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>Time:</strong></td>
+//             <td style="padding: 10px; border: 1px solid #e2e8f0;">${time}</td>
+//           </tr>
+//           <tr>
+//             <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>Thread ID:</strong></td>
+//             <td style="padding: 10px; border: 1px solid #e2e8f0;">
+//               <code style="font-size: 12px;">${newMessageId}</code>
+//               ${originalMessageId ? `<br/><small>In-Reply-To: ${originalMessageId}</small>` : ''}
+//             </td>
+//           </tr>
+//         </table>
+        
+//         <div style="margin-top: 25px; padding: 15px; background: #fefce8; border-radius: 6px; border-left: 4px solid #eab308;">
+//           <p style="margin: 0; color: #713f12;">
+//             <strong>⚠️ Important:</strong> This agreement is linked to the original booking thread. 
+//             All future correspondence will continue in this chain.
+//           </p>
+//         </div>
+        
+//         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center;">
+//           <p style="color: #64748b; font-size: 12px;">
+//             Agreement ID: ${Date.now()}<br/>
+//             Generated by FareBuzzer Travel System
+//           </p>
+//         </div>
+//       </div>
+//     `;
+
+//     // ✅ 4. SEND EMAIL WITH THREADING HEADERS
+//     const mailOptions = {
+//       from: `"FareBuzzer Support" <${process.env.GMAIL_USER}>`,
+//       to: process.env.ADMIN_EMAIL || 'besttripmakers@gmail.com',
+//       replyTo: email, // Customer का email replyTo में
+//       subject: `Agreement Accepted - ${booking}`,
+//       html: emailHtml,
+//       // ✅ CHAIN MAIL HEADERS
+//       headers: {
+//         'Message-ID': newMessageId,
+//         ...(originalMessageId && {
+//           'In-Reply-To': originalMessageId,
+//           'References': originalMessageId
+//         }),
+//         'X-Agreement-Type': 'customer-accepted',
+//         'X-Booking-Ref': booking
+//       }
+//     };
+
+//     console.log("Sending agreement email with threading headers:", {
+//       to: mailOptions.to,
+//       messageId: newMessageId,
+//       inReplyTo: originalMessageId
+//     });
+
+//     await transporter.sendMail(mailOptions);
+
+//     // ✅ 5. SAVE TO DATABASE (CRM) FOR THREADING
+//     try {
+//       await Email.create({
+//         type: "received", // यह customer से आया हुआ है
+//         emailType: "agreement_accepted",
+//         from: email,
+//         to: process.env.ADMIN_EMAIL,
+//         subject: `Agreement Accepted - ${booking}`,
+//         html: emailHtml,
+//         meta: {
+//           customerName,
+//           billingEmail: email,
+//           confirmationNumber: booking,
+//           ipAddress,
+//           timestamp: time,
+//           // ✅ MESSAGE-ID FOR THREADING
+//           messageId: newMessageId,
+//           originalMessageId: originalMessageId,
+//           source: "agreement_link",
+//           agreementTime: new Date().toISOString()
+//         }
+//       });
+//       console.log("Agreement saved to CRM with Message-ID:", newMessageId);
+//     } catch (dbError) {
+//       console.error("Error saving to database:", dbError);
+//       // Continue even if DB save fails
+//     }
+
+//     /* =========================
+//        SUCCESS PAGE (SAME)
+//     ========================= */
+//     return res.send(`
+// <html>
+//   <body style="
+//     margin:0;
+//     padding:0;
+//     background:#f4f7fb;
+//     font-family: 'Segoe UI', Arial, sans-serif;
+//   ">
+//     <div style="
+//       min-height:100vh;
+//       display:flex;
+//       align-items:center;
+//       justify-content:center;
+//       padding:20px;
+//     ">
+//       <div style="
+//         background:#ffffff;
+//         max-width:520px;
+//         width:100%;
+//         border-radius:12px;
+//         box-shadow:0 15px 35px rgba(0,0,0,0.12);
+//         padding:30px;
+//         text-align:center;
+//       ">
+        
+//         <div style="font-size:56px; color:#22c55e;">✅</div>
+
+//         <h1 style="
+//           margin:10px 0;
+//           font-size:24px;
+//           color:#15803d;
+//         ">
+//           Agreement Submitted Successfully
+//         </h1>
+
+//         <p style="
+//           font-size:14px;
+//           color:#555;
+//           margin-bottom:25px;
+//         ">
+//           Thank you for confirming your agreement.  
+//           This action has been securely recorded and linked to your booking thread.
+//         </p>
+
+//         <div style="
+//           background:#f9fafb;
+//           border-radius:8px;
+//           padding:16px;
+//           text-align:left;
+//           margin-bottom:24px;
+//         ">
+//           <div style="margin-bottom:10px;">
+//             <span style="color:#6b7280;font-size:13px;">Booking Reference</span><br/>
+//             <strong style="color:#111827;">${booking}</strong>
+//           </div>
+
+//           <div style="margin-bottom:10px;">
+//             <span style="color:#6b7280;font-size:13px;">Email Address</span><br/>
+//             <strong style="color:#111827;">${email}</strong>
+//           </div>
+
+//           <div>
+//             <span style="color:#6b7280;font-size:13px;">Submission Time</span><br/>
+//             <strong style="color:#111827;">${time}</strong>
+//           </div>
+          
+//           ${originalMessageId ? `
+//           <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #d1d5db;">
+//             <span style="color:#6b7280;font-size:13px;">Thread Status</span><br/>
+//             <span style="color:#10b981; font-size:12px;">✅ Linked to original conversation</span>
+//           </div>
+//           ` : ''}
+//         </div>
+
+//         <p style="
+//           font-size:13px;
+//           color:#374151;
+//           line-height:1.6;
+//           margin-bottom:22px;
+//         ">
+//           You may safely close this window.  
+//           A confirmation email has been sent and will appear in the same thread as your booking.
+//         </p>
+
+//         <button onclick="window.close()" style="
+//           background:#2563eb;
+//           color:#fff;
+//           border:none;
+//           padding:12px 22px;
+//           border-radius:6px;
+//           font-size:14px;
+//           font-weight:600;
+//           cursor:pointer;
+//         ">
+//           Close Window
+//         </button>
+
+//         <div style="
+//           margin-top:20px;
+//           font-size:12px;
+//           color:#9ca3af;
+//         ">
+//           Secure Agreement System • Farebuzzer Travel • Thread ID: ${newMessageId.substring(0, 20)}...
+//         </div>
+
+//       </div>
+//     </div>
+//   </body>
+// </html>
+// `);
+
+//   } catch (err) {
+//     console.error("AGREEMENT ERROR:", err);
+//     return res.status(500).send("Failed to process agreement");
+//   }
+// });
+
+// export default router;
+
+
+//============
 import express from "express";
 import nodemailer from "nodemailer";
-import Email from "../models/Email.js"; // ✅ Email model import करें
+import Email from "../models/Email.js";
 
 const router = express.Router();
 
 /* =========================
-   TRUST PROXY (IMPORTANT)
+   TRUST PROXY
 ========================= */
 router.use((req, res, next) => {
   req.app.set("trust proxy", true);
@@ -648,7 +979,7 @@ router.use((req, res, next) => {
 });
 
 /* =========================
-   EMAIL SETUP (GMAIL)
+   MAILER
 ========================= */
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -659,299 +990,139 @@ const transporter = nodemailer.createTransport({
 });
 
 /* =========================
-   HELPER: GET REAL IP
+   IP HELPER
 ========================= */
 const getClientIP = (req) => {
   const xff = req.headers["x-forwarded-for"];
   if (xff) return xff.split(",")[0].trim();
-  return req.ip || req.socket.remoteAddress || "Unknown";
+  return req.ip || "Unknown";
 };
 
 /* =========================
-   HELPER: GENERATE MESSAGE-ID
-========================= */
-const generateMessageId = (email) => {
-  const timestamp = Date.now();
-  const random = Math.random().toString(36).substring(2, 10);
-  const domain = email.split('@')[1] || 'farebuzzertravel.com';
-  return `<${timestamp}.${random}@${domain}>`;
-};
-
-/* =========================
-   GET — Agreement Link (UPDATED FOR CHAIN MAIL)
+   AGREEMENT SUBMIT
 ========================= */
 router.get("/submit", async (req, res) => {
   try {
-    const { email, booking, name, messageId: frontendMessageId } = req.query;
-
+    const { email, booking, name } = req.query;
     if (!email || !booking) {
-      return res.status(400).send("Missing booking or email");
+      return res.status(400).send("Missing email or booking");
     }
 
-    const ipAddress = getClientIP(req);
-    const time = new Date().toLocaleString('en-IN', {
-      timeZone: 'Asia/Kolkata',
-      dateStyle: 'full',
-      timeStyle: 'long'
-    });
-    
     const customerName = name || email.split("@")[0];
-
-    console.log("AGREEMENT ACCEPTED:", {
-      email,
-      booking,
-      ipAddress,
-      frontendMessageId
+    const ipAddress = getClientIP(req);
+    const timeIST = new Date().toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      dateStyle: "full",
+      timeStyle: "short",
     });
 
-    // ✅ 1. ORIGINAL EMAIL का Message-ID FETCH करें
-    let originalMessageId = frontendMessageId || null;
-    
-    if (!originalMessageId) {
-      // Database से search करें अगर frontend से नहीं आया
-      const originalEmail = await Email.findOne({
-        'meta.confirmationNumber': booking,
-        'meta.billingEmail': email,
-        'meta.messageId': { $exists: true }
-      }).sort({ createdAt: -1 });
-      
-      if (originalEmail && originalEmail.meta?.messageId) {
-        originalMessageId = originalEmail.meta.messageId;
-        console.log("Found original Message-ID from DB:", originalMessageId);
-      }
+    /* =========================
+       FETCH ORIGINAL EMAIL
+    ========================= */
+    const originalEmail = await Email.findOne({
+      "meta.confirmationNumber": booking,
+      "meta.billingEmail": email,
+      "meta.messageId": { $exists: true },
+    }).sort({ createdAt: -1 });
+
+    if (!originalEmail) {
+      return res.status(400).send("Original booking email not found");
     }
 
-    // ✅ 2. NEW Message-ID GENERATE करें
-    const newMessageId = generateMessageId(email);
-    console.log("Generated new Message-ID:", newMessageId);
-    console.log("Threading with In-Reply-To:", originalMessageId);
+    const originalMessageId = originalEmail.meta.messageId;
 
-    // ✅ 3. EMAIL HTML TEMPLATE
-    const emailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #15803d;">✅ Customer Accepted Agreement</h2>
-        
-        <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin: 15px 0;">
-          <p style="margin: 0; font-size: 14px; color: #0369a1;">
-            <strong>📋 Thread Reference:</strong> ${originalMessageId ? 'Replying to booking thread' : 'New agreement notification'}
-            ${originalMessageId ? `<br/><small>Original Message-ID: ${originalMessageId}</small>` : ''}
-          </p>
-        </div>
-        
-        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-          <tr style="background: #f8fafc;">
-            <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>Name:</strong></td>
-            <td style="padding: 10px; border: 1px solid #e2e8f0;">${customerName}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>Email:</strong></td>
-            <td style="padding: 10px; border: 1px solid #e2e8f0;">${email}</td>
-          </tr>
-          <tr style="background: #f8fafc;">
-            <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>Booking:</strong></td>
-            <td style="padding: 10px; border: 1px solid #e2e8f0;">${booking}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>IP Address:</strong></td>
-            <td style="padding: 10px; border: 1px solid #e2e8f0;">${ipAddress}</td>
-          </tr>
-          <tr style="background: #f8fafc;">
-            <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>Time:</strong></td>
-            <td style="padding: 10px; border: 1px solid #e2e8f0;">${time}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>Thread ID:</strong></td>
-            <td style="padding: 10px; border: 1px solid #e2e8f0;">
-              <code style="font-size: 12px;">${newMessageId}</code>
-              ${originalMessageId ? `<br/><small>In-Reply-To: ${originalMessageId}</small>` : ''}
-            </td>
-          </tr>
-        </table>
-        
-        <div style="margin-top: 25px; padding: 15px; background: #fefce8; border-radius: 6px; border-left: 4px solid #eab308;">
-          <p style="margin: 0; color: #713f12;">
-            <strong>⚠️ Important:</strong> This agreement is linked to the original booking thread. 
-            All future correspondence will continue in this chain.
-          </p>
-        </div>
-        
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center;">
-          <p style="color: #64748b; font-size: 12px;">
-            Agreement ID: ${Date.now()}<br/>
-            Generated by FareBuzzer Travel System
-          </p>
-        </div>
+    /* =========================
+       QUOTED ORIGINAL MAIL
+    ========================= */
+    const quotedHtml = `
+      <br><br>
+      <div style="border-left:3px solid #d1d5db;padding-left:12px;color:#555;">
+        <p style="font-size:12px;">
+          On ${new Date(originalEmail.createdAt).toLocaleString("en-IN", {
+            timeZone: "Asia/Kolkata",
+          })},
+          FareBuzzer Support &lt;${process.env.GMAIL_USER}&gt; wrote:
+        </p>
+        ${originalEmail.html}
       </div>
     `;
 
-    // ✅ 4. SEND EMAIL WITH THREADING HEADERS
-    const mailOptions = {
-      from: `"FareBuzzer Support" <${process.env.GMAIL_USER}>`,
-      to: process.env.ADMIN_EMAIL || 'besttripmakers@gmail.com',
-      replyTo: email, // Customer का email replyTo में
-      subject: `Agreement Accepted - ${booking}`,
-      html: emailHtml,
-      // ✅ CHAIN MAIL HEADERS
-      headers: {
-        'Message-ID': newMessageId,
-        ...(originalMessageId && {
-          'In-Reply-To': originalMessageId,
-          'References': originalMessageId
-        }),
-        'X-Agreement-Type': 'customer-accepted',
-        'X-Booking-Ref': booking
-      }
-    };
+    /* =========================
+       FINAL EMAIL HTML
+    ========================= */
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif;">
+        <p><strong>Yes, I agree.</strong></p>
 
-    console.log("Sending agreement email with threading headers:", {
-      to: mailOptions.to,
-      messageId: newMessageId,
-      inReplyTo: originalMessageId
-    });
+        <p>✅ Customer has accepted the agreement.</p>
 
-    await transporter.sendMail(mailOptions);
+        <table style="margin-top:10px;font-size:14px;">
+          <tr><td><strong>Name:</strong></td><td>${customerName}</td></tr>
+          <tr><td><strong>Email:</strong></td><td>${email}</td></tr>
+          <tr><td><strong>Booking:</strong></td><td>${booking}</td></tr>
+          <tr><td><strong>IP Address:</strong></td><td>${ipAddress}</td></tr>
+          <tr><td><strong>Time:</strong></td><td>${timeIST}</td></tr>
+        </table>
 
-    // ✅ 5. SAVE TO DATABASE (CRM) FOR THREADING
-    try {
-      await Email.create({
-        type: "received", // यह customer से आया हुआ है
-        emailType: "agreement_accepted",
-        from: email,
-        to: process.env.ADMIN_EMAIL,
-        subject: `Agreement Accepted - ${booking}`,
-        html: emailHtml,
-        meta: {
-          customerName,
-          billingEmail: email,
-          confirmationNumber: booking,
-          ipAddress,
-          timestamp: time,
-          // ✅ MESSAGE-ID FOR THREADING
-          messageId: newMessageId,
-          originalMessageId: originalMessageId,
-          source: "agreement_link",
-          agreementTime: new Date().toISOString()
-        }
-      });
-      console.log("Agreement saved to CRM with Message-ID:", newMessageId);
-    } catch (dbError) {
-      console.error("Error saving to database:", dbError);
-      // Continue even if DB save fails
-    }
+        ${quotedHtml}
+      </div>
+    `;
 
     /* =========================
-       SUCCESS PAGE (SAME)
+       SEND MAIL (REPLY)
+    ========================= */
+    const info = await transporter.sendMail({
+      from: `"FareBuzzer Support" <${process.env.GMAIL_USER}>`,
+      to: process.env.ADMIN_EMAIL || "besttripmakers@gmail.com",
+      replyTo: email,
+
+      subject: `Re: ${originalEmail.subject}`, // 🔥 MUST
+
+      html: emailHtml,
+
+      inReplyTo: originalMessageId,  // 🔥 MUST
+      references: originalMessageId // 🔥 MUST
+    });
+
+    /* =========================
+       SAVE TO DB
+    ========================= */
+    await Email.create({
+      type: "received",
+      emailType: "agreement_accepted",
+      from: email,
+      to: process.env.ADMIN_EMAIL,
+      subject: `Re: ${originalEmail.subject}`,
+      html: emailHtml,
+      meta: {
+        customerName,
+        billingEmail: email,
+        confirmationNumber: booking,
+        ipAddress,
+        timestamp: timeIST,
+        messageId: info.messageId, // ✅ REAL Message-ID
+        originalMessageId,
+        source: "agreement_link",
+      },
+    });
+
+    /* =========================
+       SUCCESS PAGE
     ========================= */
     return res.send(`
-<html>
-  <body style="
-    margin:0;
-    padding:0;
-    background:#f4f7fb;
-    font-family: 'Segoe UI', Arial, sans-serif;
-  ">
-    <div style="
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-    ">
-      <div style="
-        background:#ffffff;
-        max-width:520px;
-        width:100%;
-        border-radius:12px;
-        box-shadow:0 15px 35px rgba(0,0,0,0.12);
-        padding:30px;
-        text-align:center;
-      ">
-        
-        <div style="font-size:56px; color:#22c55e;">✅</div>
-
-        <h1 style="
-          margin:10px 0;
-          font-size:24px;
-          color:#15803d;
-        ">
-          Agreement Submitted Successfully
-        </h1>
-
-        <p style="
-          font-size:14px;
-          color:#555;
-          margin-bottom:25px;
-        ">
-          Thank you for confirming your agreement.  
-          This action has been securely recorded and linked to your booking thread.
-        </p>
-
-        <div style="
-          background:#f9fafb;
-          border-radius:8px;
-          padding:16px;
-          text-align:left;
-          margin-bottom:24px;
-        ">
-          <div style="margin-bottom:10px;">
-            <span style="color:#6b7280;font-size:13px;">Booking Reference</span><br/>
-            <strong style="color:#111827;">${booking}</strong>
+      <html>
+        <body style="font-family:Arial;background:#f4f7fb;display:flex;align-items:center;justify-content:center;height:100vh;">
+          <div style="background:#fff;padding:30px;border-radius:10px;text-align:center;max-width:420px;">
+            <div style="font-size:48px;color:#22c55e;">✅</div>
+            <h2>Agreement Submitted Successfully</h2>
+            <p>This confirmation has been sent as a reply in the same email thread.</p>
+            <strong>Booking:</strong> ${booking}<br/>
+            <strong>Email:</strong> ${email}<br/><br/>
+            <small>You may safely close this window.</small>
           </div>
-
-          <div style="margin-bottom:10px;">
-            <span style="color:#6b7280;font-size:13px;">Email Address</span><br/>
-            <strong style="color:#111827;">${email}</strong>
-          </div>
-
-          <div>
-            <span style="color:#6b7280;font-size:13px;">Submission Time</span><br/>
-            <strong style="color:#111827;">${time}</strong>
-          </div>
-          
-          ${originalMessageId ? `
-          <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #d1d5db;">
-            <span style="color:#6b7280;font-size:13px;">Thread Status</span><br/>
-            <span style="color:#10b981; font-size:12px;">✅ Linked to original conversation</span>
-          </div>
-          ` : ''}
-        </div>
-
-        <p style="
-          font-size:13px;
-          color:#374151;
-          line-height:1.6;
-          margin-bottom:22px;
-        ">
-          You may safely close this window.  
-          A confirmation email has been sent and will appear in the same thread as your booking.
-        </p>
-
-        <button onclick="window.close()" style="
-          background:#2563eb;
-          color:#fff;
-          border:none;
-          padding:12px 22px;
-          border-radius:6px;
-          font-size:14px;
-          font-weight:600;
-          cursor:pointer;
-        ">
-          Close Window
-        </button>
-
-        <div style="
-          margin-top:20px;
-          font-size:12px;
-          color:#9ca3af;
-        ">
-          Secure Agreement System • Farebuzzer Travel • Thread ID: ${newMessageId.substring(0, 20)}...
-        </div>
-
-      </div>
-    </div>
-  </body>
-</html>
-`);
+        </body>
+      </html>
+    `);
 
   } catch (err) {
     console.error("AGREEMENT ERROR:", err);

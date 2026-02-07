@@ -962,25 +962,22 @@
 
 // export default router;
 
+//==============
 
-//============
+
+
+
 import express from "express";
 import nodemailer from "nodemailer";
 import Email from "../models/Email.js";
 
 const router = express.Router();
 
-/* =========================
-   TRUST PROXY
-========================= */
 router.use((req, res, next) => {
   req.app.set("trust proxy", true);
   next();
 });
 
-/* =========================
-   MAILER
-========================= */
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -989,140 +986,378 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-/* =========================
-   IP HELPER
-========================= */
 const getClientIP = (req) => {
   const xff = req.headers["x-forwarded-for"];
   if (xff) return xff.split(",")[0].trim();
-  return req.ip || "Unknown";
+  return req.ip || req.socket.remoteAddress || "Unknown";
+};
+
+const generateMessageId = (email) => {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 10);
+  const domain = email.split('@')[1] || 'farebuzzertravel.com';
+  return `<${timestamp}.${random}@${domain}>`;
 };
 
 /* =========================
-   AGREEMENT SUBMIT
+   GET — Agreement Link (UPDATED FOR PROPER GMAIL CHAIN)
 ========================= */
 router.get("/submit", async (req, res) => {
   try {
-    const { email, booking, name } = req.query;
+    const { email, booking, name, messageId: frontendMessageId } = req.query;
+
     if (!email || !booking) {
-      return res.status(400).send("Missing email or booking");
+      return res.status(400).send("Missing booking or email");
     }
 
-    const customerName = name || email.split("@")[0];
     const ipAddress = getClientIP(req);
-    const timeIST = new Date().toLocaleString("en-IN", {
-      timeZone: "Asia/Kolkata",
-      dateStyle: "full",
-      timeStyle: "short",
+    const time = new Date().toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      dateStyle: 'full',
+      timeStyle: 'long'
+    });
+    
+    const customerName = name || email.split("@")[0];
+
+    console.log("AGREEMENT ACCEPTED:", {
+      email,
+      booking,
+      ipAddress,
+      frontendMessageId
     });
 
-    /* =========================
-       FETCH ORIGINAL EMAIL
-    ========================= */
-    const originalEmail = await Email.findOne({
-      "meta.confirmationNumber": booking,
-      "meta.billingEmail": email,
-      "meta.messageId": { $exists: true },
-    }).sort({ createdAt: -1 });
-
-    if (!originalEmail) {
-      return res.status(400).send("Original booking email not found");
+    // ✅ 1. ORIGINAL EMAIL का Message-ID और CONTENT FETCH करें
+    let originalMessageId = frontendMessageId || null;
+    let originalEmailContent = "";
+    let originalSubject = "";
+    
+    if (!originalMessageId) {
+      const originalEmail = await Email.findOne({
+        'meta.confirmationNumber': booking,
+        'meta.billingEmail': email,
+        'meta.messageId': { $exists: true }
+      }).sort({ createdAt: -1 });
+      
+      if (originalEmail) {
+        originalMessageId = originalEmail.meta?.messageId;
+        originalEmailContent = originalEmail.html || "";
+        originalSubject = originalEmail.subject || `Flight Reservation Confirmation - ${booking}`;
+        console.log("Found original email from DB");
+      }
     }
 
-    const originalMessageId = originalEmail.meta.messageId;
+    // ✅ 2. NEW Message-ID GENERATE करें
+    const newMessageId = generateMessageId(email);
 
-    /* =========================
-       QUOTED ORIGINAL MAIL
-    ========================= */
-    const quotedHtml = `
-      <br><br>
-      <div style="border-left:3px solid #d1d5db;padding-left:12px;color:#555;">
-        <p style="font-size:12px;">
-          On ${new Date(originalEmail.createdAt).toLocaleString("en-IN", {
-            timeZone: "Asia/Kolkata",
-          })},
-          FareBuzzer Support &lt;${process.env.GMAIL_USER}&gt; wrote:
-        </p>
-        ${originalEmail.html}
-      </div>
-    `;
+    // ✅ 3. GMAIL STYLE REPLY TEMPLATE (EXACT जैसा screenshot में है)
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+    
+    const currentTime = new Date().toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
 
-    /* =========================
-       FINAL EMAIL HTML
-    ========================= */
+    // ✅ यह वो content है जो Gmail में दिखेगा
+    const plainTextReply = `Yes, I agree.`;
+
+    // ✅ यह वो quoted content है जो original email को show करेगा
+    const quotedOriginal = originalEmailContent 
+      ? originalEmailContent
+          .replace(/<style[^>]*>.*?<\/style>/gs, '')
+          .replace(/<script[^>]*>.*?<\/script>/gs, '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .substring(0, 500) + "..."
+      : `Flight booking confirmation for ${booking}. Please refer to original email.`;
+
+    // ✅ 4. FINAL EMAIL CONTENT (Gmail जैसा दिखे)
     const emailHtml = `
-      <div style="font-family: Arial, sans-serif;">
-        <p><strong>Yes, I agree.</strong></p>
-
-        <p>✅ Customer has accepted the agreement.</p>
-
-        <table style="margin-top:10px;font-size:14px;">
-          <tr><td><strong>Name:</strong></td><td>${customerName}</td></tr>
-          <tr><td><strong>Email:</strong></td><td>${email}</td></tr>
-          <tr><td><strong>Booking:</strong></td><td>${booking}</td></tr>
-          <tr><td><strong>IP Address:</strong></td><td>${ipAddress}</td></tr>
-          <tr><td><strong>Time:</strong></td><td>${timeIST}</td></tr>
-        </table>
-
-        ${quotedHtml}
-      </div>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re: ${originalSubject || 'Flight Reservation Confirmation'}</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #202124; margin: 0; padding: 0;">
+    
+    <!-- Customer's reply (TOP - नया message) -->
+    <div style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #dadce0;">
+        <div style="font-size: 14px; color: #202124; margin-bottom: 10px;">
+            <strong>From:</strong> ${customerName} &lt;${email}&gt;<br>
+            <strong>Date:</strong> ${currentDate}, ${currentTime}<br>
+            <strong>To:</strong> FareBuzzer Support &lt;besttripmakers@gmail.com&gt;<br>
+            <strong>Subject:</strong> Re: ${originalSubject || 'Flight Reservation Confirmation'}
+        </div>
+        
+        <div style="font-size: 15px; color: #202124; margin-top: 20px; white-space: pre-wrap;">
+Yes, I agree.
+        </div>
+    </div>
+    
+    <!-- Original Email Quoted (Gmail style) -->
+    <div style="padding-left: 15px; border-left: 2px solid #dadce0; color: #5f6368; font-size: 14px;">
+        <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #dadce0;">
+            <div style="font-size: 13px; color: #5f6368;">
+                <strong>On ${currentDate} at ${currentTime}</strong>, FareBuzzer Support &lt;besttripmakers@gmail.com&gt; wrote:
+            </div>
+        </div>
+        
+        <!-- Original email content (quoted) -->
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-top: 10px;">
+            <div style="color: #202124; font-weight: bold; margin-bottom: 10px;">
+                FareBuzzer Travel<br>
+                Flight Reservation Confirmation
+            </div>
+            
+            <div style="margin-bottom: 10px;">
+                <strong>Dear ${customerName},</strong>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                Thank you for your enquiry regarding your flight booking.
+            </div>
+            
+            <div style="color: #5f6368; font-size: 13px;">
+                <strong>Booking Reference:</strong> ${booking}<br>
+                <strong>Customer Email:</strong> ${email}<br>
+                <strong>Date of Booking:</strong> ${currentDate}
+            </div>
+            
+            ${originalEmailContent ? `
+            <div style="margin-top: 15px; padding: 10px; background: #fff; border: 1px solid #e8eaed; border-radius: 4px; font-size: 13px;">
+                <div style="color: #5f6368; margin-bottom: 5px;"><strong>Original Email Content:</strong></div>
+                <div style="color: #70757a;">${quotedOriginal}</div>
+            </div>
+            ` : ''}
+            
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e8eaed; color: #5f6368; font-size: 12px;">
+                This is an automated confirmation email. Please do not reply directly to this message.<br>
+                For inquiries, contact: support@farebuzzertravel.com
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hidden system info (for backend) -->
+    <div style="display: none; font-size: 0px; color: transparent;">
+        <!-- SYSTEM DATA FOR THREADING -->
+        AgreementID: ${Date.now()}
+        MessageID: ${newMessageId}
+        InReplyTo: ${originalMessageId || 'N/A'}
+        BookingRef: ${booking}
+        CustomerIP: ${ipAddress}
+        Timestamp: ${new Date().toISOString()}
+        <!-- END SYSTEM DATA -->
+    </div>
+    
+</body>
+</html>
     `;
 
-    /* =========================
-       SEND MAIL (REPLY)
-    ========================= */
-    const info = await transporter.sendMail({
-      from: `"FareBuzzer Support" <${process.env.GMAIL_USER}>`,
-      to: process.env.ADMIN_EMAIL || "besttripmakers@gmail.com",
-      replyTo: email,
-
-      subject: `Re: ${originalEmail.subject}`, // 🔥 MUST
-
+    // ✅ 5. SEND EMAIL WITH PROPER HEADERS
+    const mailOptions = {
+      from: `"${customerName}" <${process.env.GMAIL_USER}>`, // Customer के नाम से send
+      to: process.env.ADMIN_EMAIL || 'besttripmakers@gmail.com',
+      replyTo: email, // Customer का email
+      subject: `Re: ${originalSubject || 'Flight Reservation Confirmation'}`,
+      text: plainTextReply, // Plain text version
       html: emailHtml,
+      
+      // ✅ CRITICAL: GMAIL THREADING HEADERS
+      headers: {
+        'Message-ID': newMessageId,
+        ...(originalMessageId && {
+          'In-Reply-To': originalMessageId,
+          'References': originalMessageId
+        }),
+        'Thread-Topic': originalSubject || `Flight Booking ${booking}`,
+        'X-Original-Message-ID': originalMessageId || '',
+        'X-Booking-Reference': booking,
+        'X-Customer-Email': email,
+        'X-Agreement-Type': 'customer-acceptance',
+        'X-Mailer': 'FareBuzzer Travel System 2.0'
+      }
+    };
 
-      inReplyTo: originalMessageId,  // 🔥 MUST
-      references: originalMessageId // 🔥 MUST
+    console.log("Sending Gmail-style chain email:", {
+      subject: mailOptions.subject,
+      messageId: newMessageId,
+      inReplyTo: originalMessageId
     });
 
-    /* =========================
-       SAVE TO DB
-    ========================= */
-    await Email.create({
-      type: "received",
-      emailType: "agreement_accepted",
-      from: email,
-      to: process.env.ADMIN_EMAIL,
-      subject: `Re: ${originalEmail.subject}`,
-      html: emailHtml,
-      meta: {
-        customerName,
-        billingEmail: email,
-        confirmationNumber: booking,
-        ipAddress,
-        timestamp: timeIST,
-        messageId: info.messageId, // ✅ REAL Message-ID
-        originalMessageId,
-        source: "agreement_link",
-      },
-    });
+    await transporter.sendMail(mailOptions);
+
+    // ✅ 6. SAVE TO DATABASE
+    try {
+      await Email.create({
+        type: "received",
+        emailType: "agreement_accepted",
+        from: email,
+        to: process.env.ADMIN_EMAIL,
+        subject: `Re: ${originalSubject || 'Flight Reservation Confirmation'}`,
+        text: plainTextReply,
+        html: emailHtml,
+        meta: {
+          customerName,
+          billingEmail: email,
+          confirmationNumber: booking,
+          ipAddress,
+          timestamp: time,
+          messageId: newMessageId,
+          originalMessageId: originalMessageId,
+          originalSubject: originalSubject,
+          source: "agreement_link",
+          agreementTime: new Date().toISOString(),
+          emailStyle: "gmail_chain_reply"
+        }
+      });
+      console.log("Gmail-style reply saved to CRM");
+    } catch (dbError) {
+      console.error("Error saving to database:", dbError);
+    }
 
     /* =========================
        SUCCESS PAGE
     ========================= */
     return res.send(`
-      <html>
-        <body style="font-family:Arial;background:#f4f7fb;display:flex;align-items:center;justify-content:center;height:100vh;">
-          <div style="background:#fff;padding:30px;border-radius:10px;text-align:center;max-width:420px;">
-            <div style="font-size:48px;color:#22c55e;">✅</div>
-            <h2>Agreement Submitted Successfully</h2>
-            <p>This confirmation has been sent as a reply in the same email thread.</p>
-            <strong>Booking:</strong> ${booking}<br/>
-            <strong>Email:</strong> ${email}<br/><br/>
-            <small>You may safely close this window.</small>
+<html>
+  <body style="
+    margin:0;
+    padding:0;
+    background:#f4f7fb;
+    font-family: 'Segoe UI', Arial, sans-serif;
+  ">
+    <div style="
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    ">
+      <div style="
+        background:#ffffff;
+        max-width:520px;
+        width:100%;
+        border-radius:12px;
+        box-shadow:0 15px 35px rgba(0,0,0,0.12);
+        padding:30px;
+        text-align:center;
+      ">
+        
+        <div style="font-size:56px; color:#22c55e;">✅</div>
+
+        <h1 style="
+          margin:10px 0;
+          font-size:24px;
+          color:#15803d;
+        ">
+          Agreement Submitted Successfully
+        </h1>
+
+        <p style="
+          font-size:14px;
+          color:#555;
+          margin-bottom:25px;
+        ">
+          Your reply has been sent as a <strong>proper email chain reply</strong> in Gmail.
+        </p>
+
+        <div style="
+          background:#f1f8ff;
+          border-radius:8px;
+          padding:16px;
+          text-align:left;
+          margin-bottom:24px;
+          border-left:4px solid #1a73e8;
+        ">
+          <div style="margin-bottom:10px;">
+            <span style="color:#1a73e8;font-size:12px;font-weight:bold;">EMAIL PREVIEW</span><br/>
+            <div style="background:#fff; padding:12px; border-radius:4px; margin-top:5px; font-family:'Courier New', monospace; font-size:12px;">
+              <div><strong>From:</strong> ${customerName} &lt;${email}&gt;</div>
+              <div><strong>To:</strong> FareBuzzer Support</div>
+              <div><strong>Subject:</strong> Re: ${originalSubject || 'Flight Reservation'}</div>
+              <div style="margin-top:8px; color:#0d652d;">✓ Yes, I agree.</div>
+            </div>
           </div>
-        </body>
-      </html>
-    `);
+        </div>
+
+        <div style="
+          background:#f9fafb;
+          border-radius:8px;
+          padding:16px;
+          text-align:left;
+          margin-bottom:24px;
+        ">
+          <div style="margin-bottom:10px;">
+            <span style="color:#6b7280;font-size:13px;">Booking Reference</span><br/>
+            <strong style="color:#111827;">${booking}</strong>
+          </div>
+
+          <div style="margin-bottom:10px;">
+            <span style="color:#6b7280;font-size:13px;">Email Address</span><br/>
+            <strong style="color:#111827;">${email}</strong>
+          </div>
+
+          <div>
+            <span style="color:#6b7280;font-size:13px;">Submission Time</span><br/>
+            <strong style="color:#111827;">${time}</strong>
+          </div>
+          
+          ${originalMessageId ? `
+          <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #d1d5db;">
+            <span style="color:#6b7280;font-size:13px;">Thread Status</span><br/>
+            <span style="color:#1a73e8; font-size:12px;">
+              🔗 Properly threaded in Gmail<br/>
+              <small style="color:#5f6368;">Message-ID: ${newMessageId.substring(0, 25)}...</small>
+            </span>
+          </div>
+          ` : ''}
+        </div>
+
+        <p style="
+          font-size:13px;
+          color:#374151;
+          line-height:1.6;
+          margin-bottom:22px;
+        ">
+          <strong>✓ Gmail Chain:</strong> Your reply will appear as a proper email chain<br>
+          <strong>✓ "Re:" Subject:</strong> Automatically prefixed with "Re:"<br>
+          <strong>✓ Quoted Original:</strong> Original email quoted below your reply
+        </p>
+
+        <button onclick="window.close()" style="
+          background:#2563eb;
+          color:#fff;
+          border:none;
+          padding:12px 22px;
+          border-radius:6px;
+          font-size:14px;
+          font-weight:600;
+          cursor:pointer;
+        ">
+          Close Window
+        </button>
+
+        <div style="
+          margin-top:20px;
+          font-size:12px;
+          color:#9ca3af;
+        ">
+          Gmail Chain System • Farebuzzer Travel • ${new Date().getFullYear()}
+        </div>
+
+      </div>
+    </div>
+  </body>
+</html>
+`);
 
   } catch (err) {
     console.error("AGREEMENT ERROR:", err);

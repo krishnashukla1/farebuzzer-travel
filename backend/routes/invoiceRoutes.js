@@ -79,9 +79,11 @@ router.get("/", getAllInvoices);
 // Search invoices
 router.get("/search", searchInvoices);
 
-// ✅ ADD THIS: Public view route for email links
-router.get("/:invoiceNumber/view", getInvoice);  // Uses same controller as below
 router.get("/:invoiceNumber/view", viewStyledInvoice);
+
+// ✅ ADD THIS: Public view route for email links
+// router.get("/:invoiceNumber/view", getInvoice);  // Uses same controller as below
+// router.get("/:invoiceNumber/view", viewStyledInvoice);
 
 // Get invoice by number (for API)
 router.get("/:invoiceNumber", getInvoice);

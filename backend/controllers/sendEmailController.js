@@ -5827,6 +5827,8 @@
 // };
 
 //===9 feb==
+
+
 import transporter from "../utils/email.js";
 import Email from "../models/Email.js";
 import { generateETicket } from "../utils/generateETicket.js";
@@ -5858,7 +5860,9 @@ const getServiceDescription = (emailType, details) => {
 
 const generateInvoicePaymentSection = (invoice) => {
   const frontendUrl = process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host';
-  const invoiceLink = `${frontendUrl}/invoice/${invoice.invoiceNumber}`;
+  // const invoiceLink = `${frontendUrl}/invoice/${invoice.invoiceNumber}`;
+
+  const invoiceLink = `${process.env.BACKEND_URL || 'https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host'}/api/invoices/${invoice.invoiceNumber}/view`;
   
   return `
     <hr style="margin:20px 0; border-top:2px solid #10b981;">

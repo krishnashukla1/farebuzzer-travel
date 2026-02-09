@@ -474,6 +474,23 @@ export const viewStyledInvoice = async (req, res) => {
       CANCELLED: 'bg-gray-100 text-gray-800'
     };
     
+    const frontendUrl =
+  process.env.FRONTEND_URL ||
+  "https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host";
+
+const params = new URLSearchParams({
+  invoice: invoice.invoiceNumber,
+  customerName: invoice.customerName || "",
+  email: invoice.customerEmail || "",
+  phone: invoice.customerPhone || "",
+  amount: invoice.amount,
+  bookingRef: invoice.bookingRef || "",
+  source: "invoice"
+});
+
+const paymentLink = `${frontendUrl}/payment?${params.toString()}`;
+
+
     // Render stylish HTML
     res.send(`
       <!DOCTYPE html>
@@ -619,6 +636,21 @@ export const viewStyledInvoice = async (req, res) => {
                   <i class="fas fa-lock mr-3"></i>
                   Pay Now Securely
                 </a>
+
+
+                <a href="${paymentLink}"
+   class="inline-flex items-center justify-center
+          bg-gradient-to-r from-green-500 to-green-600
+          hover:from-green-600 hover:to-green-700
+          text-white font-bold py-4 px-12 rounded-2xl
+          text-lg shadow-lg hover:shadow-xl
+          transition-all duration-300 transform hover:-translate-y-1">
+  <i class="fas fa-lock mr-3"></i>
+  Pay Now Securely
+</a>
+
+
+
                 
                 <!-- Download PDF -->
                 <button onclick="window.print()" 

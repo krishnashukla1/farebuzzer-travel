@@ -7118,6 +7118,9 @@ export const sendCustomerEmail = async (req, res) => {
           <p style="margin-top:15px; color:#64748b; font-size:14px;">
             <strong>Instantly confirm your agreement</strong> - No email reply needed
           </p>
+          <p style="font-size:14px; color:#92400e;">
+        Your IP address will be automatically recorded for verification
+     </p>
         </div>
       `;
     }

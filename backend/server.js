@@ -83,6 +83,7 @@ import agreementRoutes from './routes/agreement.js';
 // import emailReplyRoutes from './routes/emailReply.js';
 
 import paymentRoutes from "./routes/paymentRoutes.js";
+import invoiceRoutes from './routes/invoiceRoutes.js'
 
 
 // dotenv.config();

@@ -11,8 +11,11 @@
     "start": "vite preview --port 80 --host"
   },
   "dependencies": {
+    "@paypal/checkout-server-sdk": "^1.0.3",
+    "@paypal/react-paypal-js": "^8.9.2",
     "@tailwindcss/vite": "^4.1.18",
     "axios": "^1.13.2",
+    "date-fns": "^4.1.0",
     "dayjs": "^1.11.19",
     "lucide-react": "^0.561.0",
     "react": "^19.1.0",
@@ -23,9 +26,7 @@
     "react-router-dom": "^7.11.0",
     "recharts": "^3.6.0",
     "tailwindcss": "^4.1.18",
-    "xlsx": "^0.18.5",
-        "@paypal/checkout-server-sdk": "^1.0.3",
-    "@paypal/react-paypal-js": "^8.9.2"
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

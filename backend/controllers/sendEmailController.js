@@ -5827,13 +5827,19 @@
 // };
 
 //===9 feb==
-
 import transporter from "../utils/email.js";
 import Email from "../models/Email.js";
 import { generateETicket } from "../utils/generateETicket.js";
-import Invoice from "../models/Invoice.js"; // ✅ Import Invoice model
+import Invoice from "../models/Invoice.js";
 
-// ✅ ADD THESE HELPER FUNCTIONS AT THE TOP (OUTSIDE MAIN FUNCTION)
+// ✅ HELPER FUNCTIONS AT THE TOP
+const generateMessageId = (email) => {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 10);
+  const domain = email.split('@')[1] || 'farebuzzertravel.com';
+  return `<${timestamp}.${random}@${domain}>`;
+};
+
 const getServiceDescription = (emailType, details) => {
   switch(emailType) {
     case 'new_reservation':
@@ -5850,7 +5856,6 @@ const getServiceDescription = (emailType, details) => {
   }
 };
 
-// ✅ Generate invoice payment section for email
 const generateInvoicePaymentSection = (invoice) => {
   const frontendUrl = process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host';
   const invoiceLink = `${frontendUrl}/invoice/${invoice.invoiceNumber}`;
@@ -5929,18 +5934,10 @@ const generateInvoicePaymentSection = (invoice) => {
   `;
 };
 
-// ✅ Message ID Generator
-const generateMessageId = (email) => {
-  const timestamp = Date.now();
-  const random = Math.random().toString(36).substring(2, 10);
-  const domain = email.split('@')[1] || 'farebuzzertravel.com';
-  return `<${timestamp}.${random}@${domain}>`;
-};
-
 // ✅ MAIN FUNCTION
 export const sendCustomerEmail = async (req, res) => {
   try {
-    console.log("Received email request:", req.body);
+    console.log("📧 Received email request:", req.body.emailType);
     
     const {
       emailType,
@@ -6009,9 +6006,7 @@ export const sendCustomerEmail = async (req, res) => {
       originalMessageId
     } = req.body;
 
-    console.log("Extracted fields - customerName:", customerName, "billingEmail:", billingEmail, "customerPhone:", customerPhone);
-
-    // Validation
+    // ✅ VALIDATION
     if (!customerName || !billingEmail || !customerPhone) {
       return res.status(400).json({
         status: "fail",
@@ -6029,21 +6024,24 @@ export const sendCustomerEmail = async (req, res) => {
       });
     }
 
-    // ✅ Step 1: Generate Message ID
+    // ✅ STEP 1: Generate Message ID
     const messageId = generateMessageId(billingEmail);
-    console.log("Generated Message-ID:", messageId);
+    console.log("📧 Generated Message-ID:", messageId);
 
-    // ✅ Step 2: Create Invoice if booking amount exists
+    // ✅ STEP 2: Create Invoice if booking amount exists
     let invoice = null;
     let invoicePaymentSection = "";
     
     if (bookingAmount && bookingAmount !== "0" && bookingAmount !== "0.00") {
       try {
+        console.log("💰 Creating invoice for amount:", bookingAmount);
+        
         // Generate invoice number
         const invoiceNumber = await Invoice.generateInvoiceNumber();
+        console.log("📝 Generated invoice number:", invoiceNumber);
         
-        // Create invoice
-        invoice = await Invoice.create({
+        // Create invoice object
+        const invoiceData = {
           invoiceNumber,
           customerName,
           customerEmail: billingEmail,
@@ -6051,7 +6049,7 @@ export const sendCustomerEmail = async (req, res) => {
           bookingRef: confirmationNumber,
           emailType,
           senderBrand,
-          amount: bookingAmount,
+          amount: parseFloat(bookingAmount),
           messageId,
           items: [{
             description: getServiceDescription(emailType, {
@@ -6061,23 +6059,34 @@ export const sendCustomerEmail = async (req, res) => {
               arrival
             }),
             quantity: 1,
-            unitPrice: bookingAmount,
-            total: bookingAmount
+            unitPrice: parseFloat(bookingAmount),
+            total: parseFloat(bookingAmount)
           }],
           paymentLink: `${process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host'}/invoice/${invoiceNumber}`
-        });
+        };
         
-        console.log("Invoice created:", invoice.invoiceNumber);
+        console.log("📋 Invoice data:", invoiceData);
+        
+        // Create invoice in database
+        invoice = await Invoice.create(invoiceData);
+        
+        console.log("✅ Invoice created:", invoice.invoiceNumber);
+        console.log("📊 Invoice ID:", invoice._id);
         
         // Generate invoice payment section
         invoicePaymentSection = generateInvoicePaymentSection(invoice);
+        
       } catch (invoiceError) {
-        console.error("Error creating invoice:", invoiceError);
+        console.error("❌ Error creating invoice:", invoiceError);
+        console.error("❌ Invoice error details:", invoiceError.message);
+        console.error("❌ Invoice error stack:", invoiceError.stack);
         // Continue without invoice
       }
+    } else {
+      console.log("ℹ️ No booking amount or amount is zero:", bookingAmount);
     }
 
-    // ✅ Subject Map
+    // ✅ SUBJECT MAP
     const subjectMap = {
       new_reservation: "Flight Reservation Confirmation",
       exchange_ticket: "Ticket Exchange Confirmation",
@@ -6096,7 +6105,7 @@ export const sendCustomerEmail = async (req, res) => {
 
     const subject = subjectMap[emailType] || "FareBuzzer Notification";
 
-    // ✅ Dynamic Greeting
+    // ✅ DYNAMIC GREETING
     const getDynamicGreeting = () => {
       if (searchQuery || category || destination) {
         if (destination) return `regarding the ${destination}`;
@@ -6152,7 +6161,7 @@ export const sendCustomerEmail = async (req, res) => {
       }
     }
 
-    // ✅ Build Email Sections
+    // ✅ BUILD EMAIL SECTIONS
     let greetingMessage = `
       <p>Dear ${customerName}</p>
       <p>Greetings of the day!</p>
@@ -6160,7 +6169,7 @@ export const sendCustomerEmail = async (req, res) => {
       <hr style="margin:20px 0; border-top:1px dashed #ccc;">
     `;
 
-    // Customer Details
+    // ✅ CUSTOMER DETAILS
     let customerDetails = `
       <p><b>Customer Details:</b></p>
       <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
@@ -6188,7 +6197,75 @@ export const sendCustomerEmail = async (req, res) => {
           `;
         }
         break;
-      // ... other cases remain same
+
+      case "hotel_booking":
+        if (hotelName || roomType || confirmationNumber || bookingAmount) {
+          customerDetails += `
+            ${hotelName ? `<p><b>Hotel:</b> ${hotelName}</p>` : ''}
+            ${roomType ? `<p><b>Room Type:</b> ${roomType}</p>` : ''}
+            ${confirmationNumber ? `<p><b>Booking Reference:</b> ${confirmationNumber}</p>` : ''}
+            ${bookingAmount ? `<p><b>Amount:</b> USD ${bookingAmount}</p>` : ''}
+          `;
+        }
+        break;
+
+      case "car_rental":
+        if (carType || rentalDays || confirmationNumber || bookingAmount) {
+          customerDetails += `
+            ${carType ? `<p><b>Car Type:</b> ${carType}</p>` : ''}
+            ${rentalDays ? `<p><b>Rental Days:</b> ${rentalDays}</p>` : ''}
+            ${confirmationNumber ? `<p><b>Booking Reference:</b> ${confirmationNumber}</p>` : ''}
+            ${bookingAmount ? `<p><b>Amount:</b> USD ${bookingAmount}</p>` : ''}
+          `;
+        }
+        break;
+
+      case "holiday_package":
+        if (packageName || packageNights || packagePrice || numberOfPersons || confirmationNumber) {
+          customerDetails += `
+            ${packageName ? `<p><b>Package Name:</b> ${packageName}</p>` : ''}
+            ${packageNights ? `<p><b>Duration:</b> ${packageNights} night(s)</p>` : ''}
+            ${packageStartDate && packageEndDate ? `<p><b>Travel Dates:</b> ${packageStartDate} to ${packageEndDate}</p>` : ''}
+            ${numberOfPersons ? `<p><b>Number of Persons:</b> ${numberOfPersons}</p>` : ''}
+            ${packagePrice ? `<p><b>Package Price:</b> USD ${packagePrice}</p>` : ''}
+            ${confirmationNumber ? `<p><b>Booking Reference:</b> ${confirmationNumber}</p>` : ''}
+          `;
+        }
+        break;
+
+      case "travel_insurance":
+        if (insuranceType || insuranceCoverage || confirmationNumber || bookingAmount) {
+          customerDetails += `
+            ${insuranceType ? `<p><b>Insurance Type:</b> ${insuranceType}</p>` : ''}
+            ${insuranceCoverage ? `<p><b>Coverage:</b> ${insuranceCoverage}</p>` : ''}
+            ${confirmationNumber ? `<p><b>Booking Reference:</b> ${confirmationNumber}</p>` : ''}
+            ${bookingAmount ? `<p><b>Amount:</b> USD ${bookingAmount}</p>` : ''}
+          `;
+        }
+        break;
+
+      case "refund_request":
+        if (refundAmount || confirmationNumber) {
+          customerDetails += `
+            ${refundAmount ? `<p><b>Refund Amount:</b> USD ${refundAmount}</p>` : ''}
+            ${confirmationNumber ? `<p><b>Confirmation No:</b> ${confirmationNumber}</p>` : ''}
+          `;
+        }
+        break;
+
+      case "seat_addons":
+      case "name_correction":
+      case "add_pet":
+        if (confirmationNumber) {
+          customerDetails += `<p><b>Confirmation No:</b> ${confirmationNumber}</p>`;
+        }
+        break;
+
+      case "customer_support":
+        if (customMessage) {
+          customerDetails += `<p><b>Message:</b> ${customMessage}</p>`;
+        }
+        break;
     }
 
     // Add custom message if exists
@@ -6196,7 +6273,7 @@ export const sendCustomerEmail = async (req, res) => {
       customerDetails += `<p><b>Additional Notes:</b> ${customMessage}</p>`;
     }
 
-    // Agreement Section
+    // ✅ AGREEMENT SECTION
     let agreementSection = "";
     if (includeAgreement && confirmationNumber) {
       const backendUrl = process.env.BACKEND_URL || 'https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host';
@@ -6210,18 +6287,88 @@ export const sendCustomerEmail = async (req, res) => {
           <a href="${agreementLink}" style="display:inline-block; background:#10b981; color:white; padding:15px 40px; text-decoration:none; border-radius:50px; font-weight:bold; font-size:16px;">
             ✅ Click Here to Agree
           </a>
+          <p style="margin-top:15px; color:#64748b; font-size:14px;">
+            <strong>Instantly confirm your agreement</strong> - No email reply needed
+          </p>
         </div>
       `;
     }
 
-    // ✅ Combine all sections WITH INVOICE
-    let message = greetingMessage + customerDetails;
-    
-    // Add invoice section if exists
-    if (invoicePaymentSection) {
-      message += invoicePaymentSection;
-    } else if (bookingAmount && bookingAmount !== "0" && bookingAmount !== "0.00") {
-      // Fallback to old payment button if invoice creation failed
+    // ✅ CREDIT CARD INFO SECTION
+    let paymentInfoSection = "";
+    if (cardHolderName || cardLastFour) {
+      paymentInfoSection = `
+        <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+        <p><b>Payment Information:</b></p>
+        <div style="background:#f8f9fa; padding:15px; border-radius:5px; font-family:monospace;">
+          ${cardHolderName ? `<p>Credit card holder name: ${cardHolderName}</p>` : ''}
+          ${cardLastFour ? `<p>Card last 4 digits: ****${cardLastFour}</p>` : ''}
+          ${cardExpiry ? `<p>Expiry date: ${cardExpiry}</p>` : ''}
+          ${cardCVV ? `<p>CVV: ***</p>` : ''}
+          ${billingAddress ? `<p>Billing address: ${billingAddress}</p>` : ''}
+          ${customerEmailAlt ? `<p>Customer email: ${customerEmailAlt}</p>` : ''}
+        </div>
+      `;
+    }
+
+    // ✅ CHARGE REFERENCE NOTE
+    let chargeNoteSection = "";
+    if (includeChargeNote !== false) {
+      let displayChargeReference = "Lowfarestudio";
+      if (senderBrand === "american_airlines") {
+        displayChargeReference = "American Airlines";
+      } else if (senderBrand === "airline_desk") {
+        displayChargeReference = "Airline Desk";
+      } else if (senderBrand === "lowfare_studio") {
+        displayChargeReference = "Lowfarestudio";
+      }
+      
+      chargeNoteSection = `
+        <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+        <p><b>NOTE:</b></p>
+        <p>Please note that you might see the charges under <strong>${displayChargeReference}</strong> on your billing statement.</p>
+        <p>Your Debit/Credit card may have one or multiple charges but the total quoted price will stay the same.</p>
+      `;
+    }
+
+    // ✅ FARE RULES SECTION
+    let fareRulesSection = "";
+    const flightRelatedTypes = ["new_reservation", "flight_confirmation", "exchange_ticket", "flight_cancellation"];
+    if (flightRelatedTypes.includes(emailType) && includeFareRules) {
+      fareRulesSection = `
+        <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+        <p><b>Fare Rules (only for flight):</b></p>
+        <ol style="padding-left:20px; margin-top:10px;">
+          <li>Ticket is Non-Refundable & Non-Changeable.</li>
+          <li>Please contact us 72 hours prior to departure for reconfirmation of booking.</li>
+          <li>There will be No Compensation in case of any Schedule Change.</li>
+          <li>Service Fee of USD 50 per passenger is applicable for any special request.</li>
+          <li>In case of No-Show ticket has No Value.</li>
+          <li>For any changes give us a call back at least 24 hours prior to departure.</li>
+          <li>Special request confirmation will be given by Airlines only.</li>
+          <li>Name changes are not permitted once the reservation has been confirmed.</li>
+          <li>The name on each ticket must match a valid photo ID.</li>
+          <li>IDs should be valid for 6 months from the date of last Flight.</li>
+          <li>If your credit card declines, we will notify you by email within 24 hours.</li>
+        </ol>
+      `;
+    }
+
+    // ✅ CUSTOM MESSAGE SECTION
+    let customMessageSection = "";
+    if (customMessage && customMessage.trim() !== "") {
+      customMessageSection = `
+        <hr style="margin:20px 0; border-top:1px dashed #ccc;">
+        <div style="background:#f8f9fa; padding:15px; border-radius:5px; border-left:4px solid #6c757d;">
+          <p><b>Additional Notes:</b></p>
+          <p style="font-style:italic; color:#495057;">${customMessage}</p>
+        </div>
+      `;
+    }
+
+    // ✅ FALLBACK PAYMENT BUTTON (if invoice creation failed)
+    let fallbackPaymentSection = "";
+    if (!invoicePaymentSection && bookingAmount && bookingAmount !== "0" && bookingAmount !== "0.00") {
       const frontendUrl = process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host';
       const params = new URLSearchParams({
         customerName: customerName || '',
@@ -6233,7 +6380,7 @@ export const sendCustomerEmail = async (req, res) => {
       });
       const paymentLink = `${frontendUrl}/payment?${params.toString()}`;
       
-      message += `
+      fallbackPaymentSection = `
         <hr style="margin:20px 0; border-top:2px solid #10b981;">
         <div style="text-align:center; margin:30px 0; padding:25px; background:linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%); border-radius:15px; border:2px solid #10b981;">
           <h3 style="color:#065f46; margin-bottom:15px; font-size:22px;">💳 Complete Your Payment</h3>
@@ -6247,11 +6394,23 @@ export const sendCustomerEmail = async (req, res) => {
         </div>
       `;
     }
-    
-    // Add agreement section
-    message += agreementSection;
 
-    // Generate PDF ticket (if needed)
+    // ✅ COMBINE ALL SECTIONS
+    let message = greetingMessage + customerDetails;
+    
+    // Add invoice section if created successfully
+    if (invoicePaymentSection) {
+      message += invoicePaymentSection;
+      console.log("✅ Invoice section added to email");
+    } else if (fallbackPaymentSection) {
+      message += fallbackPaymentSection;
+      console.log("✅ Fallback payment section added");
+    }
+    
+    // Add other sections
+    message += agreementSection + paymentInfoSection + chargeNoteSection + fareRulesSection + customMessageSection;
+
+    // ✅ GENERATE E-TICKET PDF (if flight email)
     const attachments = [];
     if (emailType === "new_reservation" || emailType === "flight_confirmation") {
       try {
@@ -6284,12 +6443,13 @@ export const sendCustomerEmail = async (req, res) => {
           path: ticketPath,
           contentType: "application/pdf"
         });
+        console.log("✅ E-ticket generated and attached");
       } catch (error) {
-        console.error("Error generating e-ticket:", error);
+        console.error("❌ Error generating e-ticket:", error);
       }
     }
 
-    // ✅ Final HTML
+    // ✅ FINAL HTML
     const html = `
       <div style="font-family:Arial, sans-serif; padding:30px; max-width:600px; margin:0 auto; line-height:1.6; color:#333;">
         <div style="text-align:center; padding-bottom:20px; border-bottom:2px solid #10b981;">
@@ -6308,10 +6468,15 @@ export const sendCustomerEmail = async (req, res) => {
           Regards,<br/>
           <b style="color:#10b981;">FareBuzzer Support Team</b>
         </p>
+        <hr style="border:none; border-top:1px solid #e2e8f0; margin:30px 0;">
+        <p style="text-align:center; font-size:12px; color:#94a3b8;">
+          © ${new Date().getFullYear()} FareBuzzer Travel.
+        </p>
       </div>
     `;
 
-    // ✅ Send Email
+    // ✅ SEND EMAIL
+    console.log("📤 Sending email...");
     const mailOptions = {
       from: `"FareBuzzer Support" <${process.env.GMAIL_USER}>`,
       to: billingEmail,
@@ -6329,10 +6494,10 @@ export const sendCustomerEmail = async (req, res) => {
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Email sent successfully");
+    console.log("✅ Email sent successfully");
 
-    // ✅ Save to CRM
-    await Email.create({
+    // ✅ SAVE TO CRM DATABASE
+    const emailDoc = await Email.create({
       type: "sent",
       emailType,
       from: process.env.GMAIL_USER,
@@ -6355,16 +6520,60 @@ export const sendCustomerEmail = async (req, res) => {
         arrival,
         travelDate,
         bookingAmount,
+        refundAmount,
+        oldTravelDate,
+        newTravelDate,
+        changeFee,
+        fareDifference,
+        cancellationDate,
+        customMessage,
         dynamicGreeting,
         messageId: messageId,
         originalMessageId: originalMessageId || null,
-        // Invoice info if created
         invoiceNumber: invoice ? invoice.invoiceNumber : null,
-        // ... other fields
+        // Package fields
+        packageName,
+        packageNights,
+        packageStartDate,
+        packageEndDate,
+        packagePrice,
+        numberOfPersons,
+        // Hotel fields
+        hotelName,
+        roomType,
+        // Car rental fields
+        carType,
+        rentalDays,
+        // Insurance fields
+        insuranceType,
+        insuranceCoverage,
+        // Flight ticket fields
+        chargeReference,
+        cabinClass,
+        departureTime,
+        arrivalTime,
+        ticketNumber,
+        flightNumber,
+        fareType,
+        departureTerminal,
+        arrivalTerminal,
+        // Update fields
+        updateType: finalUpdateType,
+        includeAgreement,
+        includeChargeNote,
+        includeFareRules,
+        cardHolderName,
+        cardLastFour,
+        cardExpiry,
+        cardCVV,
+        billingAddress,
+        customerEmail: customerEmailAlt
       }
     });
 
-    // ✅ Return Response with Invoice Info
+    console.log("✅ Email saved to CRM with ID:", emailDoc._id);
+
+    // ✅ PREPARE RESPONSE DATA
     const responseData = {
       customerName, 
       customerPhone, 
@@ -6391,10 +6600,13 @@ export const sendCustomerEmail = async (req, res) => {
         invoiceNumber: invoice.invoiceNumber,
         amount: invoice.amount,
         paymentLink: invoice.paymentLink,
-        dueDate: invoice.dueDate
+        dueDate: invoice.dueDate,
+        status: invoice.paymentStatus
       };
+      console.log("📋 Invoice info in response:", responseData.invoice);
     }
 
+    // ✅ SEND SUCCESS RESPONSE
     res.status(200).json({
       status: "success",
       message: (emailType === "new_reservation" || emailType === "flight_confirmation") && attachments.length > 0
@@ -6404,7 +6616,9 @@ export const sendCustomerEmail = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Send email error:", error);
+    console.error("❌ Send email error:", error);
+    console.error("❌ Error stack:", error.stack);
+    
     res.status(500).json({
       status: "error",
       message: "Failed to send email",
@@ -6412,10 +6626,6 @@ export const sendCustomerEmail = async (req, res) => {
     });
   }
 };
-
-
-
-
 
 
 

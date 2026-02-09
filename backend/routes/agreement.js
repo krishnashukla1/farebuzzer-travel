@@ -1178,7 +1178,7 @@ Yes, I agree.
             <div style="color: #5f6368; font-size: 13px;">
                 <strong>Booking Reference:</strong> ${booking}<br>
                 <strong>Customer Email:</strong> ${email}<br>
-                <strong>Date of Booking:</strong> ${currentDate}
+                <strong>Date of Booking:</strong> ${currentDate}<br>
                 <strong>IP Address:</strong> ${ipAddress}
 
             </div>

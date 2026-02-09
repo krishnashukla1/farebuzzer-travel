@@ -329,6 +329,12 @@ import LeaveApproval from "./components3/LeaveApproval";
 import AttendanceAdmin from "./components3/AttendanceAdmin";
 import AllLoginHours from "./components3/AllLoginHours";
 
+
+
+import InvoicePage from "./pages/InvoicePage";
+import CRMInvoices from "./pages/CRMInvoices";
+// import InvoiceSuccess from "./pages/InvoiceSuccess";
+
 const DashboardLayout = ({ children }) => (
   <div className="flex h-screen bg-gray-100">
     <Sidebar />
@@ -348,6 +354,11 @@ const App = () => {
         <Route path="/payment" element={<Payment />} />
         {/* <Route path="/agree/:token" element={<AgreementPage />} /> */}
         {/* <Route path="/thank-you" element={<ThankYouPage />} /> */}
+
+         <Route path="/invoice/:invoiceNumber" element={<InvoicePage />} />
+      {/* <Route path="/invoice/:invoiceNumber/success" element={<InvoiceSuccess />} /> */}
+      <Route path="/crm/invoices" element={<CRMInvoices />} />
+      {/* <Route path="/crm/invoices/:invoiceNumber" element={<CRMInvoiceDetail />} /> */}
 
         {/* ========== AUTH ROUTES ========== */}
         <Route path="/login" element={<Login />} />

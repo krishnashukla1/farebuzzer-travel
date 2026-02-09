@@ -159,6 +159,8 @@ app.use('/api/agreement', agreementRoutes);
 
 app.use("/api/payment", paymentRoutes);
 
+app.use("/api/invoices", invoiceRoutes);
+
 
 
 

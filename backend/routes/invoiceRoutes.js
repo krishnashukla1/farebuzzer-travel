@@ -65,7 +65,7 @@ import {
   getCustomerInvoices,
   getAllInvoices,
   deleteInvoice,
-  searchInvoices
+  searchInvoices,viewStyledInvoice
 } from "../controllers/invoiceController.js";
 
 const router = express.Router();
@@ -81,9 +81,11 @@ router.get("/search", searchInvoices);
 
 // ✅ ADD THIS: Public view route for email links
 router.get("/:invoiceNumber/view", getInvoice);  // Uses same controller as below
+router.get("/:invoiceNumber/view", viewStyledInvoice);
 
 // Get invoice by number (for API)
 router.get("/:invoiceNumber", getInvoice);
+
 
 // Update payment status
 router.patch("/:invoiceNumber/payment", updatePaymentStatus);
@@ -93,5 +95,8 @@ router.get("/customer/:email", getCustomerInvoices);
 
 // Delete invoice (admin only)
 router.delete("/:invoiceNumber", deleteInvoice);
+
+
+
 
 export default router;

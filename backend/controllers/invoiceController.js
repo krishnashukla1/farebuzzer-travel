@@ -617,3 +617,262 @@ export const searchInvoices = async (req, res) => {
     });
   }
 };
+
+
+// ✅ Stylish public invoice view (for email links)
+export const viewStyledInvoice = async (req, res) => {
+  try {
+    const { invoiceNumber } = req.params;
+    const invoice = await Invoice.findOne({ invoiceNumber });
+    
+    if (!invoice) {
+      return res.status(404).send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Invoice Not Found</title>
+          <style>
+            body { font-family: Arial; padding: 40px; text-align: center; background: #f8fafc; }
+            .container { max-width: 500px; margin: 50px auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+            h1 { color: #ef4444; }
+            .logo { color: #10b981; font-size: 24px; font-weight: bold; margin-bottom: 20px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="logo">✈️ FareBuzzer Travel</div>
+            <h1>Invoice Not Found</h1>
+            <p>Invoice ${invoiceNumber} does not exist or has been deleted.</p>
+          </div>
+        </body>
+        </html>
+      `);
+    }
+    
+    // Calculate days until due
+    const dueDate = new Date(invoice.dueDate);
+    const today = new Date();
+    const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+    const isOverdue = daysUntilDue < 0;
+    const isDueSoon = daysUntilDue <= 3 && daysUntilDue >= 0;
+    
+    // Format date
+    const formatDate = (date) => new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    // Status badge color
+    const statusColors = {
+      PAID: 'bg-green-100 text-green-800',
+      UNPAID: 'bg-red-100 text-red-800',
+      PARTIAL: 'bg-yellow-100 text-yellow-800',
+      CANCELLED: 'bg-gray-100 text-gray-800'
+    };
+    
+    // Render stylish HTML
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Invoice ${invoice.invoiceNumber} | FareBuzzer Travel</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+          body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); min-height: 100vh; }
+          .invoice-container { max-width: 800px; margin: 0 auto; }
+          .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-weight: 600; font-size: 14px; }
+          .due-badge { background: ${isOverdue ? '#fee2e2' : (isDueSoon ? '#fef3c7' : '#dbeafe')}; color: ${isOverdue ? '#991b1b' : (isDueSoon ? '#92400e' : '#1e40af')}; }
+          .watermark { position: absolute; opacity: 0.03; font-size: 120px; font-weight: bold; transform: rotate(-45deg); pointer-events: none; }
+          .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        </style>
+      </head>
+      <body class="py-10 px-4">
+        <div class="invoice-container">
+          <!-- Watermark -->
+          <div class="watermark top-1/4 left-1/4 text-green-500">${invoice.paymentStatus}</div>
+          
+          <!-- Header -->
+          <div class="glass-card rounded-3xl p-8 mb-8 shadow-2xl">
+            <div class="flex justify-between items-center mb-8">
+              <div>
+                <h1 class="text-4xl font-bold text-green-600 mb-2">
+                  <i class="fas fa-plane-departure mr-3"></i>FareBuzzer Travel
+                </h1>
+                <p class="text-gray-600">Travel Made Easy & Affordable</p>
+              </div>
+              <div class="text-right">
+                <h2 class="text-3xl font-bold text-gray-800">INVOICE</h2>
+                <p class="text-gray-500 text-sm mt-1">${invoice.invoiceNumber}</p>
+              </div>
+            </div>
+            
+            <!-- Status Alert -->
+            <div class="flex flex-wrap gap-4 mb-6">
+              <div class="status-badge ${statusColors[invoice.paymentStatus]}">
+                <i class="fas ${invoice.paymentStatus === 'PAID' ? 'fa-check-circle' : 'fa-clock'} mr-2"></i>
+                ${invoice.paymentStatus}
+              </div>
+              <div class="status-badge due-badge">
+                <i class="fas ${isOverdue ? 'fa-exclamation-triangle' : 'fa-calendar-day'} mr-2"></i>
+                ${isOverdue ? `Overdue by ${Math.abs(daysUntilDue)} days` : 
+                  (isDueSoon ? `Due in ${daysUntilDue} days` : `Due on ${formatDate(invoice.dueDate)}`)}
+              </div>
+              <div class="status-badge bg-blue-100 text-blue-800">
+                <i class="fas fa-dollar-sign mr-2"></i>
+                ${invoice.currency} ${invoice.amount.toFixed(2)}
+              </div>
+            </div>
+          </div>
+          
+          <!-- Invoice Details -->
+          <div class="grid md:grid-cols-2 gap-8 mb-8">
+            <!-- Customer Info -->
+            <div class="glass-card rounded-2xl p-6 shadow-xl">
+              <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center">
+                <i class="fas fa-user-circle mr-3"></i>Customer Information
+              </h3>
+              <div class="space-y-3">
+                <p><span class="text-gray-600 font-medium">Name:</span> ${invoice.customerName}</p>
+                <p><span class="text-gray-600 font-medium">Email:</span> ${invoice.customerEmail}</p>
+                ${invoice.customerPhone ? `<p><span class="text-gray-600 font-medium">Phone:</span> ${invoice.customerPhone}</p>` : ''}
+                ${invoice.bookingRef ? `<p><span class="text-gray-600 font-medium">Booking Ref:</span> <span class="font-mono bg-gray-100 px-2 py-1 rounded">${invoice.bookingRef}</span></p>` : ''}
+              </div>
+            </div>
+            
+            <!-- Invoice Info -->
+            <div class="glass-card rounded-2xl p-6 shadow-xl">
+              <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center">
+                <i class="fas fa-file-invoice mr-3"></i>Invoice Details
+              </h3>
+              <div class="space-y-3">
+                <p><span class="text-gray-600 font-medium">Invoice Date:</span> ${formatDate(invoice.invoiceDate)}</p>
+                <p><span class="text-gray-600 font-medium">Due Date:</span> ${formatDate(invoice.dueDate)}</p>
+                <p><span class="text-gray-600 font-medium">Service Type:</span> ${invoice.emailType || 'Travel Booking'}</p>
+                ${invoice.messageId ? `<p class="text-xs text-gray-500 truncate"><span class="font-medium">Message ID:</span> ${invoice.messageId}</p>` : ''}
+              </div>
+            </div>
+          </div>
+          
+          <!-- Items Table -->
+          <div class="glass-card rounded-2xl p-6 mb-8 shadow-xl">
+            <h3 class="text-xl font-bold text-green-700 mb-6 flex items-center">
+              <i class="fas fa-receipt mr-3"></i>Invoice Items
+            </h3>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                  <tr class="bg-green-50">
+                    <th class="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Description</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Quantity</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Unit Price</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Total</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  ${invoice.items.map(item => `
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-6 py-4 text-sm text-gray-800">${item.description}</td>
+                      <td class="px-6 py-4 text-sm text-gray-600">${item.quantity}</td>
+                      <td class="px-6 py-4 text-sm text-gray-600">${invoice.currency} ${item.unitPrice.toFixed(2)}</td>
+                      <td class="px-6 py-4 text-sm font-medium text-gray-900">${invoice.currency} ${item.total.toFixed(2)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+                <tfoot>
+                  <tr class="bg-green-50 font-bold">
+                    <td colspan="3" class="px-6 py-4 text-right text-sm text-green-700">TOTAL AMOUNT</td>
+                    <td class="px-6 py-4 text-lg text-green-700">${invoice.currency} ${invoice.amount.toFixed(2)}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+          
+          <!-- Payment Section -->
+          <div class="glass-card rounded-2xl p-8 mb-8 shadow-xl">
+            <div class="text-center">
+              <h3 class="text-2xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-credit-card mr-2"></i>
+                Complete Your Payment
+              </h3>
+              <p class="text-gray-600 mb-6">Secure payment via PayPal or Credit Card</p>
+              
+              <!-- Amount Display -->
+              <div class="inline-block bg-gradient-to-r from-green-100 to-blue-100 px-8 py-4 rounded-2xl mb-6">
+                <p class="text-gray-600 text-sm">Amount Due</p>
+                <p class="text-4xl font-bold text-green-700">${invoice.currency} ${invoice.amount.toFixed(2)}</p>
+              </div>
+              
+              <div class="space-y-4">
+                <!-- Pay Now Button -->
+                <a href="${process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host'}/payment?invoice=${invoice.invoiceNumber}" 
+                   class="inline-flex items-center justify-center bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-12 rounded-2xl text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                  <i class="fas fa-lock mr-3"></i>
+                  Pay Now Securely
+                </a>
+                
+                <!-- Download PDF -->
+                <button onclick="window.print()" 
+                        class="ml-4 inline-flex items-center justify-center bg-white hover:bg-gray-100 text-green-600 border border-green-300 font-bold py-4 px-8 rounded-2xl text-lg shadow hover:shadow-md transition-all duration-300">
+                  <i class="fas fa-print mr-3"></i>
+                  Print Invoice
+                </button>
+              </div>
+              
+              <!-- Payment Methods -->
+              <div class="mt-8 pt-6 border-t border-gray-200">
+                <p class="text-gray-600 mb-3">Accepted Payment Methods</p>
+                <div class="flex justify-center space-x-4 text-3xl">
+                  <i class="fab fa-cc-paypal text-blue-500"></i>
+                  <i class="fab fa-cc-visa text-blue-600"></i>
+                  <i class="fab fa-cc-mastercard text-red-500"></i>
+                  <i class="fab fa-cc-amex text-blue-800"></i>
+                  <i class="fab fa-cc-discover text-orange-500"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Footer -->
+          <div class="text-center text-gray-500 text-sm">
+            <p class="mb-2">
+              <i class="fas fa-envelope mr-2"></i>enquiry@farebuzzertravel.com | 
+              <i class="fas fa-phone ml-4 mr-2"></i>844 784 3676
+            </p>
+            <p>© ${new Date().getFullYear()} FareBuzzer Travel. All rights reserved.</p>
+            <p class="text-xs mt-4 text-gray-400">Invoice ID: ${invoice._id} | Generated on ${new Date().toLocaleString()}</p>
+          </div>
+        </div>
+        
+        <!-- Print Styles -->
+        <style media="print">
+          body { background: white !important; }
+          .glass-card { box-shadow: none !important; border: 1px solid #ddd !important; }
+          button, a[href*="payment"] { display: none !important; }
+          .watermark { opacity: 0.1 !important; }
+        </style>
+      </body>
+      </html>
+    `);
+  } catch (error) {
+    console.error("❌ Error rendering invoice:", error);
+    res.status(500).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Error</title>
+        <style>body { font-family: Arial; padding: 40px; text-align: center; }</style>
+      </head>
+      <body>
+        <h1 style="color:red;">Error Loading Invoice</h1>
+        <p>Please try again or contact support.</p>
+      </body>
+      </html>
+    `);
+  }
+};

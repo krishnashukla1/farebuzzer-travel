@@ -163,6 +163,8 @@
 // export default mongoose.model("Email", emailSchema);
 
 //=========19 jan---------
+
+
 import mongoose from "mongoose";
 
 const emailSchema = new mongoose.Schema(
@@ -197,7 +199,18 @@ const emailSchema = new mongoose.Schema(
     },
 
     meta: {
+      // customerName: String,
+
+       // New name breakdown fields
+      customerPrefix: String,
+      customerFirstName: String,
+      customerMiddleName: String,
+      customerLastName: String,
+      customerDOB: String,
+      customerGender: String,
+      // Keep full name for backward compatibility
       customerName: String,
+      
       customerPhone: String,
       billingEmail: String,
       confirmationNumber: String,

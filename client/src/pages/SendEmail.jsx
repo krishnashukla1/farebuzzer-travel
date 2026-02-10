@@ -9533,6 +9533,12 @@ const SendEmail = () => {
 
   // Initial form state for GENERAL form (non-flight-ticket)
   const initialGeneralFormState = {
+    customerPrefix: "",
+  customerFirstName: "",
+  customerMiddleName: "",
+  customerLastName: "",
+  customerDOB: "",
+  customerGender: "",
     customerName: "",
     customerPhone: "",
     billingEmail: "",
@@ -9580,6 +9586,17 @@ const SendEmail = () => {
 
   // Initial form state for FLIGHT TICKET form
   const initialFlightFormState = {
+
+
+      customerPrefix: "",
+  customerFirstName: "",
+  customerMiddleName: "",
+  customerLastName: "",
+  customerDOB: "",
+  customerGender: "",
+
+
+
     customerName: "",
     customerPhone: "",
     billingEmail: "",
@@ -9612,6 +9629,21 @@ const SendEmail = () => {
     billingAddress: "",
     customerEmail: ""
   };
+  // Add prefix options
+const prefixOptions = [
+  { value: "", label: "Select Title" },
+  { value: "mr", label: "Mr." },
+  { value: "mrs", label: "Mrs." },
+  { value: "miss", label: "Miss" },
+  { value: "master", label: "Master" }
+];
+// Add gender options
+const genderOptions = [
+  { value: "", label: "Select Gender" },
+  { value: "male", label: "Male" },
+  { value: "female", label: "Female" },
+  { value: "other", label: "Other" }
+];
 
   // Use different form states based on emailType
   const [generalForm, setGeneralForm] = useState(initialGeneralFormState);
@@ -10396,6 +10428,30 @@ const setReplyToEmail = (originalEmail) => {
   const phone = (currentForm.customerPhone || "").trim();
   const phoneRegex = /^[+0-9\s\-\(\)]{8,20}$/;
 
+  // Update validation for new name fields
+if (!currentForm.customerFirstName) {
+  setErrorMessage("First name is required");
+  return;
+}
+
+if (!currentForm.customerLastName) {
+  setErrorMessage("Last name is required");
+  return;
+}
+
+if (!currentForm.customerPrefix) {
+  setErrorMessage("Title is required");
+  return;
+}
+
+// Validate DOB format if provided
+if (currentForm.customerDOB) {
+  const dobDate = new Date(currentForm.customerDOB);
+  if (dobDate > new Date()) {
+    setErrorMessage("Date of birth cannot be in the future");
+    return;
+  }
+}
   if (phone === "") {
     setErrorMessage("Phone number is required");
     return;
@@ -10454,6 +10510,14 @@ const setReplyToEmail = (originalEmail) => {
       // For flight ticket forms
       requestData = {
         emailType,
+          customerPrefix: flightForm.customerPrefix,
+  customerFirstName: flightForm.customerFirstName,
+  customerMiddleName: flightForm.customerMiddleName,
+  customerLastName: flightForm.customerLastName,
+  customerDOB: flightForm.customerDOB,
+  customerGender: flightForm.customerGender,
+  // Keep full name for backward compatibility
+  customerName: `${flightForm.customerFirstName} ${flightForm.customerMiddleName ? flightForm.customerMiddleName + ' ' : ''}${flightForm.customerLastName}`,
         ...flightForm,
         senderBrand, // Make sure senderBrand is included
         chargeReference:
@@ -10480,6 +10544,14 @@ const setReplyToEmail = (originalEmail) => {
       // For general forms
       requestData = {
         emailType,
+          customerPrefix: flightForm.customerPrefix,
+  customerFirstName: flightForm.customerFirstName,
+  customerMiddleName: flightForm.customerMiddleName,
+  customerLastName: flightForm.customerLastName,
+  customerDOB: flightForm.customerDOB,
+  customerGender: flightForm.customerGender,
+  // Keep full name for backward compatibility
+  customerName: `${flightForm.customerFirstName} ${flightForm.customerMiddleName ? flightForm.customerMiddleName + ' ' : ''}${flightForm.customerLastName}`,
         ...generalForm,
         senderBrand, // Make sure senderBrand is included
         templateUsed: selectedTemplate || null,
@@ -10969,7 +11041,7 @@ TOTAL USD 600.00"
             )}
 
             {/* Customer Information */}
-            <section className={sectionClass}>
+            {/* <section className={sectionClass}>
               <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
                 <span className="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
                 Customer Information
@@ -11013,7 +11085,153 @@ TOTAL USD 600.00"
                   />
                 </div>
               </div>
-            </section>
+            </section> */}
+
+<section className={sectionClass}>
+              <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
+                <span className="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
+                Customer Information
+              </h3>
+<div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+    <h4 className="font-medium text-gray-700 mb-3">Personal Details</h4>
+    
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Prefix */}
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">Title *</label>
+        <select
+          name="customerPrefix"
+          className={inputClass}
+          onChange={handleChange}
+          value={currentForm.customerPrefix}
+          required
+        >
+          {prefixOptions.map(option => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      
+      {/* First Name */}
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">First Name *</label>
+        <input
+          name="customerFirstName"
+          placeholder="First Name"
+          className={inputClass}
+          onChange={handleChange}
+          value={currentForm.customerFirstName}
+          required
+        />
+      </div>
+      
+      {/* Middle Name */}
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">Middle Name</label>
+        <input
+          name="customerMiddleName"
+          placeholder="Middle Name"
+          className={inputClass}
+          onChange={handleChange}
+          value={currentForm.customerMiddleName}
+        />
+      </div>
+      
+      {/* Last Name */}
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">Last Name *</label>
+        <input
+          name="customerLastName"
+          placeholder="Last Name"
+          className={inputClass}
+          onChange={handleChange}
+          value={currentForm.customerLastName}
+          required
+        />
+      </div>
+      
+      {/* Date of Birth */}
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">Date of Birth</label>
+        <input
+          type="date"
+          name="customerDOB"
+          className={inputClass}
+          onChange={handleChange}
+          value={currentForm.customerDOB}
+          max={new Date().toISOString().split('T')[0]} // Cannot select future dates
+        />
+      </div>
+      
+      {/* Gender */}
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">Gender</label>
+        <select
+          name="customerGender"
+          className={inputClass}
+          onChange={handleChange}
+          value={currentForm.customerGender}
+        >
+          {genderOptions.map(option => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  </div>
+  
+  {/* Contact Information */}
+  <div className="grid sm:grid-cols-2 gap-5">
+    <div>
+      <label className={labelClass}>Phone Number *</label>
+      <input
+        name="customerPhone"
+        type="tel"
+        placeholder="Only numbers, spaces, +, -, () allowed (8–20 characters)"
+        className={inputClass}
+        onChange={handleChange}
+        value={currentForm.customerPhone}
+        required
+      />
+    </div>
+
+    <div>
+      <label className={labelClass}>Billing Email *</label>
+      <input
+        name="billingEmail"
+        type="email"
+        placeholder="customer@example.com"
+        className={inputClass}
+        onChange={handleChange}
+        value={currentForm.billingEmail}
+        required
+      />
+    </div>
+  </div>
+  
+  {/* Full Name Display (for verification) */}
+  {(currentForm.customerFirstName || currentForm.customerLastName) && (
+    <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+      <p className="text-sm text-green-700">
+        <span className="font-medium">Full Name:</span> 
+        <span className="ml-2">
+          {currentForm.customerPrefix ? 
+            prefixOptions.find(p => p.value === currentForm.customerPrefix)?.label + ' ' : ''}
+          {currentForm.customerFirstName} 
+          {currentForm.customerMiddleName ? ' ' + currentForm.customerMiddleName : ''} 
+          {currentForm.customerLastName}
+        </span>
+      </p>
+    </div>
+  )}
+</section>
+
+
+
 
             {/* Reservation Update Details for flight-related email types */}
             {isFlightRelatedType && (

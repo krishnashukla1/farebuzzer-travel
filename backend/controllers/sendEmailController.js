@@ -6763,6 +6763,12 @@ export const sendCustomerEmail = async (req, res) => {
     const {
       emailType,
       templateUsed,
+       customerPrefix, // "mr", "miss", "mrs", "master"
+  customerFirstName,
+  customerMiddleName,
+  customerLastName,
+  customerDOB,
+  customerGender,
       customerName,
       customerPhone,
       billingEmail,
@@ -6828,12 +6834,37 @@ export const sendCustomerEmail = async (req, res) => {
     } = req.body;
 
     // ✅ VALIDATION
-    if (!customerName || !billingEmail || !customerPhone) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Customer name, phone number, and billing email are required"
-      });
-    }
+    // if (!customerName || !billingEmail || !customerPhone) {
+    //   return res.status(400).json({
+    //     status: "fail",
+    //     message: "Customer name, phone number, and billing email are required"
+    //   });
+    // }
+
+    // ✅ VALIDATION - Update validation for new fields
+if (!customerFirstName || !customerLastName || !billingEmail || !customerPhone) {
+  return res.status(400).json({
+    status: "fail",
+    message: "Customer first name, last name, phone number, and billing email are required"
+  });
+}
+// Validate prefix
+const validPrefixes = ["mr", "miss", "mrs", "master"];
+if (customerPrefix && !validPrefixes.includes(customerPrefix.toLowerCase())) {
+  return res.status(400).json({
+    status: "fail",
+    message: "Invalid prefix. Must be mr, miss, mrs, or master"
+  });
+}
+// ✅ Create full customer name from parts
+const fullCustomerName = customerFirstName + 
+  (customerMiddleName ? ` ${customerMiddleName}` : '') + 
+  ` ${customerLastName}`;
+
+// Use the full name in your email
+const customerNameToUse = fullCustomerName;
+
+
     
     const phoneRegex = /^[+]?[0-9\s\-\(\)]{8,20}$/;
     const trimmedPhone = customerPhone.toString().trim();
@@ -6864,7 +6895,14 @@ export const sendCustomerEmail = async (req, res) => {
         // Create invoice object
         const invoiceData = {
           invoiceNumber,
-          customerName,
+          // customerName,
+           customerName: fullCustomerName,
+  customerPrefix,
+  customerFirstName,
+  customerMiddleName,
+  customerLastName,
+  customerDOB,
+  customerGender,
           customerEmail: billingEmail,
           customerPhone,
           bookingRef: confirmationNumber,
@@ -6998,12 +7036,21 @@ export const sendCustomerEmail = async (req, res) => {
     `;
 
     // ✅ CUSTOMER DETAILS
-    let customerDetails = `
-      <p><b>Customer Details:</b></p>
-      <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
-      <p><b>Email:</b> ${billingEmail}</p>
-    `;
+    // let customerDetails = `
+    //   <p><b>Customer Details:</b></p>
+    //   <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
+    //   <p><b>Email:</b> ${billingEmail}</p>
+    // `;
 
+    // ✅ Add customer details to email sections
+let customerDetails = `
+  <p><b>Customer Details:</b></p>
+  <p><b>Name:</b> ${customerPrefix ? customerPrefix.toUpperCase() + '.' : ''} ${fullCustomerName}</p>
+  ${customerDOB ? `<p><b>Date of Birth:</b> ${customerDOB}</p>` : ''}
+  ${customerGender ? `<p><b>Gender:</b> ${customerGender}</p>` : ''}
+  <p><b>Phone:</b> ${customerPhone}</p>
+  <p><b>Email:</b> ${billingEmail}</p>
+`;
     // Add specific details based on email type
     switch(emailType) {
       case "new_reservation":
@@ -7337,7 +7384,14 @@ export const sendCustomerEmail = async (req, res) => {
       html,
       templateUsed: templateUsed || null,
       meta: {
-        customerName,
+         customerPrefix,
+    customerFirstName,
+    customerMiddleName,
+    customerLastName,
+    customerDOB,
+    customerGender,
+       // Keep full name for backward compatibility
+    customerName: fullCustomerName,
         customerPhone,
         billingEmail,
         checkInBaggage,

@@ -7294,7 +7294,15 @@ let customerDetails = `
       try {
         const ticketPath = await generateETicket({
           confirmationNumber,
-          customerName,
+           customerPrefix,
+      customerFirstName,
+      customerMiddleName,
+      customerLastName,
+      customerDOB,
+      customerGender,
+      // Also keep the original for backward compatibility
+      customerName: fullCustomerName || customerName,
+        
           customerPhone,
           billingEmail,
           checkInBaggage: checkInBaggage || "",
@@ -7313,6 +7321,9 @@ let customerDetails = `
           fareType,
           departureTerminal,
           arrivalTerminal,
+          // Add connection time if available
+      connectionTime: req.body.connectionTime || "",
+      cardLastFour: cardLastFour || "",
           cardLastFour: cardLastFour || "",
         });
 

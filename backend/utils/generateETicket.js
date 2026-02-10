@@ -2347,8 +2347,8 @@ const renderBarcodeAndQR = async (doc, pnr, ticketNumber, yPosition) => {
   );
 
   // Barcode area (unchanged)
-  doc.rect(LAYOUT.MARGIN, yPosition, 300, 40)
-     .stroke('#000000');
+  // doc.rect(LAYOUT.MARGIN, yPosition, 300, 40)
+  //    .stroke('#000000');
 
   // Barcode text
   // doc.fillColor('#000000')

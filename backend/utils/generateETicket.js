@@ -550,6 +550,21 @@ import path from "path";
 import os from "os";
 import QRCode from "qrcode";
 
+
+// Add this utility function at the top// Add a utility function for calculating connection time (optional):
+const formatConnectionTime = (minutes) => {
+  if (!minutes) return 'N/A';
+  
+  if (minutes < 60) {
+    return `${minutes} minutes`;
+  } else {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+  }
+};
+
+
 // Utility functions
 const generatePNR = () => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -661,102 +676,102 @@ const renderHeader = (doc, data) => {
   return doc.y;
 };
 
-const renderTicketInfo = (doc, data, pnr, ticketNumber) => {
-  const boxY = doc.y;
-  const boxWidth = doc.page.width - (LAYOUT.MARGIN * 2);
-  const boxHeight = 60;
+// const renderTicketInfo = (doc, data, pnr, ticketNumber) => {
+//   const boxY = doc.y;
+//   const boxWidth = doc.page.width - (LAYOUT.MARGIN * 2);
+//   const boxHeight = 60;
   
-  // Info box
-  doc.rect(LAYOUT.MARGIN, boxY, boxWidth, boxHeight)
-     .fill('#F0F9FF')
-     .stroke('#3B82F6');
+//   // Info box
+//   doc.rect(LAYOUT.MARGIN, boxY, boxWidth, boxHeight)
+//      .fill('#F0F9FF')
+//      .stroke('#3B82F6');
   
-  // Column headers
-  doc.fillColor('#1E40AF')
-     .fontSize(11)
-     .font('Helvetica-Bold')
-     .text('PASSENGER NAME', LAYOUT.MARGIN + 10, boxY + 10)
-     .text('BOOKING REFERENCE', LAYOUT.MARGIN + 210, boxY + 10)
-     .text('TICKET NUMBER', LAYOUT.MARGIN + 410, boxY + 10);
+//   // Column headers
+//   doc.fillColor('#1E40AF')
+//      .fontSize(11)
+//      .font('Helvetica-Bold')
+//      .text('PASSENGER NAME', LAYOUT.MARGIN + 10, boxY + 10)
+//      .text('BOOKING REFERENCE', LAYOUT.MARGIN + 210, boxY + 10)
+//      .text('TICKET NUMBER', LAYOUT.MARGIN + 410, boxY + 10);
   
-  // Column values
-  doc.fillColor('#000000')
-     .font('Helvetica')
-     .fontSize(12)
-     .text(data.customerName.toUpperCase(), LAYOUT.MARGIN + 10, boxY + 25)
-     .text(pnr, LAYOUT.MARGIN + 210, boxY + 25)
-     .text(ticketNumber, LAYOUT.MARGIN + 410, boxY + 25);
+//   // Column values
+//   doc.fillColor('#000000')
+//      .font('Helvetica')
+//      .fontSize(12)
+//      .text(data.customerName.toUpperCase(), LAYOUT.MARGIN + 10, boxY + 25)
+//      .text(pnr, LAYOUT.MARGIN + 210, boxY + 25)
+//      .text(ticketNumber, LAYOUT.MARGIN + 410, boxY + 25);
   
-  // Status row headers
-  doc.fillColor('#1E40AF')
-     .font('Helvetica-Bold')
-     .fontSize(11)
-     .text('ISSUED DATE', LAYOUT.MARGIN + 10, boxY + 40)
-     .text('ISSUED BY', LAYOUT.MARGIN + 210, boxY + 40)
-     .text('STATUS', LAYOUT.MARGIN + 410, boxY + 40);
+//   // Status row headers
+//   doc.fillColor('#1E40AF')
+//      .font('Helvetica-Bold')
+//      .fontSize(11)
+//      .text('ISSUED DATE', LAYOUT.MARGIN + 10, boxY + 40)
+//      .text('ISSUED BY', LAYOUT.MARGIN + 210, boxY + 40)
+//      .text('STATUS', LAYOUT.MARGIN + 410, boxY + 40);
   
-  // Status row values
-  const issuedDate = formatDate();
-  doc.fillColor('#000000')
-     .font('Helvetica')
-     .fontSize(11)
-     .text(issuedDate, LAYOUT.MARGIN + 10, boxY + 55)
-     .text(data.chargeReference || 'FAREBUZZER TRAVEL', LAYOUT.MARGIN + 210, boxY + 55);
+//   // Status row values
+//   const issuedDate = formatDate();
+//   doc.fillColor('#000000')
+//      .font('Helvetica')
+//      .fontSize(11)
+//      .text(issuedDate, LAYOUT.MARGIN + 10, boxY + 55)
+//      .text(data.chargeReference || 'FAREBUZZER TRAVEL', LAYOUT.MARGIN + 210, boxY + 55);
   
-  doc.fillColor('#059669')
-     .font('Helvetica-Bold')
-     .fontSize(12)
-     .text('CONFIRMED ✓', LAYOUT.MARGIN + 410, boxY + 55);
+//   doc.fillColor('#059669')
+//      .font('Helvetica-Bold')
+//      .fontSize(12)
+//      .text('CONFIRMED ✓', LAYOUT.MARGIN + 410, boxY + 55);
   
-  doc.moveDown(2);
-  return doc.y;
-};
+//   doc.moveDown(2);
+//   return doc.y;
+// };
 
-const renderPassengerDetails = (doc, data) => {
-  const sectionTitleY = doc.y;
+// const renderPassengerDetails = (doc, data) => {
+//   const sectionTitleY = doc.y;
   
-  // Section title
-  doc.fillColor('#1E3A8A')
-     .fontSize(16)
-     .font('Helvetica-Bold')
-     .text('PASSENGER DETAILS', LAYOUT.MARGIN, sectionTitleY);
+//   // Section title
+//   doc.fillColor('#1E3A8A')
+//      .fontSize(16)
+//      .font('Helvetica-Bold')
+//      .text('PASSENGER DETAILS', LAYOUT.MARGIN, sectionTitleY);
   
-  const boxY = sectionTitleY + LAYOUT.SECTION_SPACING;
-  const boxWidth = doc.page.width - (LAYOUT.MARGIN * 2);
-  const boxHeight = 90;
+//   const boxY = sectionTitleY + LAYOUT.SECTION_SPACING;
+//   const boxWidth = doc.page.width - (LAYOUT.MARGIN * 2);
+//   const boxHeight = 90;
   
-  // Passenger box
-  doc.rect(LAYOUT.MARGIN, boxY, boxWidth, boxHeight)
-     .stroke('#E5E7EB');
+//   // Passenger box
+//   doc.rect(LAYOUT.MARGIN, boxY, boxWidth, boxHeight)
+//      .stroke('#E5E7EB');
   
-  // Column headers
-  doc.fillColor('#374151')
-     .fontSize(11)
-     .font('Helvetica-Bold')
-     .text('NAME', LAYOUT.MARGIN + 10, boxY + 10)
-     .text('CONTACT INFORMATION', LAYOUT.MARGIN + 210, boxY + 10)
-     .text('FARE TYPE', LAYOUT.MARGIN + 410, boxY + 10);
+//   // Column headers
+//   doc.fillColor('#374151')
+//      .fontSize(11)
+//      .font('Helvetica-Bold')
+//      .text('NAME', LAYOUT.MARGIN + 10, boxY + 10)
+//      .text('CONTACT INFORMATION', LAYOUT.MARGIN + 210, boxY + 10)
+//      .text('FARE TYPE', LAYOUT.MARGIN + 410, boxY + 10);
   
-  // Passenger name
-  doc.fillColor('#000000')
-     .font('Helvetica')
-     .fontSize(12)
-     .text(data.customerName, LAYOUT.MARGIN + 10, boxY + 25);
+//   // Passenger name
+//   doc.fillColor('#000000')
+//      .font('Helvetica')
+//      .fontSize(12)
+//      .text(data.customerName, LAYOUT.MARGIN + 10, boxY + 25);
   
-  // Contact information
-  doc.fontSize(10)
-     .text(`Email: ${data.billingEmail}`, LAYOUT.MARGIN + 210, boxY + 25)
-     .text(`Phone: ${data.customerPhone}`, LAYOUT.MARGIN + 210, boxY + 40);
+//   // Contact information
+//   doc.fontSize(10)
+//      .text(`Email: ${data.billingEmail}`, LAYOUT.MARGIN + 210, boxY + 25)
+//      .text(`Phone: ${data.customerPhone}`, LAYOUT.MARGIN + 210, boxY + 40);
   
-  // Fare type - use provided fare type or default
-  const fareType = data.fareType || 'REGULAR';
-  const fareTypeDisplay = fareTypeMapping[fareType] || fareType;
-  doc.fontSize(12)
-     .text(fareTypeDisplay, LAYOUT.MARGIN + 410, boxY + 25);
+//   // Fare type - use provided fare type or default
+//   const fareType = data.fareType || 'REGULAR';
+//   const fareTypeDisplay = fareTypeMapping[fareType] || fareType;
+//   doc.fontSize(12)
+//      .text(fareTypeDisplay, LAYOUT.MARGIN + 410, boxY + 25);
   
-  doc.moveDown(3);
-  return doc.y;
-};
+//   doc.moveDown(3);
+//   return doc.y;
+// };
 
 
 
@@ -838,91 +853,261 @@ const renderPassengerDetails = (doc, data) => {
 //   doc.moveDown(4);
 //   return doc.y;
 // };
-
-
-
-const renderFlightDetails = (doc, data) => {
-  // Check if we need a new page
-  const requiredHeight = 180;
-  if (doc.y + requiredHeight > doc.page.height - LAYOUT.MARGIN - LAYOUT.FOOTER_HEIGHT) {
-    doc.addPage();
+const renderTicketInfo = (doc, data, pnr, ticketNumber) => {
+  const boxY = doc.y;
+  const boxWidth = doc.page.width - (LAYOUT.MARGIN * 2);
+  const boxHeight = 60;
+  
+  // Info box
+  doc.rect(LAYOUT.MARGIN, boxY, boxWidth, boxHeight)
+     .fill('#F0F9FF')
+     .stroke('#3B82F6');
+  
+  // Column headers
+  doc.fillColor('#1E40AF')
+     .fontSize(11)
+     .font('Helvetica-Bold')
+     .text('PASSENGER NAME', LAYOUT.MARGIN + 10, boxY + 10)
+     .text('BOOKING REFERENCE', LAYOUT.MARGIN + 210, boxY + 10)
+     .text('TICKET NUMBER', LAYOUT.MARGIN + 410, boxY + 10);
+  
+  // Build full name for ticket header
+  const prefixMap = {
+    'mr': 'Mr.',
+    'mrs': 'Mrs.',
+    'miss': 'Miss',
+    'master': 'Master'
+  };
+  
+  const prefix = data.customerPrefix ? prefixMap[data.customerPrefix.toLowerCase()] || '' : '';
+  let ticketFullName = '';
+  
+  if (prefix) ticketFullName += `${prefix} `;
+  if (data.customerFirstName) ticketFullName += `${data.customerFirstName} `;
+  if (data.customerMiddleName) ticketFullName += `${data.customerMiddleName} `;
+  if (data.customerLastName) ticketFullName += data.customerLastName;
+  
+  // If no breakdown provided, use the original customerName
+  if (!ticketFullName.trim() && data.customerName) {
+    ticketFullName = data.customerName;
   }
   
+  // Column values
+  doc.fillColor('#000000')
+     .font('Helvetica')
+     .fontSize(12)
+     .text(ticketFullName.toUpperCase(), LAYOUT.MARGIN + 10, boxY + 25)
+     .text(pnr, LAYOUT.MARGIN + 210, boxY + 25)
+     // Show "UNTICKETED" when no ticket number
+     .text(ticketNumber || 'UNTICKETED', LAYOUT.MARGIN + 410, boxY + 25);
+  
+  // Status row headers
+  doc.fillColor('#1E40AF')
+     .font('Helvetica-Bold')
+     .fontSize(11)
+     .text('ISSUED DATE', LAYOUT.MARGIN + 10, boxY + 40)
+     .text('ISSUED BY', LAYOUT.MARGIN + 210, boxY + 40)
+     .text('STATUS', LAYOUT.MARGIN + 410, boxY + 40);
+  
+  // Status row values
+  const issuedDate = formatDate();
+  doc.fillColor('#000000')
+     .font('Helvetica')
+     .fontSize(11)
+     .text(issuedDate, LAYOUT.MARGIN + 10, boxY + 55)
+     .text(data.chargeReference || 'FAREBUZZER TRAVEL', LAYOUT.MARGIN + 210, boxY + 55);
+  
+  // If no ticket number, show different status
+  if (!data.ticketNumber) {
+    doc.fillColor('#F59E0B') // Orange for pending
+       .font('Helvetica-Bold')
+       .fontSize(12)
+       .text('PENDING TICKET ISSUE', LAYOUT.MARGIN + 410, boxY + 55);
+  } else {
+    doc.fillColor('#059669') // Green for confirmed
+       .font('Helvetica-Bold')
+       .fontSize(12)
+       .text('CONFIRMED ✓', LAYOUT.MARGIN + 410, boxY + 55);
+  }
+  
+  doc.moveDown(2);
+  return doc.y;
+};
+
+const renderPassengerDetails = (doc, data) => {
   const sectionTitleY = doc.y;
   
   // Section title
   doc.fillColor('#1E3A8A')
      .fontSize(16)
      .font('Helvetica-Bold')
-     .text('FLIGHT DETAILS', LAYOUT.MARGIN, sectionTitleY);
+     .text('PASSENGER DETAILS', LAYOUT.MARGIN, sectionTitleY);
   
   const boxY = sectionTitleY + LAYOUT.SECTION_SPACING;
   const boxWidth = doc.page.width - (LAYOUT.MARGIN * 2);
-  const boxHeight = 150;
+  const boxHeight = 110; // Increased height for additional details
   
-  // Flight info box
+  // Passenger box
   doc.rect(LAYOUT.MARGIN, boxY, boxWidth, boxHeight)
-     .fill('#FEF3C7')
-     .stroke('#F59E0B');
+     .stroke('#E5E7EB');
   
-  // Flight header row
-  doc.fillColor('#92400E')
+  // Column headers
+  doc.fillColor('#374151')
      .fontSize(11)
      .font('Helvetica-Bold')
-     .text('FLIGHT', LAYOUT.MARGIN + 10, boxY + 10)
-     .text('DEPARTURE', LAYOUT.MARGIN + 110, boxY + 10)
-     .text('ARRIVAL', LAYOUT.MARGIN + 260, boxY + 10)
-     .text('DURATION', LAYOUT.MARGIN + 360, boxY + 10)
-     .text('CLASS', LAYOUT.MARGIN + 440, boxY + 10);
+     .text('NAME & PERSONAL DETAILS', LAYOUT.MARGIN + 10, boxY + 10)
+     .text('CONTACT INFORMATION', LAYOUT.MARGIN + 210, boxY + 10)
+     .text('FARE TYPE', LAYOUT.MARGIN + 410, boxY + 10);
   
-  const flightRowY = boxY + 30;
+  // Build full name with prefix
+  const prefixMap = {
+    'mr': 'Mr.',
+    'mrs': 'Mrs.',
+    'miss': 'Miss',
+    'master': 'Master'
+  };
   
-  // Calculate duration automatically
-  const duration = calculateDuration(data.departureTime, data.arrivalTime);
+  const prefix = data.customerPrefix ? prefixMap[data.customerPrefix.toLowerCase()] || '' : '';
   
-  // Flight data
-  doc.fillColor('#000000')
-     .fontSize(12)
-     .font('Helvetica')
-     .text(data.flightNumber || `${data.airlineCode || 'AA'} ${Math.floor(Math.random() * 9000 + 1000)}`, LAYOUT.MARGIN + 10, flightRowY)
-     .text(data.departure.toUpperCase(), LAYOUT.MARGIN + 110, flightRowY)
-     .text(data.arrival.toUpperCase(), LAYOUT.MARGIN + 260, flightRowY)
-     .text(duration, LAYOUT.MARGIN + 360, flightRowY)
-     .text(data.cabinClass || 'ECONOMY', LAYOUT.MARGIN + 440, flightRowY);
+  // Create full name from parts
+  let fullName = '';
+  if (prefix) fullName += `${prefix} `;
+  if (data.customerFirstName) fullName += `${data.customerFirstName} `;
+  if (data.customerMiddleName) fullName += `${data.customerMiddleName} `;
+  if (data.customerLastName) fullName += data.customerLastName;
   
-  // Departure details
-  doc.fillColor('#6B7280')
-     .fontSize(10)
-     .font('Helvetica-Oblique')
-     .text(`Date: ${data.travelDate}`, LAYOUT.MARGIN + 110, flightRowY + 15)
-     .text(`Time: ${data.departureTime || 'To be announced'}`, LAYOUT.MARGIN + 110, flightRowY + 30)
-     .text(`Terminal: ${data.departureTerminal || 'To be announced'}`, LAYOUT.MARGIN + 110, flightRowY + 45)
-     .text(`Gate: To be announced`, LAYOUT.MARGIN + 110, flightRowY + 60);
-  
-  // Arrival details
-  doc.text(`Date: ${data.travelDate}`, LAYOUT.MARGIN + 260, flightRowY + 15)
-     .text(`Time: ${data.arrivalTime || 'To be announced'}`, LAYOUT.MARGIN + 260, flightRowY + 30)
-     .text(`Terminal: ${data.arrivalTerminal || 'To be announced'}`, LAYOUT.MARGIN + 260, flightRowY + 45)
-     .text(`Seat: To be assigned at check-in`, LAYOUT.MARGIN + 260, flightRowY + 60);
-  
-  // Add baggage information
-  const baggageInfoY = flightRowY + 75;
-  if (data.checkInBaggage || data.carryOnBaggage) {
-    doc.fillColor('#92400E')
-       .fontSize(10)
-       .font('Helvetica-Bold')
-       .text('BAGGAGE ALLOWANCE', LAYOUT.MARGIN + 110, baggageInfoY);
-    
-    doc.fillColor('#000000')
-       .fontSize(9)
-       .font('Helvetica')
-       .text(`${data.carryOnBaggage || '7 kg'} carry-on`, LAYOUT.MARGIN + 110, baggageInfoY + 12)
-       .text(`${data.checkInBaggage || 'As per fare'} checked`, LAYOUT.MARGIN + 110, baggageInfoY + 24);
+  // If no breakdown provided, use the original customerName
+  if (!fullName.trim() && data.customerName) {
+    fullName = data.customerName;
   }
-
-  doc.moveDown(4);
+  
+  // Passenger name
+  doc.fillColor('#000000')
+     .font('Helvetica')
+     .fontSize(12)
+     .text(fullName.toUpperCase(), LAYOUT.MARGIN + 10, boxY + 25);
+  
+  // Additional personal details
+  const detailsY = boxY + 40;
+  if (data.customerDOB || data.customerGender) {
+    doc.fontSize(9)
+       .fillColor('#6B7280');
+    
+    let detailLine = '';
+    if (data.customerDOB) {
+      detailLine += `DOB: ${data.customerDOB}`;
+    }
+    if (data.customerGender) {
+      if (detailLine) detailLine += ' | ';
+      detailLine += `Gender: ${data.customerGender}`;
+    }
+    
+    if (detailLine) {
+      doc.text(detailLine, LAYOUT.MARGIN + 10, detailsY);
+    }
+  }
+  
+  // Contact information
+  const contactY = boxY + 25;
+  doc.fillColor('#000000')
+     .fontSize(10)
+     .text(`Email: ${data.billingEmail}`, LAYOUT.MARGIN + 210, contactY)
+     .text(`Phone: ${data.customerPhone}`, LAYOUT.MARGIN + 210, contactY + 15);
+  
+  // Fare type - use provided fare type or default
+  const fareType = data.fareType || 'REGULAR';
+  const fareTypeDisplay = fareTypeMapping[fareType] || fareType;
+  doc.fontSize(12)
+     .fillColor('#000000')
+     .text(fareTypeDisplay, LAYOUT.MARGIN + 410, boxY + 25);
+  
+  doc.moveDown(3);
   return doc.y;
 };
+
+
+// const renderFlightDetails = (doc, data) => {
+//   // Check if we need a new page
+//   const requiredHeight = 180;
+//   if (doc.y + requiredHeight > doc.page.height - LAYOUT.MARGIN - LAYOUT.FOOTER_HEIGHT) {
+//     doc.addPage();
+//   }
+  
+//   const sectionTitleY = doc.y;
+  
+//   // Section title
+//   doc.fillColor('#1E3A8A')
+//      .fontSize(16)
+//      .font('Helvetica-Bold')
+//      .text('FLIGHT DETAILS', LAYOUT.MARGIN, sectionTitleY);
+  
+//   const boxY = sectionTitleY + LAYOUT.SECTION_SPACING;
+//   const boxWidth = doc.page.width - (LAYOUT.MARGIN * 2);
+//   const boxHeight = 150;
+  
+//   // Flight info box
+//   doc.rect(LAYOUT.MARGIN, boxY, boxWidth, boxHeight)
+//      .fill('#FEF3C7')
+//      .stroke('#F59E0B');
+  
+//   // Flight header row
+//   doc.fillColor('#92400E')
+//      .fontSize(11)
+//      .font('Helvetica-Bold')
+//      .text('FLIGHT', LAYOUT.MARGIN + 10, boxY + 10)
+//      .text('DEPARTURE', LAYOUT.MARGIN + 110, boxY + 10)
+//      .text('ARRIVAL', LAYOUT.MARGIN + 260, boxY + 10)
+//      .text('DURATION', LAYOUT.MARGIN + 360, boxY + 10)
+//      .text('CLASS', LAYOUT.MARGIN + 440, boxY + 10);
+  
+//   const flightRowY = boxY + 30;
+  
+//   // Calculate duration automatically
+//   const duration = calculateDuration(data.departureTime, data.arrivalTime);
+  
+//   // Flight data
+//   doc.fillColor('#000000')
+//      .fontSize(12)
+//      .font('Helvetica')
+//      .text(data.flightNumber || `${data.airlineCode || 'AA'} ${Math.floor(Math.random() * 9000 + 1000)}`, LAYOUT.MARGIN + 10, flightRowY)
+//      .text(data.departure.toUpperCase(), LAYOUT.MARGIN + 110, flightRowY)
+//      .text(data.arrival.toUpperCase(), LAYOUT.MARGIN + 260, flightRowY)
+//      .text(duration, LAYOUT.MARGIN + 360, flightRowY)
+//      .text(data.cabinClass || 'ECONOMY', LAYOUT.MARGIN + 440, flightRowY);
+  
+//   // Departure details
+//   doc.fillColor('#6B7280')
+//      .fontSize(10)
+//      .font('Helvetica-Oblique')
+//      .text(`Date: ${data.travelDate}`, LAYOUT.MARGIN + 110, flightRowY + 15)
+//      .text(`Time: ${data.departureTime || 'To be announced'}`, LAYOUT.MARGIN + 110, flightRowY + 30)
+//      .text(`Terminal: ${data.departureTerminal || 'To be announced'}`, LAYOUT.MARGIN + 110, flightRowY + 45)
+//      .text(`Gate: To be announced`, LAYOUT.MARGIN + 110, flightRowY + 60);
+  
+//   // Arrival details
+//   doc.text(`Date: ${data.travelDate}`, LAYOUT.MARGIN + 260, flightRowY + 15)
+//      .text(`Time: ${data.arrivalTime || 'To be announced'}`, LAYOUT.MARGIN + 260, flightRowY + 30)
+//      .text(`Terminal: ${data.arrivalTerminal || 'To be announced'}`, LAYOUT.MARGIN + 260, flightRowY + 45)
+//      .text(`Seat: To be assigned at check-in`, LAYOUT.MARGIN + 260, flightRowY + 60);
+  
+//   // Add baggage information
+//   const baggageInfoY = flightRowY + 75;
+//   if (data.checkInBaggage || data.carryOnBaggage) {
+//     doc.fillColor('#92400E')
+//        .fontSize(10)
+//        .font('Helvetica-Bold')
+//        .text('BAGGAGE ALLOWANCE', LAYOUT.MARGIN + 110, baggageInfoY);
+    
+//     doc.fillColor('#000000')
+//        .fontSize(9)
+//        .font('Helvetica')
+//        .text(`${data.carryOnBaggage || '7 kg'} carry-on`, LAYOUT.MARGIN + 110, baggageInfoY + 12)
+//        .text(`${data.checkInBaggage || 'As per fare'} checked`, LAYOUT.MARGIN + 110, baggageInfoY + 24);
+//   }
+
+//   doc.moveDown(4);
+//   return doc.y;
+// };
 
 
 
@@ -969,7 +1154,102 @@ const renderFlightDetails = (doc, data) => {
 //   doc.moveDown(3);
 //   return doc.y;
 // };
+const renderFlightDetails = (doc, data) => {
+  // Check if we need a new page
+  const requiredHeight = 200; // Increased height
+  if (doc.y + requiredHeight > doc.page.height - LAYOUT.MARGIN - LAYOUT.FOOTER_HEIGHT) {
+    doc.addPage();
+  }
+  
+  const sectionTitleY = doc.y;
+  
+  // Section title
+  doc.fillColor('#1E3A8A')
+     .fontSize(16)
+     .font('Helvetica-Bold')
+     .text('FLIGHT DETAILS', LAYOUT.MARGIN, sectionTitleY);
+  
+  const boxY = sectionTitleY + LAYOUT.SECTION_SPACING;
+  const boxWidth = doc.page.width - (LAYOUT.MARGIN * 2);
+  const boxHeight = 170; // Increased height
+  
+  // Flight info box
+  doc.rect(LAYOUT.MARGIN, boxY, boxWidth, boxHeight)
+     .fill('#FEF3C7')
+     .stroke('#F59E0B');
+  
+  // Flight header row
+  doc.fillColor('#92400E')
+     .fontSize(11)
+     .font('Helvetica-Bold')
+     .text('FLIGHT', LAYOUT.MARGIN + 10, boxY + 10)
+     .text('DEPARTURE', LAYOUT.MARGIN + 100, boxY + 10)
+     .text('ARRIVAL', LAYOUT.MARGIN + 250, boxY + 10)
+     .text('DURATION', LAYOUT.MARGIN + 350, boxY + 10)
+     .text('CLASS', LAYOUT.MARGIN + 430, boxY + 10);
+  
+  const flightRowY = boxY + 30;
+  
+  // Calculate duration automatically
+  const duration = calculateDuration(data.departureTime, data.arrivalTime);
+  
+  // Calculate connection/waiting time if provided
+  const connectionTime = data.connectionTime || 'N/A';
+  
+  // Flight data
+  doc.fillColor('#000000')
+     .fontSize(12)
+     .font('Helvetica')
+     .text(data.flightNumber || `${data.airlineCode || 'AA'} ${Math.floor(Math.random() * 9000 + 1000)}`, LAYOUT.MARGIN + 10, flightRowY)
+     .text(data.departure.toUpperCase(), LAYOUT.MARGIN + 100, flightRowY)
+     .text(data.arrival.toUpperCase(), LAYOUT.MARGIN + 250, flightRowY)
+     .text(duration, LAYOUT.MARGIN + 350, flightRowY)
+     .text(data.cabinClass || 'ECONOMY', LAYOUT.MARGIN + 430, flightRowY);
+  
+  // Departure details
+  doc.fillColor('#6B7280')
+     .fontSize(10)
+     .font('Helvetica-Oblique')
+     .text(`Date: ${data.travelDate}`, LAYOUT.MARGIN + 100, flightRowY + 15)
+     .text(`Time: ${data.departureTime || 'To be announced'}`, LAYOUT.MARGIN + 100, flightRowY + 30)
+     .text(`Terminal: ${data.departureTerminal || 'To be announced'}`, LAYOUT.MARGIN + 100, flightRowY + 45)
+     .text(`Gate: To be announced`, LAYOUT.MARGIN + 100, flightRowY + 60);
+  
+  // Arrival details
+  doc.text(`Date: ${data.travelDate}`, LAYOUT.MARGIN + 250, flightRowY + 15)
+     .text(`Time: ${data.arrivalTime || 'To be announced'}`, LAYOUT.MARGIN + 250, flightRowY + 30)
+     .text(`Terminal: ${data.arrivalTerminal || 'To be announced'}`, LAYOUT.MARGIN + 250, flightRowY + 45)
+     .text(`Seat: To be assigned at check-in`, LAYOUT.MARGIN + 250, flightRowY + 60);
+  
+  // Connection/Waiting Time
+  doc.fillColor('#92400E')
+     .fontSize(10)
+     .font('Helvetica-Bold')
+     .text('CONNECTION TIME:', LAYOUT.MARGIN + 350, flightRowY + 15);
+  
+  doc.fillColor('#000000')
+     .fontSize(10)
+     .font('Helvetica')
+     .text(connectionTime, LAYOUT.MARGIN + 350, flightRowY + 30);
+  
+  // Add baggage information
+  const baggageInfoY = flightRowY + 85;
+  if (data.checkInBaggage || data.carryOnBaggage) {
+    doc.fillColor('#92400E')
+       .fontSize(10)
+       .font('Helvetica-Bold')
+       .text('BAGGAGE ALLOWANCE', LAYOUT.MARGIN + 100, baggageInfoY);
+    
+    doc.fillColor('#000000')
+       .fontSize(9)
+       .font('Helvetica')
+       .text(`${data.carryOnBaggage || '7 kg'} carry-on`, LAYOUT.MARGIN + 100, baggageInfoY + 12)
+       .text(`${data.checkInBaggage || 'As per fare'} checked`, LAYOUT.MARGIN + 100, baggageInfoY + 24);
+  }
 
+  doc.moveDown(4);
+  return doc.y;
+};
 
 
 const renderImportantInfo = (doc, data) => {
@@ -994,7 +1274,7 @@ const renderImportantInfo = (doc, data) => {
      .fontSize(9)
      .font('Helvetica')
      .list([
-       `Check-in opens 24 hours before departure at ${data.airline}.com or via mobile app`,
+       `Check-in opens 24 hours before departure and you can do the checkin on the airlines website (${data.airline})/mobile app`,
        `Boarding begins 2 hours before departure`,
        `Government-issued photo ID required for all passengers`,
        `Electronic ticket - No physical ticket required`,
@@ -1079,9 +1359,33 @@ doc.fillColor('#6B7280')
   return boxY + boxHeight + LAYOUT.SECTION_SPACING;
 };
 
+// const renderBarcodeAndQR = async (doc, pnr, ticketNumber, yPosition) => {
+//   // Generate QR code
+//   const qrData = `PNR:${pnr} TICKET:${ticketNumber}`;
+//   const qrImage = await QRCode.toDataURL(qrData);
+  
+//   // QR Code
+//   await doc.image(qrImage, 
+//                   doc.page.width - LAYOUT.MARGIN - 100, 
+//                   yPosition, 
+//                   { width: 100, height: 100 });
+  
+//   // Barcode area
+//   doc.rect(LAYOUT.MARGIN, yPosition, 300, 40)
+//      .stroke('#000000');
+  
+//   // Barcode text
+//   doc.fillColor('#000000')
+//      .fontSize(8)
+//      .text(`PNR: ${pnr} | TICKET: ${ticketNumber}`, 
+//            LAYOUT.MARGIN + 5, 
+//            yPosition + 15);
+  
+//   return yPosition + 50;
+// };
 const renderBarcodeAndQR = async (doc, pnr, ticketNumber, yPosition) => {
   // Generate QR code
-  const qrData = `PNR:${pnr} TICKET:${ticketNumber}`;
+  const qrData = `PNR:${pnr} TICKET:${ticketNumber || 'UNTICKETED'}`;
   const qrImage = await QRCode.toDataURL(qrData);
   
   // QR Code
@@ -1097,12 +1401,14 @@ const renderBarcodeAndQR = async (doc, pnr, ticketNumber, yPosition) => {
   // Barcode text
   doc.fillColor('#000000')
      .fontSize(8)
-     .text(`PNR: ${pnr} | TICKET: ${ticketNumber}`, 
+     .text(`PNR: ${pnr} | TICKET: ${ticketNumber || 'UNTICKETED'}`, 
            LAYOUT.MARGIN + 5, 
            yPosition + 15);
   
   return yPosition + 50;
 };
+
+
 
 const renderFooter = (doc) => {
   const footerY = doc.page.height - LAYOUT.FOOTER_HEIGHT;
@@ -1111,7 +1417,8 @@ const renderFooter = (doc) => {
     .fillColor('#6B7280')
     .fontSize(7)
     .text(
-      'This document is valid for travel and must be presented with government-issued photo ID.\n' +
+      'Please present this document with a valid ticket number and a government-issued photo ID.\n' +
+      'Please scan this QR code using your mobile phone camera or Google Lens.\n' +
       'FareBuzzer Travel • enquiry@farebuzzertravel.com • 844 784 3676 • www.farebuzzertravel.com',
 
 
@@ -1127,6 +1434,58 @@ const renderFooter = (doc) => {
     );
 };
 
+// export const generateETicket = async (data) => {
+//   if (!data.confirmationNumber) {
+//     throw new Error("confirmationNumber missing for ticket generation");
+//   }
+
+//   // Use the provided confirmationNumber as PNR
+//   const pnr = data.confirmationNumber;
+  
+//   // Use provided ticket number or generate one
+//   const ticketNumber = data.ticketNumber || generateTicketNumber(data.airline);
+
+//   const filePath = path.join(
+//     os.tmpdir(),
+//     `FareBuzzer-Eticket-${data.confirmationNumber}.pdf`
+//   );
+
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       const doc = new PDFDocument({ 
+//         size: "A4", 
+//         margin: LAYOUT.MARGIN,
+//         info: {
+//           Title: `E-Ticket ${data.confirmationNumber}`,
+//           Author: 'FareBuzzer Travel',
+//           Subject: 'Electronic Flight Ticket'
+//         }
+//       });
+      
+//       const stream = fs.createWriteStream(filePath);
+//       doc.pipe(stream);
+
+//       // Render sections in sequence
+//       renderHeader(doc, data);
+//       renderTicketInfo(doc, data, pnr, ticketNumber);
+//       renderPassengerDetails(doc, data);
+//       renderFlightDetails(doc, data);
+//       renderImportantInfo(doc, data);
+//       const paymentEndY = renderPaymentSummary(doc, data);
+//       await renderBarcodeAndQR(doc, pnr, ticketNumber, paymentEndY);
+//       renderFooter(doc);
+
+//       doc.end();
+      
+//       stream.on("finish", () => resolve(filePath));
+//       stream.on("error", reject);
+
+//     } catch (err) {
+//       reject(err);
+//     }
+//   });
+// };
+
 export const generateETicket = async (data) => {
   if (!data.confirmationNumber) {
     throw new Error("confirmationNumber missing for ticket generation");
@@ -1135,8 +1494,8 @@ export const generateETicket = async (data) => {
   // Use the provided confirmationNumber as PNR
   const pnr = data.confirmationNumber;
   
-  // Use provided ticket number or generate one
-  const ticketNumber = data.ticketNumber || generateTicketNumber(data.airline);
+  // Use provided ticket number or show "UNTICKETED"
+  const ticketNumber = data.ticketNumber || null; // Keep null to trigger "UNTICKETED"
 
   const filePath = path.join(
     os.tmpdir(),
@@ -1165,7 +1524,7 @@ export const generateETicket = async (data) => {
       renderFlightDetails(doc, data);
       renderImportantInfo(doc, data);
       const paymentEndY = renderPaymentSummary(doc, data);
-      await renderBarcodeAndQR(doc, pnr, ticketNumber, paymentEndY);
+      await renderBarcodeAndQR(doc, pnr, ticketNumber || 'UNTICKETED', paymentEndY);
       renderFooter(doc);
 
       doc.end();
@@ -1178,6 +1537,9 @@ export const generateETicket = async (data) => {
     }
   });
 };
+
+
+
 
 
 

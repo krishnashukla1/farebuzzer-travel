@@ -9595,7 +9595,7 @@ const SendEmail = () => {
   customerDOB: "",
   customerGender: "",
 
-
+  connectionTime: "", // Add this field
 
     customerName: "",
     customerPhone: "",
@@ -9704,7 +9704,10 @@ const genderOptions = [
         const line = lines[i].trim();
 
         // Extract passenger name
-        if (line.includes("PASSENGER NAME:") || line.includes("SHUKLA/")) {
+        // if (line.includes("PASSENGER NAME:") || line.includes("SHUKLA/")) {
+
+        if (line.includes("PASSENGER NAME:") ) {
+
           passengerName = line.split(':')[1]?.trim() || line.split('/')[0]?.trim() || "";
         }
 
@@ -11101,10 +11104,12 @@ TOTAL USD 600.00"
         <label className="text-xs font-medium text-gray-600 mb-1 block">Title *</label>
         <select
           name="customerPrefix"
-          className={inputClass}
+          // className={inputClass}
+            className={`${inputClass} cursor-pointer`}
           onChange={handleChange}
           value={currentForm.customerPrefix}
           required
+  
         >
           {prefixOptions.map(option => (
             <option key={option.value} value={option.value}>
@@ -11158,7 +11163,8 @@ TOTAL USD 600.00"
         <input
           type="date"
           name="customerDOB"
-          className={inputClass}
+          // className={inputClass}
+            className={`${inputClass} cursor-pointer`}
           onChange={handleChange}
           value={currentForm.customerDOB}
           max={new Date().toISOString().split('T')[0]} // Cannot select future dates
@@ -11170,7 +11176,8 @@ TOTAL USD 600.00"
         <label className="text-xs font-medium text-gray-600 mb-1 block">Gender</label>
         <select
           name="customerGender"
-          className={inputClass}
+          // className={inputClass}
+            className={`${inputClass} cursor-pointer`}
           onChange={handleChange}
           value={currentForm.customerGender}
         >
@@ -11218,13 +11225,27 @@ TOTAL USD 600.00"
     <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
       <p className="text-sm text-green-700">
         <span className="font-medium">Full Name:</span> 
-        <span className="ml-2">
+        {/* <span className="ml-2">
           {currentForm.customerPrefix ? 
             prefixOptions.find(p => p.value === currentForm.customerPrefix)?.label + ' ' : ''}
           {currentForm.customerFirstName} 
           {currentForm.customerMiddleName ? ' ' + currentForm.customerMiddleName : ''} 
           {currentForm.customerLastName}
-        </span>
+        </span> */}
+
+
+        <span className="ml-2">
+  {[
+    prefixOptions.find(p => p.value === currentForm.customerPrefix)?.label,
+    currentForm.customerFirstName,
+    currentForm.customerMiddleName,
+    currentForm.customerLastName
+  ]
+    .filter(Boolean)
+    .join(" ")
+  }
+</span>
+
       </p>
     </div>
   )}
@@ -11643,6 +11664,26 @@ TOTAL USD 600.00"
                         onChange={handleChange}
                       />
                     </div>
+
+
+                     {/* ✅ ADD CONNECTION TIME FIELD HERE */}
+        <div>
+          <label className={labelClass}>Connection/Waiting Time</label>
+          <input
+            name="connectionTime"
+            placeholder="e.g., 2h 30m or 150 minutes"
+            className={inputClass}
+            onChange={handleChange}
+            value={flightForm.connectionTime}
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Time between flights or waiting time
+          </p>
+        </div>
+        
+
+
+
                     <div>
                       <label className={labelClass}>Departure Terminal (Optional)</label>
                       <input
@@ -11663,7 +11704,7 @@ TOTAL USD 600.00"
                         value={flightForm.arrivalTerminal}
                       />
                     </div>
-                    <div>
+                    {/* <div>
                       <label className={labelClass}>Ticket Number (Optional)</label>
                       <input
                         name="ticketNumber"
@@ -11672,7 +11713,21 @@ TOTAL USD 600.00"
                         onChange={handleChange}
                         value={flightForm.ticketNumber}
                       />
-                    </div>
+                    </div> */}
+
+                    <div>
+          <label className={labelClass}>Ticket Number (Optional)</label>
+          <input
+            name="ticketNumber"
+            placeholder="e.g., 00123456789"
+            className={inputClass}
+            onChange={handleChange}
+            value={flightForm.ticketNumber}
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Leave empty to show "UNTICKETED" on ticket
+          </p>
+        </div>
                   </div>
                 </section>
 

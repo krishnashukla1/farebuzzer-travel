@@ -2068,7 +2068,7 @@ const renderFlightDetails = (doc, data) => {
   
   const boxY = sectionTitleY + LAYOUT.SECTION_SPACING;
   const boxWidth = doc.page.width - (LAYOUT.MARGIN * 2);
-  const boxHeight = 150; // Increased from 140
+  const boxHeight = 190; // Increased from 140
   
   // Flight info box
   doc.rect(LAYOUT.MARGIN, boxY, boxWidth, boxHeight)
@@ -2385,7 +2385,7 @@ const renderBarcodeAndQR = async (doc, pnr, ticketNumber, yPosition) => {
 //     );
 // };
 const renderFooter = (doc) => {
-  const FOOTER_OFFSET_TOP = 15;
+  const FOOTER_OFFSET_TOP = 18;
   const footerY = doc.page.height - LAYOUT.FOOTER_HEIGHT - FOOTER_OFFSET_TOP;
 
   doc

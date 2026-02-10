@@ -1713,7 +1713,7 @@ const renderFlightDetails = (doc, data) => {
   
   const boxY = sectionTitleY + LAYOUT.SECTION_SPACING;
   const boxWidth = doc.page.width - (LAYOUT.MARGIN * 2);
-  const boxHeight = 170; // Increased height
+  const boxHeight = 150; // Increased height
   
   // Flight info box
   doc.rect(LAYOUT.MARGIN, boxY, boxWidth, boxHeight)
@@ -1890,37 +1890,69 @@ doc.fillColor('#6B7280')
   return boxY + boxHeight + LAYOUT.SECTION_SPACING;
 };
 
+// const renderBarcodeAndQR = async (doc, pnr, ticketNumber, yPosition) => {
+//   // Generate QR code
+//   const qrData = `PNR:${pnr} TICKET:${ticketNumber || 'UNTICKETED'}`;
+//   const qrImage = await QRCode.toDataURL(qrData);
+  
+//   // QR Code
+//   await doc.image(qrImage, 
+//                   doc.page.width - LAYOUT.MARGIN - 100, 
+//                   yPosition, 
+//                   { width: 100, height: 100 });
+  
+//   // Barcode area
+//   doc.rect(LAYOUT.MARGIN, yPosition, 300, 40)
+//      .stroke('#000000');
+  
+//   // Barcode text
+//   doc.fillColor('#000000')
+//      .fontSize(8)
+//      .text(`PNR: ${pnr} | TICKET: ${ticketNumber || 'UNTICKETED'}`, 
+//            LAYOUT.MARGIN + 5, 
+//            yPosition + 15);
+  
+//   return yPosition + 50;
+// };
+
 const renderBarcodeAndQR = async (doc, pnr, ticketNumber, yPosition) => {
-  // Generate QR code
   const qrData = `PNR:${pnr} TICKET:${ticketNumber || 'UNTICKETED'}`;
   const qrImage = await QRCode.toDataURL(qrData);
-  
-  // QR Code
-  await doc.image(qrImage, 
-                  doc.page.width - LAYOUT.MARGIN - 100, 
-                  yPosition, 
-                  { width: 100, height: 100 });
-  
-  // Barcode area
+
+  // Move QR upward
+  const QR_OFFSET_TOP = 20;
+
+  await doc.image(
+    qrImage,
+    doc.page.width - LAYOUT.MARGIN - 100,
+    yPosition - QR_OFFSET_TOP,
+    { width: 100, height: 100 }
+  );
+
+  // Barcode area (unchanged)
   doc.rect(LAYOUT.MARGIN, yPosition, 300, 40)
      .stroke('#000000');
-  
+
   // Barcode text
   doc.fillColor('#000000')
      .fontSize(8)
-     .text(`PNR: ${pnr} | TICKET: ${ticketNumber || 'UNTICKETED'}`, 
-           LAYOUT.MARGIN + 5, 
-           yPosition + 15);
-  
+     .text(
+       `PNR: ${pnr} | TICKET: ${ticketNumber || 'UNTICKETED'}`,
+       LAYOUT.MARGIN + 5,
+       yPosition + 15
+     );
+
   return yPosition + 50;
 };
+
+
 
 const renderFooter = (doc) => {
   const footerY = doc.page.height - LAYOUT.FOOTER_HEIGHT;
   
   doc
     .fillColor('#6B7280')
-    .fontSize(7)
+    .fontSize(6)
     .text(
       'Please present this document with a valid ticket number and a government-issued photo ID.\n' +
       'Please scan this QR code using your mobile phone camera or Google Lens.\n' +

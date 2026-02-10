@@ -2068,7 +2068,7 @@ const renderFlightDetails = (doc, data) => {
   
   const boxY = sectionTitleY + LAYOUT.SECTION_SPACING;
   const boxWidth = doc.page.width - (LAYOUT.MARGIN * 2);
-  const boxHeight = 190; // Increased from 140
+  const boxHeight = 230; // Increased from 140
   
   // Flight info box
   doc.rect(LAYOUT.MARGIN, boxY, boxWidth, boxHeight)
@@ -2351,15 +2351,37 @@ const renderBarcodeAndQR = async (doc, pnr, ticketNumber, yPosition) => {
      .stroke('#000000');
 
   // Barcode text
-  doc.fillColor('#000000')
-     .fontSize(8)
-     .text(
-       `PNR: ${pnr} | TICKET: ${ticketNumber || 'UNTICKETED'}`,
-       LAYOUT.MARGIN + 5,
-       yPosition + 15
-     );
+  // doc.fillColor('#000000')
+  //    .fontSize(8)
+  //    .text(
+  //      `PNR: ${pnr} | TICKET: ${ticketNumber || 'UNTICKETED'}`,
+  //      LAYOUT.MARGIN + 5,
+  //      yPosition + 15
+  //    );
 
-  return yPosition + 50;
+  // return yPosition + 50;
+
+
+  // Small barcode-style box
+const boxHeight = 22;
+const boxWidth = 260;
+
+doc
+  .rect(LAYOUT.MARGIN, yPosition, boxWidth, boxHeight)
+  .stroke('#000000');
+
+// Center text vertically inside box
+doc
+  .fillColor('#000000')
+  .fontSize(8)
+  .text(
+    `PNR: ${pnr} | TICKET: ${ticketNumber || 'UNTICKETED'}`,
+    LAYOUT.MARGIN + 6,
+    yPosition + 7
+  );
+
+return yPosition + boxHeight + 10;
+
 };
 
 
@@ -2384,9 +2406,33 @@ const renderBarcodeAndQR = async (doc, pnr, ticketNumber, yPosition) => {
 //       }
 //     );
 // };
+// const renderFooter = (doc) => {
+//   const FOOTER_OFFSET_TOP = 18;
+//   const footerY = doc.page.height - LAYOUT.FOOTER_HEIGHT - FOOTER_OFFSET_TOP;
+
+//   doc
+//     .fillColor('#6B7280')
+//     .fontSize(6)
+//     .text(
+//       'Please present this document with a valid ticket number and a government-issued photo ID.\n' +
+//       'Please scan this QR code using your mobile phone camera or Google Lens.\n' +
+//       'FareBuzzer Travel • enquiry@farebuzzertravel.com • 844 784 3676 • www.farebuzzertravel.com',
+//       LAYOUT.MARGIN,
+//       footerY,
+//       {
+//         width: doc.page.width - (LAYOUT.MARGIN * 2),
+//         align: 'center',
+//         lineGap: 2
+//       }
+//     );
+// };
+
 const renderFooter = (doc) => {
-  const FOOTER_OFFSET_TOP = 18;
-  const footerY = doc.page.height - LAYOUT.FOOTER_HEIGHT - FOOTER_OFFSET_TOP;
+  const FOOTER_OFFSET_TOP = 18;   // footer ko page bottom se upar laane ke liye
+  const FOOTER_TOP_PADDING = 10;  // 👈 footer ke andar top margin
+
+  const footerY =
+    doc.page.height - LAYOUT.FOOTER_HEIGHT - FOOTER_OFFSET_TOP;
 
   doc
     .fillColor('#6B7280')
@@ -2396,7 +2442,7 @@ const renderFooter = (doc) => {
       'Please scan this QR code using your mobile phone camera or Google Lens.\n' +
       'FareBuzzer Travel • enquiry@farebuzzertravel.com • 844 784 3676 • www.farebuzzertravel.com',
       LAYOUT.MARGIN,
-      footerY,
+      footerY + FOOTER_TOP_PADDING, // ✅ yahin se gap aayega
       {
         width: doc.page.width - (LAYOUT.MARGIN * 2),
         align: 'center',
@@ -2404,6 +2450,7 @@ const renderFooter = (doc) => {
       }
     );
 };
+
 
 // export const generateETicket = async (data) => {
 //   if (!data.confirmationNumber) {

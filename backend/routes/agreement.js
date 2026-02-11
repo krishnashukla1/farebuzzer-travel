@@ -520,7 +520,7 @@
 // export default router;
 
 
-//=================11 feb==========
+//=================11 feb=====with ip adress and location name=====
 
 
 import express from "express";
@@ -550,43 +550,167 @@ const getClientIP = (req) => {
 };
 
 // ✅ NEW: Function to get location from IP address
+// const getLocationFromIP = async (ip) => {
+//   try {
+//     // Using ipapi.co (free tier available)
+//     const response = await axios.get(`https://ipapi.co/${ip}/json/`, {
+//       timeout: 5000
+//     });
+    
+//     if (response.data && response.data.city) {
+//       const locationParts = [];
+      
+//       if (response.data.city) locationParts.push(response.data.city);
+//       if (response.data.region) locationParts.push(response.data.region);
+//       if (response.data.country_name) locationParts.push(response.data.country_name);
+      
+//       // Format: "Noida, Uttar Pradesh, India" or similar
+//       const formattedLocation = locationParts.join(", ");
+      
+//       // Try to get more specific if available
+//       let specificLocation = formattedLocation;
+//       if (response.data.district && response.data.district !== response.data.city) {
+//         specificLocation = `${response.data.district}, ${formattedLocation}`;
+//       }
+      
+//       return {
+//         formatted: specificLocation,
+//         raw: response.data,
+//         success: true
+//       };
+//     }
+//   } catch (error) {
+//     console.log("IP geolocation failed:", error.message);
+//   }
+  
+//   return {
+//     formatted: "Location information not available",
+//     raw: null,
+//     success: false
+//   };
+// };
+
+
+// ✅ FIXED: Function to get ACCURATE location from IP address
 const getLocationFromIP = async (ip) => {
   try {
-    // Using ipapi.co (free tier available)
-    const response = await axios.get(`https://ipapi.co/${ip}/json/`, {
-      timeout: 5000
-    });
-    
-    if (response.data && response.data.city) {
-      const locationParts = [];
-      
-      if (response.data.city) locationParts.push(response.data.city);
-      if (response.data.region) locationParts.push(response.data.region);
-      if (response.data.country_name) locationParts.push(response.data.country_name);
-      
-      // Format: "Noida, Uttar Pradesh, India" or similar
-      const formattedLocation = locationParts.join(", ");
-      
-      // Try to get more specific if available
-      let specificLocation = formattedLocation;
-      if (response.data.district && response.data.district !== response.data.city) {
-        specificLocation = `${response.data.district}, ${formattedLocation}`;
-      }
-      
+    // Skip location for local/private IPs
+    if (ip === '::1' || ip === '127.0.0.1' || ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.')) {
       return {
-        formatted: specificLocation,
-        raw: response.data,
-        success: true
+        formatted: 'Local Development',
+        raw: { city: 'Local', region: 'Development', country_name: 'Local' },
+        success: true,
+        source: 'local'
       };
     }
+
+    // ✅ TRY 1: ip-api.com (MOST ACCURATE for Indian IPs)
+    try {
+      console.log(`🌐 Trying ip-api.com for IP: ${ip}`);
+      const response = await axios.get(`http://ip-api.com/json/${ip}`, {
+        timeout: 5000,
+        params: {
+          fields: 'status,message,country,regionName,city,district,zip,lat,lon,isp,org,mobile'
+        }
+      });
+      
+      if (response.data && response.data.status === 'success') {
+        console.log('✅ ip-api.com success:', response.data.city);
+        
+        const locationParts = [];
+        if (response.data.district && response.data.district !== response.data.city) {
+          locationParts.push(response.data.district);
+        }
+        if (response.data.city) locationParts.push(response.data.city);
+        if (response.data.regionName) locationParts.push(response.data.regionName);
+        if (response.data.country) locationParts.push(response.data.country);
+        
+        return {
+          formatted: locationParts.join(', '),
+          raw: {
+            city: response.data.city,
+            region: response.data.regionName,
+            country: response.data.country,
+            district: response.data.district || null,
+            isp: response.data.isp,
+            mobile: response.data.mobile || false
+          },
+          success: true,
+          source: 'ip-api.com'
+        };
+      }
+    } catch (error) {
+      console.log('⚠️ ip-api.com failed:', error.message);
+    }
+
+    // ✅ TRY 2: ipapi.co (backup)
+    try {
+      console.log(`🌐 Trying ipapi.co for IP: ${ip}`);
+      const response = await axios.get(`https://ipapi.co/${ip}/json/`, {
+        timeout: 5000,
+        headers: { 'User-Agent': 'FareBuzzer-Travel/1.0' }
+      });
+      
+      if (response.data && !response.data.error) {
+        console.log('✅ ipapi.co success:', response.data.city);
+        
+        const locationParts = [];
+        if (response.data.city) locationParts.push(response.data.city);
+        if (response.data.region) locationParts.push(response.data.region);
+        if (response.data.country_name) locationParts.push(response.data.country_name);
+        
+        let specificLocation = locationParts.join(', ');
+        if (response.data.district && response.data.district !== response.data.city) {
+          specificLocation = `${response.data.district}, ${specificLocation}`;
+        }
+        
+        return {
+          formatted: specificLocation,
+          raw: response.data,
+          success: true,
+          source: 'ipapi.co'
+        };
+      }
+    } catch (error) {
+      console.log('⚠️ ipapi.co failed:', error.message);
+    }
+
+    // ✅ TRY 3: ipinfo.io (free tier)
+    try {
+      console.log(`🌐 Trying ipinfo.io for IP: ${ip}`);
+      const response = await axios.get(`https://ipinfo.io/${ip}/json`, {
+        timeout: 5000
+      });
+      
+      if (response.data && response.data.city) {
+        console.log('✅ ipinfo.io success:', response.data.city);
+        
+        const locationParts = [];
+        if (response.data.city) locationParts.push(response.data.city);
+        if (response.data.region) locationParts.push(response.data.region);
+        if (response.data.country) locationParts.push(response.data.country);
+        
+        return {
+          formatted: locationParts.join(', '),
+          raw: response.data,
+          success: true,
+          source: 'ipinfo.io'
+        };
+      }
+    } catch (error) {
+      console.log('⚠️ ipinfo.io failed:', error.message);
+    }
+
   } catch (error) {
-    console.log("IP geolocation failed:", error.message);
+    console.error("❌ All IP geolocation services failed:", error.message);
   }
   
+  // Fallback
   return {
-    formatted: "Location information not available",
+    formatted: "Location detection unavailable",
     raw: null,
-    success: false
+    success: false,
+    source: 'none'
   };
 };
 

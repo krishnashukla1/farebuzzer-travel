@@ -521,6 +521,8 @@
 
 
 //=================11 feb==========
+
+
 // import express from "express";
 // import nodemailer from "nodemailer";
 // import Email from "../models/Email.js";
@@ -1197,13 +1199,12 @@
 
 
 
-
+//===
 
 import express from "express";
 import nodemailer from "nodemailer";
 import Email from "../models/Email.js";
 import axios from "axios";
-import crypto from "crypto";
 
 const router = express.Router();
 
@@ -1226,363 +1227,749 @@ const getClientIP = (req) => {
   return req.ip || req.socket.remoteAddress || "Unknown";
 };
 
+// Function to get location from IP address
 const getLocationFromIP = async (ip) => {
   try {
     const response = await axios.get(`https://ipapi.co/${ip}/json/`, {
-      timeout: 5000,
+      timeout: 5000
     });
-
+    
     if (response.data && response.data.city) {
-      const parts = [];
-      if (response.data.city) parts.push(response.data.city);
-      if (response.data.region) parts.push(response.data.region);
-      if (response.data.country_name) parts.push(response.data.country_name);
-
-      const formatted = parts.join(", ");
-
+      const locationParts = [];
+      
+      if (response.data.city) locationParts.push(response.data.city);
+      if (response.data.region) locationParts.push(response.data.region);
+      if (response.data.country_name) locationParts.push(response.data.country_name);
+      
+      const formattedLocation = locationParts.join(", ");
+      
+      let specificLocation = formattedLocation;
+      if (response.data.district && response.data.district !== response.data.city) {
+        specificLocation = `${response.data.district}, ${formattedLocation}`;
+      }
+      
       return {
-        formatted: response.data.district && response.data.district !== response.data.city
-          ? `${response.data.district}, ${formatted}`
-          : formatted,
+        formatted: specificLocation,
         raw: response.data,
-        success: true,
+        success: true
       };
     }
-  } catch (err) {
-    console.log("IP geolocation failed:", err.message);
+  } catch (error) {
+    console.log("IP geolocation failed:", error.message);
   }
-
+  
   return {
     formatted: "Location information not available",
     raw: null,
-    success: false,
+    success: false
   };
 };
 
 const generateMessageId = (email) => {
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(2, 10);
-  const domain = email.split("@")[1] || "farebuzzertravel.com";
+  const domain = email.split('@')[1] || 'farebuzzertravel.com';
   return `<${timestamp}.${random}@${domain}>`;
 };
 
-// ────────────────────────────────────────────────
-//                AGREEMENT ENDPOINT
-// ────────────────────────────────────────────────
+/* =========================
+   GET — Agreement Link (FIXED: Amount & Company Display)
+========================= */
 router.get("/submit", async (req, res) => {
   try {
-    const {
-      email,
-      booking,
-      name,
+    const { 
+      email, 
+      booking, 
+      name, 
       messageId: frontendMessageId,
-      amount,               // expected as string e.g. "4" or "124.50"
-      company = "Lowfarestudio",
+      amount, 
+      company = "Lowfarestudio"
     } = req.query;
 
-    // ── Required fields validation ───────────────────────
-    if (!email || !booking || !amount) {
-      return res.status(400).send(`
-        <html>
-          <body style="font-family:sans-serif; padding:40px; text-align:center;">
-            <h2 style="color:#dc2626;">Error – Missing Information</h2>
-            <p style="font-size:17px; max-width:500px; margin:30px auto;">
-              The following parameters are required:<br><br>
-              • email<br>
-              • booking (confirmation number)<br>
-              • amount (payment amount in USD)
-            </p>
-            <p style="color:#6b7280;">Please contact support if you believe this is an error.</p>
-          </body>
-        </html>
-      `);
+    if (!email || !booking) {
+      return res.status(400).send("Missing booking or email");
     }
 
     const ipAddress = getClientIP(req);
-    const time = new Date().toLocaleString("en-IN", {
-      timeZone: "Asia/Kolkata",
-      dateStyle: "full",
-      timeStyle: "long",
+    const time = new Date().toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      dateStyle: 'full',
+      timeStyle: 'long'
     });
-
+    
     const customerName = name || email.split("@")[0];
-
+    
+    // Get location from IP
     const locationData = await getLocationFromIP(ipAddress);
+    
+    // ✅ FIXED: Properly handle amount - check if amount exists and is not empty
+    const hasAmount = amount && amount.toString().trim() !== '' && amount !== 'undefined' && amount !== 'null';
+    
+    // ✅ FIXED: Format amount with currency
+    const formattedAmount = hasAmount ? `USD ${amount}` : null;
+    
+    // ✅ FIXED: Always set company, never undefined
+    const chargeCompany = company || "Lowfarestudio";
+    
+    // ✅ FIXED: Agreement text - ALWAYS show if amount exists
+    let agreementText = "Yes, I agree.";
+    if (hasAmount) {
+      agreementText = `Yes, I agree to pay amount ${formattedAmount} from ${chargeCompany}.`;
+    }
+    
+    console.log("=".repeat(50));
+    console.log("AGREEMENT ACCEPTED - DEBUG INFO:");
+    console.log("Email:", email);
+    console.log("Booking:", booking);
+    console.log("Amount Param:", req.query.amount);
+    console.log("Has Amount:", hasAmount);
+    console.log("Formatted Amount:", formattedAmount);
+    console.log("Company:", chargeCompany);
+    console.log("Agreement Text:", agreementText);
+    console.log("=".repeat(50));
 
-    // Format amount nicely
-    const numericAmount = parseFloat(amount);
-    const formattedAmount = isNaN(numericAmount)
-      ? "USD —"
-      : new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "USD",
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(numericAmount);
-
-    // ── Clear, professional agreement text ───────────────
-    const agreementText = `
-      I confirm and agree to pay the amount of <strong>${formattedAmount}</strong> 
-      charged by <strong>${company}</strong> 
-      for this travel reservation / service.
-    `.trim();
-
-    const plainTextReply = agreementText.replace(/<[^>]+>/g, "");
-
-    // ── Try to find original email for threading ─────────
+    // Fetch original email
     let originalMessageId = frontendMessageId || null;
     let originalEmailContent = "";
     let originalSubject = "";
-
+    let customerDetails = {};
+    
     if (!originalMessageId) {
       const originalEmail = await Email.findOne({
-        "meta.confirmationNumber": booking,
-        "meta.billingEmail": email,
-        "meta.messageId": { $exists: true },
+        'meta.confirmationNumber': booking,
+        'meta.billingEmail': email,
+        'meta.messageId': { $exists: true }
       }).sort({ createdAt: -1 });
-
+      
       if (originalEmail) {
         originalMessageId = originalEmail.meta?.messageId;
         originalEmailContent = originalEmail.html || "";
         originalSubject = originalEmail.subject || `Flight Reservation Confirmation - ${booking}`;
+        
+        // Extract customer details
+        if (originalEmail.meta) {
+          customerDetails = {
+            airline: originalEmail.meta.airline || "Air India",
+            departure: originalEmail.meta.departure || "JFK",
+            arrival: originalEmail.meta.arrival || "LHR",
+            travelDate: originalEmail.meta.travelDate || new Date().toISOString().split('T')[0],
+            departureTime: originalEmail.meta.departureTime || "21:00",
+            arrivalTime: originalEmail.meta.arrivalTime || "23:00",
+            cabinClass: originalEmail.meta.cabinClass || "Economy",
+            customerPhone: originalEmail.meta.customerPhone || "",
+            customerDOB: originalEmail.meta.customerDOB || "",
+            customerGender: originalEmail.meta.customerGender || ""
+          };
+        }
+        
+        console.log("Found original email from DB");
       }
     }
 
+    // Generate new Message-ID
     const newMessageId = generateMessageId(email);
 
-    // ── HTML for the email being sent to support ─────────
+    // Format dates
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+    
+    const currentTime = new Date().toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+
+    // Plain text reply
+    const plainTextReply = agreementText;
+
+    // Quoted original content
+    const quotedOriginal = originalEmailContent 
+      ? originalEmailContent
+          .replace(/<style[^>]*>.*?<\/style>/gs, '')
+          .replace(/<script[^>]*>.*?<\/script>/gs, '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .substring(0, 500) + "..."
+      : `Flight booking confirmation for ${booking}. Please refer to original email.`;
+
+    // ✅ FIXED: Email HTML with payment agreement
     const emailHtml = `
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Re: ${originalSubject || "Reservation Confirmation"}</title>
-  <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #1f2937; margin:0; padding:24px; background:#f9fafb; }
-    .container { max-width:640px; margin:0 auto; background:white; border-radius:12px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.08); }
-    .header { background:#1e40af; color:white; padding:20px 28px; }
-    .content { padding:28px; }
-    .agreement-box {
-      background:#f0f9ff; 
-      border:2px solid #bfdbfe; 
-      border-radius:10px; 
-      padding:20px; 
-      margin:24px 0;
-    }
-    .amount-company {
-      background:white;
-      padding:16px;
-      border-radius:8px;
-      border:1px solid #dbeafe;
-      margin-top:16px;
-      font-size:15px;
-    }
-    .ip-box {
-      background:#f8fafc;
-      border-radius:8px;
-      padding:16px;
-      margin:20px 0;
-      font-size:13.5px;
-      border-left:4px solid #3b82f6;
-    }
-    .security-note {
-      background:#ecfdf5;
-      border-left:4px solid #10b981;
-      padding:14px 18px;
-      margin:24px 0;
-      border-radius:0 6px 6px 0;
-      font-size:13px;
-    }
-    table td { padding:6px 0; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re: ${originalSubject || 'Flight Reservation Confirmation'}</title>
+    <style>
+        .ip-section {
+            background: #f8f9fa;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin: 15px 0;
+            font-family: 'Roboto Mono', monospace, Courier, sans-serif;
+            font-size: 13px;
+            color: #3c4043;
+        }
+        .ip-label {
+            color: #5f6368;
+            font-weight: 500;
+        }
+        .ip-value {
+            color: #202124;
+            font-weight: 600;
+        }
+        .location-details {
+            background: #e8f0fe;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-top: 8px;
+            border-left: 3px solid #1a73e8;
+        }
+        .payment-agreement {
+            background: #f0f7ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 20px 0;
+            font-size: 15px;
+        }
+        .payment-amount {
+            color: #0d652d;
+            font-weight: bold;
+            font-size: 16px;
+            background: #dcfce7;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        .security-note {
+            background: #e8f0fe;
+            border-left: 4px solid #1a73e8;
+            padding: 10px 15px;
+            margin: 20px 0;
+            font-size: 12px;
+            color: #3c4043;
+            border-radius: 0 4px 4px 0;
+        }
+        .charge-note {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 10px 15px;
+            margin: 15px 0;
+            font-size: 12px;
+            color: #92400e;
+        }
+    </style>
 </head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h2 style="margin:0; font-size:22px;">Customer Agreement Received</h2>
-      <div style="margin-top:8px; opacity:0.9;">Booking: ${booking}</div>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #202124; margin: 0; padding: 20px;">
+    
+    <!-- Customer's reply -->
+    <div style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #dadce0;">
+        <div style="font-size: 14px; color: #202124; margin-bottom: 10px;">
+            <strong>From:</strong> ${customerName} &lt;${email}&gt;<br>
+            <strong>Date:</strong> ${currentDate}, ${currentTime}<br>
+            <strong>To:</strong> FareBuzzer Support &lt;besttripmakers@gmail.com&gt;<br>
+            <strong>Subject:</strong> Re: ${originalSubject || 'Flight Reservation Confirmation'}
+        </div>
+        
+        <!-- PAYMENT AGREEMENT - ALWAYS SHOW IF AMOUNT EXISTS -->
+        ${hasAmount ? `
+        <div class="payment-agreement">
+            <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                <span style="background: #0ea5e9; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">PAYMENT AGREEMENT</span>
+            </div>
+            <div style="white-space: pre-wrap; font-size: 16px; font-weight: 500; color: #0f172a;">
+                ${agreementText}
+            </div>
+            <div style="margin-top: 15px;">
+                <span class="payment-amount">💰 ${formattedAmount}</span>
+                <span style="margin-left: 10px; color: #5f6368; font-size: 13px;">Charge Company: <strong>${chargeCompany}</strong></span>
+            </div>
+        </div>
+        ` : `
+        <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px 15px; margin: 15px 0;">
+            <div style="white-space: pre-wrap; font-size: 15px; color: #0f172a;">
+                ${agreementText}
+            </div>
+        </div>
+        `}
+        
+        <!-- IP ADDRESS & LOCATION -->
+        <div class="ip-section">
+            <div style="margin-bottom: 8px;">
+                <span class="ip-label">📡 Agreement Submitted From:</span><br>
+                <span class="ip-value">IP Address: ${ipAddress}</span>
+            </div>
+            
+            <div style="margin-bottom: 10px;">
+                <span class="ip-label">📍 Geolocation Data:</span><br>
+                <div class="location-details">
+                    ${locationData.formatted}<br>
+                    <span style="font-size: 11px; color: #5f6368;">
+                        Based on IP geolocation (approx. location)
+                    </span>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 5px;">
+                <span class="ip-label">🕒 Submission Details:</span><br>
+                <span style="color: #5f6368; font-size: 12px;">
+                    Timestamp: ${time}<br>
+                    User Agent: ${req.headers['user-agent']?.substring(0, 80) || 'Not available'}...
+                </span>
+            </div>
+        </div>
+        
+        <!-- CHARGE COMPANY NOTE -->
+        ${hasAmount ? `
+        <div class="charge-note">
+            <strong>NOTE:</strong><br>
+            Please note that you might see the charges under <strong>${chargeCompany}</strong> on your billing statement.<br>
+            Your Debit/Credit card may have one or multiple charges but the total quoted price will stay the same.
+        </div>
+        ` : ''}
+        
+        <div class="security-note">
+            <strong>✓ Secure Digital Agreement:</strong> This agreement has been digitally signed and recorded.<br>
+            <strong>✓ IP Verification:</strong> Submitted from verified IP: ${ipAddress}<br>
+            <strong>✓ Location Verified:</strong> ${locationData.formatted}
+            ${hasAmount ? `<br><strong>✓ Payment Confirmed:</strong> ${formattedAmount} via ${chargeCompany}` : ''}
+        </div>
     </div>
     
-    <div class="content">
-      <div style="margin-bottom:20px;">
-        <strong>From:</strong> ${customerName} <${email}><br>
-        <strong>Date:</strong> ${new Date().toLocaleString("en-US", { dateStyle:"medium", timeStyle:"short" })}
-      </div>
-
-      <div class="agreement-box">
-        <div style="font-size:17px; font-weight:600; color:#1e40af; margin-bottom:12px;">
-          Payment Agreement Confirmation
+    <!-- Original Email Quoted -->
+    <div style="padding-left: 15px; border-left: 2px solid #dadce0; color: #5f6368; font-size: 14px;">
+        <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #dadce0;">
+            <div style="font-size: 13px; color: #5f6368;">
+                <strong>On ${currentDate} at ${currentTime}</strong>, FareBuzzer Support &lt;besttripmakers@gmail.com&gt; wrote:
+            </div>
         </div>
-        <div style="font-size:15px; line-height:1.5;">
-          ${agreementText}
+        
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 4px;">
+            <div style="color: #202124; font-weight: bold; margin-bottom: 10px;">
+                FareBuzzer Travel<br>
+                Flight Reservation Confirmation
+            </div>
+            
+            <div style="margin-bottom: 10px;">
+                <strong>Dear ${customerName},</strong>
+            </div>
+            
+            <div style="color: #5f6368; font-size: 13px;">
+                <strong>Booking Reference:</strong> ${booking}<br>
+                <strong>Customer Email:</strong> ${email}<br>
+                <strong>Date of Booking:</strong> ${currentDate}<br>
+                ${hasAmount ? `<strong>Amount:</strong> ${formattedAmount}<br>` : ''}
+                <strong>IP Address:</strong> ${ipAddress}
+            </div>
         </div>
-        <div class="amount-company">
-          <table style="width:100%;">
-            <tr>
-              <td style="color:#4b5563; width:140px;">Amount:</td>
-              <td style="font-weight:700; color:#15803d; font-size:18px;">${formattedAmount}</td>
-            </tr>
-            <tr>
-              <td style="color:#4b5563;">Charge Company:</td>
-              <td style="font-weight:600; color:#1d4ed8;">${company}</td>
-            </tr>
-          </table>
-        </div>
-      </div>
-
-      <div class="ip-box">
-        <strong>📡 Submitted from:</strong><br>
-        IP: <strong>${ipAddress}</strong><br>
-        Location: <strong>${locationData.formatted}</strong><br>
-        Time: ${time}<br>
-        <div style="margin-top:10px; font-size:12px; color:#6b7280;">
-          User-Agent: ${req.headers["user-agent"]?.substring(0, 90) || "n/a"}...
-        </div>
-      </div>
-
-      <div class="security-note">
-        <strong>✓ Digital agreement recorded</strong><br>
-        • IP verified: ${ipAddress}<br>
-        • Approximate location: ${locationData.formatted}<br>
-        • Secure submission timestamp logged
-      </div>
     </div>
-  </div>
+    
+    <!-- Hidden system info -->
+    <div style="display: none;">
+        AgreementID: ${Date.now()}
+        MessageID: ${newMessageId}
+        BookingRef: ${booking}
+        PaymentAmount: ${hasAmount ? formattedAmount : 'Not specified'}
+        ChargeCompany: ${chargeCompany}
+    </div>
+    
 </body>
 </html>
     `;
 
-    // ── Send email ───────────────────────────────────────
-    await transporter.sendMail({
+    // Send email
+    const mailOptions = {
       from: `"FareBuzzer Support" <${process.env.GMAIL_USER}>`,
-      to: process.env.ADMIN_EMAIL || "besttripmakers@gmail.com",
+      to: process.env.ADMIN_EMAIL || 'besttripmakers@gmail.com',
       replyTo: email,
-      subject: `Agreement • ${formattedAmount} • ${booking} • ${company}`,
-      text: `${plainTextReply}\n\nIP: ${ipAddress}  •  Location: ${locationData.formatted}\nTime: ${time}`,
+      subject: `Re: ${originalSubject.replace(/^Re:\s*/i, '') || 'Flight Reservation Confirmation'}`,
+      text: `${plainTextReply}\n\n---\nIP: ${ipAddress}\nLocation: ${locationData.formatted}\n${hasAmount ? `Amount: ${formattedAmount}\nCompany: ${chargeCompany}\n` : ''}Timestamp: ${time}`,
       html: emailHtml,
+      
       headers: {
-        "Message-ID": newMessageId,
+        'Message-ID': newMessageId,
         ...(originalMessageId && {
-          "In-Reply-To": originalMessageId,
-          References: originalMessageId,
+          'In-Reply-To': originalMessageId,
+          'References': originalMessageId
         }),
-        "X-Booking-Reference": booking,
-        "X-Customer-IP": ipAddress,
-        "X-Payment-Amount": formattedAmount,
-        "X-Charge-Company": company,
-      },
-    });
+        'X-Booking-Reference': booking,
+        'X-Customer-Email': email,
+        'X-Customer-IP': ipAddress,
+        'X-Customer-Location': locationData.formatted,
+        'X-Payment-Amount': hasAmount ? formattedAmount : 'Not specified',
+        'X-Charge-Company': chargeCompany,
+        'X-Agreement-Text': agreementText
+      }
+    };
 
-    // ── Save to database ─────────────────────────────────
-    await Email.create({
-      type: "received",
-      emailType: "agreement_accepted",
-      from: email,
-      to: process.env.ADMIN_EMAIL,
-      subject: `Agreement • ${formattedAmount} • ${booking}`,
-      html: emailHtml,
-      meta: {
-        customerName,
-        billingEmail: email,
-        confirmationNumber: booking,
-        paymentDetails: { amount: numericAmount, formattedAmount, company },
-        ipAddress,
-        ipDetails: {
-          ip: ipAddress,
+    await transporter.sendMail(mailOptions);
+
+    // Save to database
+    try {
+      await Email.create({
+        type: "received",
+        emailType: "agreement_accepted",
+        from: email,
+        to: process.env.ADMIN_EMAIL,
+        subject: `Re: ${originalSubject || 'Flight Reservation Confirmation'}`,
+        text: `${plainTextReply}\n\nIP: ${ipAddress}\nLocation: ${locationData.formatted}`,
+        html: emailHtml,
+        meta: {
+          customerName,
+          billingEmail: email,
+          confirmationNumber: booking,
+          paymentDetails: {
+            amount: hasAmount ? amount : null,
+            formattedAmount: hasAmount ? formattedAmount : null,
+            company: chargeCompany,
+            agreementText: agreementText
+          },
+          ipAddress,
           location: locationData.formatted,
-          locationData: locationData.raw,
-          userAgent: req.headers["user-agent"],
-        },
-        timestamp: time,
-        messageId: newMessageId,
-        originalMessageId,
-        security: {
-          agreementHash: crypto
-            .createHash("sha256")
-            .update(`${email}${booking}${amount}${ipAddress}${Date.now()}`)
-            .digest("hex"),
-        },
-      },
-    });
+          timestamp: time,
+          messageId: newMessageId
+        }
+      });
+    } catch (dbError) {
+      console.error("Error saving to database:", dbError);
+    }
 
-    // ── Success page ─────────────────────────────────────
-    res.send(`
+    // ✅ FIXED: SUCCESS PAGE - ALWAYS SHOW AMOUNT AND COMPANY
+    return res.send(`
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agreement Confirmed</title>
-  <style>
-    body { margin:0; font-family:'Segoe UI', system-ui, sans-serif; background:#f1f5f9; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
-    .card { background:white; max-width:540px; width:100%; border-radius:16px; box-shadow:0 10px 40px rgba(0,0,0,0.12); overflow:hidden; }
-    .header { background:#1e40af; color:white; padding:32px 24px; text-align:center; }
-    .content { padding:32px 28px; }
-    .agreement { background:#f0f9ff; border:2px solid #bfdbfe; border-radius:12px; padding:24px; margin:24px 0; }
-    .highlight { background:white; padding:18px; border-radius:10px; border:1px solid #dbeafe; margin-top:16px; }
-    .info { background:#f8fafc; padding:18px; border-radius:10px; font-size:14px; margin:20px 0; }
-    .btn { background:#1e40af; color:white; border:none; padding:14px 32px; border-radius:8px; font-size:16px; font-weight:600; cursor:pointer; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agreement Confirmed</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            max-width: 600px;
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+            animation: slideUp 0.5s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .success-icon {
+            background: #10b981;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 40px;
+            color: white;
+            box-shadow: 0 10px 20px rgba(16,185,129,0.3);
+        }
+        h1 {
+            color: #1e293b;
+            font-size: 28px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .subtitle {
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 32px;
+            font-size: 15px;
+        }
+        .payment-box {
+            background: linear-gradient(145deg, #f0f9ff, #e6f2ff);
+            border: 2px solid #0ea5e9;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .payment-label {
+            background: #0ea5e9;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+        .payment-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+        .amount-badge {
+            background: #d1fae5;
+            padding: 12px 20px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .amount {
+            font-size: 28px;
+            font-weight: 700;
+            color: #059669;
+        }
+        .company-badge {
+            background: #f1f5f9;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-left: 12px;
+        }
+        .company-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #334155;
+        }
+        .info-grid {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            color: #64748b;
+            font-size: 14px;
+        }
+        .info-value {
+            color: #0f172a;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .ip-box {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .ip-title {
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        .ip-address {
+            color: #60a5fa;
+            font-size: 22px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+        .location {
+            color: #cbd5e1;
+            font-size: 16px;
+            margin-top: 8px;
+            padding: 10px;
+            background: #1e293b;
+            border-radius: 8px;
+        }
+        .note-box {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        .note-title {
+            color: #92400e;
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+        .note-text {
+            color: #78350f;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .close-btn {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+            margin-bottom: 20px;
+        }
+        .close-btn:hover {
+            transform: scale(1.02);
+        }
+        .footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
 </head>
 <body>
-  <div class="card">
-    <div class="header">
-      <div style="font-size:64px; margin-bottom:12px;">✅</div>
-      <h1 style="margin:0; font-size:26px;">Agreement Confirmed</h1>
-    </div>
-
-    <div class="content">
-      <div class="agreement">
-        <h3 style="margin:0 0 16px; color:#1e40af; font-size:20px;">Your Payment Agreement</h3>
-        <div style="font-size:16px; line-height:1.5; color:#1f2937;">
-          ${agreementText}
+    <div class="card">
+        <div class="success-icon">✓</div>
+        
+        <h1>Agreement Confirmed!</h1>
+        <p class="subtitle">Your digital agreement has been successfully recorded</p>
+        
+        <!-- PAYMENT AGREEMENT - ALWAYS SHOW IF AMOUNT EXISTS -->
+        ${hasAmount ? `
+        <div class="payment-box">
+            <span class="payment-label">PAYMENT AGREEMENT</span>
+            <div class="payment-text">
+                Yes, I agree to pay amount ${formattedAmount} from ${chargeCompany}.
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+                <div class="amount-badge">
+                    <span style="color: #64748b; font-size: 14px; display: block; margin-bottom: 4px;">Amount</span>
+                    <span class="amount">${formattedAmount}</span>
+                </div>
+                <div class="company-badge">
+                    <span style="color: #64748b; font-size: 14px; display: block; margin-bottom: 4px;">Charge Company</span>
+                    <span class="company-name">${chargeCompany}</span>
+                </div>
+            </div>
         </div>
-
-        <div class="highlight">
-          <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:16px;">
-            <span style="color:#4b5563;">Amount:</span>
-            <strong style="color:#15803d; font-size:20px;">${formattedAmount}</strong>
-          </div>
-          <div style="display:flex; justify-content:space-between; font-size:16px;">
-            <span style="color:#4b5563;">Charge Company:</span>
-            <strong style="color:#1d4ed8;">${company}</strong>
-          </div>
+        ` : `
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center;">
+            <div style="font-size: 18px; color: #0f172a;">${agreementText}</div>
         </div>
-      </div>
-
-      <div class="info">
-        <strong>Submitted from:</strong><br>
-        IP: ${ipAddress}<br>
-        Location: ${locationData.formatted}<br>
-        Time: ${time}
-      </div>
-
-      <div style="text-align:center; margin:32px 0;">
-        <button class="btn" onclick="window.close()">Close Window</button>
-      </div>
-
-      <div style="text-align:center; color:#6b7280; font-size:13px;">
-        FareBuzzer Travel • Secure Digital Agreement • ${new Date().getFullYear()}
-      </div>
+        `}
+        
+        <!-- BOOKING INFO -->
+        <div class="info-grid">
+            <div class="info-row">
+                <span class="info-label">Booking Reference</span>
+                <span class="info-value">${booking}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Customer</span>
+                <span class="info-value">${customerName}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value">${email}</span>
+            </div>
+            ${customerDetails.customerPhone ? `
+            <div class="info-row">
+                <span class="info-label">Phone</span>
+                <span class="info-value">${customerDetails.customerPhone}</span>
+            </div>
+            ` : ''}
+            ${customerDetails.airline ? `
+            <div class="info-row">
+                <span class="info-label">Airline</span>
+                <span class="info-value">${customerDetails.airline}</span>
+            </div>
+            ` : ''}
+            ${customerDetails.departure && customerDetails.arrival ? `
+            <div class="info-row">
+                <span class="info-label">Route</span>
+                <span class="info-value">${customerDetails.departure} → ${customerDetails.arrival}</span>
+            </div>
+            ` : ''}
+            ${customerDetails.travelDate ? `
+            <div class="info-row">
+                <span class="info-label">Travel Date</span>
+                <span class="info-value">${customerDetails.travelDate}</span>
+            </div>
+            ` : ''}
+        </div>
+        
+        <!-- IP & LOCATION -->
+        <div class="ip-box">
+            <div class="ip-title">VERIFICATION DETAILS</div>
+            <div class="ip-address">${ipAddress}</div>
+            <div class="location">
+                📍 ${locationData.formatted}
+                <div style="color: #94a3b8; font-size: 11px; margin-top: 4px;">
+                    ${time}
+                </div>
+            </div>
+        </div>
+        
+        <!-- CHARGE COMPANY NOTE -->
+        ${hasAmount ? `
+        <div class="note-box">
+            <div class="note-title">📋 Billing Information</div>
+            <div class="note-text">
+                <strong>NOTE:</strong> You might see the charges under <strong style="background: #fff3cd; padding: 2px 6px; border-radius: 4px;">${chargeCompany}</strong> on your billing statement.<br>
+                Your card may have one or multiple charges but the total quoted price (${formattedAmount}) will stay the same.
+            </div>
+        </div>
+        ` : ''}
+        
+        <button onclick="window.close()" class="close-btn">
+            Close Window
+        </button>
+        
+        <div class="footer">
+            🔐 Secure Digital Agreement • Farebuzzer Travel • ${new Date().getFullYear()}
+            <div style="margin-top: 8px; font-size: 11px;">Agreement ID: ${Date.now().toString().slice(-8)}</div>
+        </div>
     </div>
-  </div>
 </body>
 </html>
-    `);
+`);
+
   } catch (err) {
-    console.error("Agreement route error:", err);
-    res.status(500).send(`
-      <html>
-        <body style="font-family:sans-serif; padding:60px; text-align:center;">
-          <h2 style="color:#dc2626;">Something went wrong</h2>
-          <p style="font-size:17px; max-width:480px; margin:30px auto;">
-            We couldn't process your agreement confirmation at this moment.<br><br>
-            Please contact our support team.
-          </p>
-        </body>
-      </html>
-    `);
+    console.error("AGREEMENT ERROR:", err);
+    return res.status(500).send(`
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Error</title>
+    <style>
+        body { font-family: Arial; background: #f1f5f9; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .error-box { background: white; padding: 40px; border-radius: 12px; text-align: center; border-left: 4px solid #ef4444; }
+        h2 { color: #991b1b; margin-bottom: 16px; }
+        p { color: #6b7280; }
+    </style>
+</head>
+<body>
+    <div class="error-box">
+        <h2>❌ Failed to Process Agreement</h2>
+        <p>${err.message}</p>
+        <button onclick="window.close()" style="margin-top:20px; padding:10px 24px; background:#3b82f6; color:white; border:none; border-radius:6px; cursor:pointer;">Close</button>
+    </div>
+</body>
+</html>
+`);
   }
 });
 

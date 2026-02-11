@@ -85,6 +85,9 @@ import agreementRoutes from './routes/agreement.js';
 import paymentRoutes from "./routes/paymentRoutes.js";
 import invoiceRoutes from './routes/invoiceRoutes.js'
 
+import invoRoutes from './routes/invo.js'
+
+
 
 // dotenv.config();
 
@@ -161,6 +164,10 @@ app.use('/api/agreement', agreementRoutes);
 app.use("/api/payment", paymentRoutes);
 
 app.use("/api/invoices", invoiceRoutes);
+app.use("/api/invo", invoRoutes);
+
+
+
 
 
 

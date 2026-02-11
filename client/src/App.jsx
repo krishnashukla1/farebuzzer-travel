@@ -303,6 +303,7 @@ import Reports from "./pages/Reports";
 import Users from "./pages/Users";
 import Settings from "./pages/Settings";
 import SendEmail from "./pages/SendEmail";
+import PayNow from './pages/PayNow'
 import InboxEmail from "./pages/InboxEmail";
 
 /* components */
@@ -377,6 +378,7 @@ const App = () => {
                   <Route path="/enquiries" element={<Enquiries />} />
                   <Route path="/add-enquiry" element={<AddEnquiry />} />
                   <Route path="/send-email" element={<SendEmail />} />
+                  <Route path="/pay-now" element={<PayNow />} />
                   <Route path="/flight-search" element={<FlightSearch />} />
 
                   <Route path="/apply-leave" element={<ApplyLeave />} />

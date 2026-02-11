@@ -18,7 +18,7 @@ import {
   CalendarDays,
   Clock,
   ChevronDown,
-  ChevronRight,
+  ChevronRight,CreditCard 
 } from "lucide-react";
 import { FiCoffee } from "react-icons/fi";
 
@@ -155,6 +155,11 @@ const Sidebar = () => {
             <Mail size={20} />
             <span>Send Email</span>
           </NavLink>
+
+          <NavLink to="/pay-now" className={linkClass}>
+  <CreditCard size={20} />
+  <span>Pay Now</span>
+</NavLink>
 
           <NavLink to="/flight-search" className={linkClass}>
             <Plane size={20} />

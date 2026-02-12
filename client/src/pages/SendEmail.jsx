@@ -9461,6 +9461,18 @@ const SendEmail = () => {
 
   // NEW STATE: Store booking data for payment page
   const [bookingData, setBookingData] = useState(null);
+  // Add this near your other state declarations
+  const [passengers, setPassengers] = useState([
+    {
+      id: 1,
+      prefix: "",
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      dob: "",
+      gender: ""
+    }
+  ]);
 
   // NEW: Itinerary parsing state
   const [itineraryText, setItineraryText] = useState("");
@@ -9531,14 +9543,49 @@ const SendEmail = () => {
     { value: "10 kg", label: "10 kg" }
   ];
 
+  // Add new passenger
+  const addPassenger = () => {
+    const newId = passengers.length > 0
+      ? Math.max(...passengers.map(p => p.id)) + 1
+      : 1;
+
+    setPassengers([...passengers, {
+      id: newId,
+      prefix: "",
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      dob: "",
+      gender: ""
+    }]);
+  };
+
+  // Remove passenger
+  const removePassenger = (id) => {
+    if (passengers.length > 1) {
+      setPassengers(passengers.filter(p => p.id !== id));
+    } else {
+      setErrorMessage("At least one passenger is required");
+    }
+  };
+
+  // Handle passenger field changes
+  const handlePassengerChange = (id, field, value) => {
+    setPassengers(passengers.map(passenger =>
+      passenger.id === id
+        ? { ...passenger, [field]: value }
+        : passenger
+    ));
+  };
+
   // Initial form state for GENERAL form (non-flight-ticket)
   const initialGeneralFormState = {
     customerPrefix: "",
-  customerFirstName: "",
-  customerMiddleName: "",
-  customerLastName: "",
-  customerDOB: "",
-  customerGender: "",
+    customerFirstName: "",
+    customerMiddleName: "",
+    customerLastName: "",
+    customerDOB: "",
+    customerGender: "",
     customerName: "",
     customerPhone: "",
     billingEmail: "",
@@ -9588,14 +9635,14 @@ const SendEmail = () => {
   const initialFlightFormState = {
 
 
-      customerPrefix: "",
-  customerFirstName: "",
-  customerMiddleName: "",
-  customerLastName: "",
-  customerDOB: "",
-  customerGender: "",
+    customerPrefix: "",
+    customerFirstName: "",
+    customerMiddleName: "",
+    customerLastName: "",
+    customerDOB: "",
+    customerGender: "",
 
-  connectionTime: "", // Add this field
+    connectionTime: "", // Add this field
 
     customerName: "",
     customerPhone: "",
@@ -9630,20 +9677,20 @@ const SendEmail = () => {
     customerEmail: ""
   };
   // Add prefix options
-const prefixOptions = [
-  { value: "", label: "Select Title" },
-  { value: "mr", label: "Mr." },
-  { value: "mrs", label: "Mrs." },
-  { value: "miss", label: "Miss" },
-  { value: "master", label: "Master" }
-];
-// Add gender options
-const genderOptions = [
-  { value: "", label: "Select Gender" },
-  { value: "male", label: "Male" },
-  { value: "female", label: "Female" },
-  { value: "other", label: "Other" }
-];
+  const prefixOptions = [
+    { value: "", label: "Select Title" },
+    { value: "mr", label: "Mr." },
+    { value: "mrs", label: "Mrs." },
+    { value: "miss", label: "Miss" },
+    { value: "master", label: "Master" }
+  ];
+  // Add gender options
+  const genderOptions = [
+    { value: "", label: "Select Gender" },
+    { value: "male", label: "Male" },
+    { value: "female", label: "Female" },
+    { value: "other", label: "Other" }
+  ];
 
   // Use different form states based on emailType
   const [generalForm, setGeneralForm] = useState(initialGeneralFormState);
@@ -9706,7 +9753,7 @@ const genderOptions = [
         // Extract passenger name
         // if (line.includes("PASSENGER NAME:") || line.includes("SHUKLA/")) {
 
-        if (line.includes("PASSENGER NAME:") ) {
+        if (line.includes("PASSENGER NAME:")) {
 
           passengerName = line.split(':')[1]?.trim() || line.split('/')[0]?.trim() || "";
         }
@@ -9839,7 +9886,7 @@ END OF ITINERARY`;
     if (emailSent) {
       setEmailSent(false);
       setBookingData(null);
-        setMessageId(null); // ✅ Also reset messageId
+      setMessageId(null); // ✅ Also reset messageId
     }
 
     if (isFlightTicketForm) {
@@ -9865,7 +9912,7 @@ END OF ITINERARY`;
     setSelectedTemplate("");
     setEmailSent(false);
     setBookingData(null);
-      setMessageId(null); // ✅ Reset messageId when changing email type
+    setMessageId(null); // ✅ Reset messageId when changing email type
 
     // Clear forms when changing email type (except customer info)
     const currentCustomerInfo = {
@@ -10072,8 +10119,8 @@ END OF ITINERARY`;
       bookingAmount: currentForm.bookingAmount || "0.00",
       emailType: emailType,
       senderBrand: senderBrand,
-         // ✅ Include messageId for future replies
-    messageId: messageId,
+      // ✅ Include messageId for future replies
+      messageId: messageId,
       // Include flight-specific data if applicable
       ...(isFlightTicketForm && {
         airline: flightForm.airline,
@@ -10093,44 +10140,46 @@ END OF ITINERARY`;
 
     // Store booking data in state and navigate to payment page
     setBookingData(paymentData);
-    navigate("/payment", { state: { 
-      bookingData: paymentData,
-      // ✅ Pass messageId to payment page if needed
-      messageId: messageId 
-    } });
+    navigate("/payment", {
+      state: {
+        bookingData: paymentData,
+        // ✅ Pass messageId to payment page if needed
+        messageId: messageId
+      }
+    });
   };
 
 
   // Add this function if you need to reply to existing emails
-const setReplyToEmail = (originalEmail) => {
-  // Set form data from original email
-  if (originalEmail.emailType === "new_reservation" || originalEmail.emailType === "flight_confirmation") {
-    setFlightForm(prev => ({
-      ...prev,
-      customerName: originalEmail.meta?.customerName || "",
-      customerPhone: originalEmail.meta?.customerPhone || "",
-      billingEmail: originalEmail.meta?.billingEmail || "",
-      confirmationNumber: originalEmail.meta?.confirmationNumber || "",
-      // ... other fields from originalEmail.meta
-    }));
-  } else {
-    setGeneralForm(prev => ({
-      ...prev,
-      customerName: originalEmail.meta?.customerName || "",
-      customerPhone: originalEmail.meta?.customerPhone || "",
-      billingEmail: originalEmail.meta?.billingEmail || "",
-      // ... other fields from originalEmail.meta
-    }));
-  }
-  
-  // Set email type
-  setEmailType(originalEmail.emailType);
-  
-  // ✅ SET THE ORIGINAL MESSAGE-ID FOR THREADING
-  setMessageId(originalEmail.meta?.messageId);
-  
-  setSuccessMessage(`Reply mode enabled. Replying to ${originalEmail.meta?.customerName || "customer"}`);
-};
+  const setReplyToEmail = (originalEmail) => {
+    // Set form data from original email
+    if (originalEmail.emailType === "new_reservation" || originalEmail.emailType === "flight_confirmation") {
+      setFlightForm(prev => ({
+        ...prev,
+        customerName: originalEmail.meta?.customerName || "",
+        customerPhone: originalEmail.meta?.customerPhone || "",
+        billingEmail: originalEmail.meta?.billingEmail || "",
+        confirmationNumber: originalEmail.meta?.confirmationNumber || "",
+        // ... other fields from originalEmail.meta
+      }));
+    } else {
+      setGeneralForm(prev => ({
+        ...prev,
+        customerName: originalEmail.meta?.customerName || "",
+        customerPhone: originalEmail.meta?.customerPhone || "",
+        billingEmail: originalEmail.meta?.billingEmail || "",
+        // ... other fields from originalEmail.meta
+      }));
+    }
+
+    // Set email type
+    setEmailType(originalEmail.emailType);
+
+    // ✅ SET THE ORIGINAL MESSAGE-ID FOR THREADING
+    setMessageId(originalEmail.meta?.messageId);
+
+    setSuccessMessage(`Reply mode enabled. Replying to ${originalEmail.meta?.customerName || "customer"}`);
+  };
 
 
 
@@ -10426,221 +10475,239 @@ const setReplyToEmail = (originalEmail) => {
   // };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const phone = (currentForm.customerPhone || "").trim();
-  const phoneRegex = /^[+0-9\s\-\(\)]{8,20}$/;
+    const phone = (currentForm.customerPhone || "").trim();
+    const phoneRegex = /^[+0-9\s\-\(\)]{8,20}$/;
 
-  // Update validation for new name fields
-if (!currentForm.customerFirstName) {
-  setErrorMessage("First name is required");
-  return;
-}
-
-if (!currentForm.customerLastName) {
-  setErrorMessage("Last name is required");
-  return;
-}
-
-if (!currentForm.customerPrefix) {
-  setErrorMessage("Title is required");
-  return;
-}
-
-// Validate DOB format if provided
-if (currentForm.customerDOB) {
-  const dobDate = new Date(currentForm.customerDOB);
-  if (dobDate > new Date()) {
-    setErrorMessage("Date of birth cannot be in the future");
-    return;
-  }
-}
-  if (phone === "") {
-    setErrorMessage("Phone number is required");
-    return;
-  }
-
-  if (!phoneRegex.test(phone)) {
-    setErrorMessage(
-      "Invalid phone number format. Use only numbers, spaces, +, -, () (8–20 characters)"
-    );
-    return;
-  }
-
-  // Additional validation for flight ticket form
-  if (isFlightTicketForm) {
-    if (!flightForm.confirmationNumber) {
-      setErrorMessage("Confirmation Number is required for flight tickets");
+    // Update validation for new name fields
+    if (!currentForm.customerFirstName) {
+      setErrorMessage("First name is required");
       return;
     }
-    if (!flightForm.airline) {
-      setErrorMessage("Airline Name is required");
-      return;
-    }
-    if (!flightForm.flightNumber) {
-      setErrorMessage("Flight Number is required");
-      return;
-    }
-    if (!flightForm.departure) {
-      setErrorMessage("Departure is required");
-      return;
-    }
-    if (!flightForm.arrival) {
-      setErrorMessage("Arrival is required");
-      return;
-    }
-    if (!flightForm.travelDate) {
-      setErrorMessage("Travel Date is required");
-      return;
-    }
-  }
 
-  // Validation for update type for flight-related emails
-  const flightRelatedTypes = ["exchange_ticket", "flight_cancellation", "flight_confirmation", "new_reservation"];
-  if (flightRelatedTypes.includes(emailType) && !currentForm.updateType) {
-    setErrorMessage("Update Type is required for flight-related emails");
-    return;
-  }
+    if (!currentForm.customerLastName) {
+      setErrorMessage("Last name is required");
+      return;
+    }
 
-  setLoading(true);
-  setSuccessMessage("");
-  setErrorMessage("");
+    if (!currentForm.customerPrefix) {
+      setErrorMessage("Title is required");
+      return;
+    }
 
-  try {
-    let requestData;
+    // Validate DOB format if provided
+    if (currentForm.customerDOB) {
+      const dobDate = new Date(currentForm.customerDOB);
+      if (dobDate > new Date()) {
+        setErrorMessage("Date of birth cannot be in the future");
+        return;
+      }
+    }
+    if (phone === "") {
+      setErrorMessage("Phone number is required");
+      return;
+    }
 
+    if (!phoneRegex.test(phone)) {
+      setErrorMessage(
+        "Invalid phone number format. Use only numbers, spaces, +, -, () (8–20 characters)"
+      );
+      return;
+    }
+
+    // Additional validation for flight ticket form
     if (isFlightTicketForm) {
-      // For flight ticket forms
-      requestData = {
-        emailType,
+      if (!flightForm.confirmationNumber) {
+        setErrorMessage("Confirmation Number is required for flight tickets");
+        return;
+      }
+      if (!flightForm.airline) {
+        setErrorMessage("Airline Name is required");
+        return;
+      }
+      if (!flightForm.flightNumber) {
+        setErrorMessage("Flight Number is required");
+        return;
+      }
+      if (!flightForm.departure) {
+        setErrorMessage("Departure is required");
+        return;
+      }
+      if (!flightForm.arrival) {
+        setErrorMessage("Arrival is required");
+        return;
+      }
+      if (!flightForm.travelDate) {
+        setErrorMessage("Travel Date is required");
+        return;
+      }
+    }
+
+    // Validation for update type for flight-related emails
+    const flightRelatedTypes = ["exchange_ticket", "flight_cancellation", "flight_confirmation", "new_reservation"];
+    if (flightRelatedTypes.includes(emailType) && !currentForm.updateType) {
+      setErrorMessage("Update Type is required for flight-related emails");
+      return;
+    }
+
+    setLoading(true);
+    setSuccessMessage("");
+    setErrorMessage("");
+
+    try {
+      let requestData;
+
+      if (isFlightTicketForm) {
+        // For flight ticket forms
+        requestData = {
+          emailType,
           customerPrefix: flightForm.customerPrefix,
-  customerFirstName: flightForm.customerFirstName,
-  customerMiddleName: flightForm.customerMiddleName,
-  customerLastName: flightForm.customerLastName,
-  customerDOB: flightForm.customerDOB,
-  customerGender: flightForm.customerGender,
-  // Keep full name for backward compatibility
-  customerName: `${flightForm.customerFirstName} ${flightForm.customerMiddleName ? flightForm.customerMiddleName + ' ' : ''}${flightForm.customerLastName}`,
-        ...flightForm,
-        senderBrand, // Make sure senderBrand is included
-        chargeReference:
-          senderBrand === "lowfare_studio" ? "LowfareStudio" :
-            senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk",
-        templateUsed: null, // No templates for flight tickets
-        // ✅ ADD THIS: Pass originalMessageId for threading
-        originalMessageId: messageId || null,
-        // Include update fields for flight ticket forms
-        updateType: flightForm.updateType || "confirmed",
-        includeAgreement: flightForm.includeAgreement !== false,
-        includeChargeNote: flightForm.includeChargeNote !== false,
-        includeFareRules: flightForm.includeFareRules || false,
-        cardHolderName: flightForm.cardHolderName || "",
-        cardLastFour: flightForm.cardLastFour || "",
-        cardExpiry: flightForm.cardExpiry || "",
-        cardCVV: flightForm.cardCVV || "",
-        billingAddress: flightForm.billingAddress || "",
-        customerEmail: flightForm.customerEmail || "",
-        // NEW: Include parsed segments if available
-        parsedSegments: parsedSegments.length > 0 ? parsedSegments : []
-      };
-    } else {
-      // For general forms
-      requestData = {
-        emailType,
-          customerPrefix: flightForm.customerPrefix,
-  customerFirstName: flightForm.customerFirstName,
-  customerMiddleName: flightForm.customerMiddleName,
-  customerLastName: flightForm.customerLastName,
-  customerDOB: flightForm.customerDOB,
-  customerGender: flightForm.customerGender,
-  // Keep full name for backward compatibility
-  customerName: `${flightForm.customerFirstName} ${flightForm.customerMiddleName ? flightForm.customerMiddleName + ' ' : ''}${flightForm.customerLastName}`,
-        ...generalForm,
-        senderBrand, // Make sure senderBrand is included
-        templateUsed: selectedTemplate || null,
-        chargeReference:
-          senderBrand === "lowfare_studio" ? "LowfareStudio" :
-            senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk",
-        // ✅ ADD THIS: Pass originalMessageId for threading
-        originalMessageId: messageId || null
-      };
+          customerFirstName: flightForm.customerFirstName,
+          customerMiddleName: flightForm.customerMiddleName,
+          customerLastName: flightForm.customerLastName,
+          customerDOB: flightForm.customerDOB,
+          customerGender: flightForm.customerGender,
+          // Keep full name for backward compatibility
+          customerName: `${flightForm.customerFirstName} ${flightForm.customerMiddleName ? flightForm.customerMiddleName + ' ' : ''}${flightForm.customerLastName}`,
+          ...flightForm,
+          senderBrand, // Make sure senderBrand is included
+          chargeReference:
+            senderBrand === "lowfare_studio" ? "LowfareStudio" :
+              senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk",
+          templateUsed: null, // No templates for flight tickets
+          // ✅ ADD THIS: Pass originalMessageId for threading
+          originalMessageId: messageId || null,
+          // Include update fields for flight ticket forms
+          updateType: flightForm.updateType || "confirmed",
+          includeAgreement: flightForm.includeAgreement !== false,
+          includeChargeNote: flightForm.includeChargeNote !== false,
+          includeFareRules: flightForm.includeFareRules || false,
+          cardHolderName: flightForm.cardHolderName || "",
+          cardLastFour: flightForm.cardLastFour || "",
+          cardExpiry: flightForm.cardExpiry || "",
+          cardCVV: flightForm.cardCVV || "",
+          billingAddress: flightForm.billingAddress || "",
+          customerEmail: flightForm.customerEmail || "",
+          // NEW: Include parsed segments if available
+          parsedSegments: parsedSegments.length > 0 ? parsedSegments : []
+        };
+      } else {
+        // For general forms
+        requestData = {
+          emailType,
+          passengers: passengers.map(p => ({
+            prefix: p.prefix,
+            firstName: p.firstName,
+            middleName: p.middleName,
+            lastName: p.lastName,
+            dob: p.dob,
+            gender: p.gender
+          })),
+          // Keep customerName for backward compatibility
+          customerName: passengers.length > 0
+            ? `${passengers[0].prefix ? passengers[0].prefix.toUpperCase() + '.' : ''} ${passengers[0].firstName} ${passengers[0].middleName ? passengers[0].middleName + ' ' : ''}${passengers[0].lastName}`.trim()
+            : '',
+          customerPrefix: passengers[0]?.prefix || '',
+          customerFirstName: passengers[0]?.firstName || '',
+          customerMiddleName: passengers[0]?.middleName || '',
+          customerLastName: passengers[0]?.lastName || '',
+          customerDOB: passengers[0]?.dob || '',
+          customerGender: passengers[0]?.gender || '',
+          // customerPrefix: flightForm.customerPrefix,
+          // customerFirstName: flightForm.customerFirstName,
+          // customerMiddleName: flightForm.customerMiddleName,
+          // customerLastName: flightForm.customerLastName,
+          // customerDOB: flightForm.customerDOB,
+          // customerGender: flightForm.customerGender,
+          // Keep full name for backward compatibility
+          customerName: `${flightForm.customerFirstName} ${flightForm.customerMiddleName ? flightForm.customerMiddleName + ' ' : ''}${flightForm.customerLastName}`,
+          ...generalForm,
+          senderBrand, // Make sure senderBrand is included
+          templateUsed: selectedTemplate || null,
+          chargeReference:
+            senderBrand === "lowfare_studio" ? "LowfareStudio" :
+              senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk",
+          // ✅ ADD THIS: Pass originalMessageId for threading
+          originalMessageId: messageId || null
+        };
+      }
+
+      console.log("Sending request data with originalMessageId:", messageId);
+      console.log("Full request data:", requestData);
+
+      const response = await API.post("/email/send", requestData);
+
+      console.log("Response received:", response.data);
+
+      // ✅ STORE THE MESSAGE-ID FROM RESPONSE FOR FUTURE REPLIES
+      if (response.data?.data?.messageId) {
+        setMessageId(response.data.data.messageId);
+        console.log("Message-ID stored for future replies:", response.data.data.messageId);
+      }
+
+      // Store booking data for payment page from backend response
+      if (response.data?.data?.bookingData) {
+        // Use booking data from backend response
+        setBookingData(response.data.data.bookingData);
+      } else {
+        // Fallback: create booking data from form
+        const bookingDataForPayment = {
+          customerName: currentForm.customerName,
+          customerEmail: currentForm.billingEmail,
+          customerPhone: currentForm.customerPhone,
+          bookingAmount: currentForm.bookingAmount || "0.00",
+          emailType: emailType,
+          senderBrand: senderBrand,
+          // ✅ Include messageId in booking data for threading
+          messageId: response.data?.data?.messageId || null,
+          ...(isFlightTicketForm && {
+            airline: flightForm.airline,
+            flightNumber: flightForm.flightNumber,
+            departure: flightForm.departure,
+            arrival: flightForm.arrival,
+            travelDate: flightForm.travelDate,
+            confirmationNumber: flightForm.confirmationNumber
+          }),
+          ...(emailType === "holiday_package" && {
+            packageName: generalForm.packageName,
+            packagePrice: generalForm.packagePrice,
+            packageNights: generalForm.packageNights
+          })
+        };
+        setBookingData(bookingDataForPayment);
+      }
+
+      setEmailSent(true);
+
+      const greeting = response.data?.data?.dynamicGreeting ? `(${response.data.data.dynamicGreeting})` : '';
+      setSuccessMessage(`Email sent successfully! ${greeting} Click "Pay Now" below to proceed to payment.`);
+
+      // ✅ Show debugging info about threading
+      if (messageId) {
+        console.log("This is a REPLY to thread with Message-ID:", messageId);
+      } else {
+        console.log("This is a NEW thread. Generated Message-ID:", response.data?.data?.messageId);
+      }
+
+    } catch (err) {
+      console.error("Error sending email:", err);
+      console.error("Error response:", err.response?.data);
+
+      // Show detailed error message
+      const errorMsg = err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Failed to send email. Please check the console for details.";
+      setErrorMessage(errorMsg);
+
+      setEmailSent(false);
+      setBookingData(null);
+    } finally {
+      setLoading(false);
     }
 
-    console.log("Sending request data with originalMessageId:", messageId);
-    console.log("Full request data:", requestData);
 
-    const response = await API.post("/email/send", requestData);
-
-    console.log("Response received:", response.data);
-
-    // ✅ STORE THE MESSAGE-ID FROM RESPONSE FOR FUTURE REPLIES
-    if (response.data?.data?.messageId) {
-      setMessageId(response.data.data.messageId);
-      console.log("Message-ID stored for future replies:", response.data.data.messageId);
-    }
-
-    // Store booking data for payment page from backend response
-    if (response.data?.data?.bookingData) {
-      // Use booking data from backend response
-      setBookingData(response.data.data.bookingData);
-    } else {
-      // Fallback: create booking data from form
-      const bookingDataForPayment = {
-        customerName: currentForm.customerName,
-        customerEmail: currentForm.billingEmail,
-        customerPhone: currentForm.customerPhone,
-        bookingAmount: currentForm.bookingAmount || "0.00",
-        emailType: emailType,
-        senderBrand: senderBrand,
-        // ✅ Include messageId in booking data for threading
-        messageId: response.data?.data?.messageId || null,
-        ...(isFlightTicketForm && {
-          airline: flightForm.airline,
-          flightNumber: flightForm.flightNumber,
-          departure: flightForm.departure,
-          arrival: flightForm.arrival,
-          travelDate: flightForm.travelDate,
-          confirmationNumber: flightForm.confirmationNumber
-        }),
-        ...(emailType === "holiday_package" && {
-          packageName: generalForm.packageName,
-          packagePrice: generalForm.packagePrice,
-          packageNights: generalForm.packageNights
-        })
-      };
-      setBookingData(bookingDataForPayment);
-    }
-
-    setEmailSent(true);
-
-    const greeting = response.data?.data?.dynamicGreeting ? `(${response.data.data.dynamicGreeting})` : '';
-    setSuccessMessage(`Email sent successfully! ${greeting} Click "Pay Now" below to proceed to payment.`);
-
-    // ✅ Show debugging info about threading
-    if (messageId) {
-      console.log("This is a REPLY to thread with Message-ID:", messageId);
-    } else {
-      console.log("This is a NEW thread. Generated Message-ID:", response.data?.data?.messageId);
-    }
-
-  } catch (err) {
-    console.error("Error sending email:", err);
-    console.error("Error response:", err.response?.data);
-
-    // Show detailed error message
-    const errorMsg = err.response?.data?.message ||
-      err.response?.data?.error ||
-      "Failed to send email. Please check the console for details.";
-    setErrorMessage(errorMsg);
-
-    setEmailSent(false);
-    setBookingData(null);
-  } finally {
-    setLoading(false);
-  }
-
-  
-};
+  };
 
 
   const inputClass =
@@ -11090,142 +11157,284 @@ TOTAL USD 600.00"
               </div>
             </section> */}
 
-<section className={sectionClass}>
+            <section className={sectionClass}>
               <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
                 <span className="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
                 Customer Information
               </h3>
-<div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-    <h4 className="font-medium text-gray-700 mb-3">Personal Details</h4>
-    
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {/* Prefix */}
-      <div>
-        <label className="text-xs font-medium text-gray-600 mb-1 block">Title *</label>
-        <select
-          name="customerPrefix"
-          // className={inputClass}
-            className={`${inputClass} cursor-pointer`}
-          onChange={handleChange}
-          value={currentForm.customerPrefix}
-          required
-  
-        >
-          {prefixOptions.map(option => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </div>
-      
-      {/* First Name */}
-      <div>
-        <label className="text-xs font-medium text-gray-600 mb-1 block">First Name *</label>
-        <input
-          name="customerFirstName"
-          placeholder="First Name"
-          className={inputClass}
-          onChange={handleChange}
-          value={currentForm.customerFirstName}
-          required
-        />
-      </div>
-      
-      {/* Middle Name */}
-      <div>
-        <label className="text-xs font-medium text-gray-600 mb-1 block">Middle Name</label>
-        <input
-          name="customerMiddleName"
-          placeholder="Middle Name"
-          className={inputClass}
-          onChange={handleChange}
-          value={currentForm.customerMiddleName}
-        />
-      </div>
-      
-      {/* Last Name */}
-      <div>
-        <label className="text-xs font-medium text-gray-600 mb-1 block">Last Name *</label>
-        <input
-          name="customerLastName"
-          placeholder="Last Name"
-          className={inputClass}
-          onChange={handleChange}
-          value={currentForm.customerLastName}
-          required
-        />
-      </div>
-      
-      {/* Date of Birth */}
-      <div>
-        <label className="text-xs font-medium text-gray-600 mb-1 block">Date of Birth</label>
-        <input
-          type="date"
-          name="customerDOB"
-          // className={inputClass}
-            className={`${inputClass} cursor-pointer`}
-          onChange={handleChange}
-          value={currentForm.customerDOB}
-          max={new Date().toISOString().split('T')[0]} // Cannot select future dates
-        />
-      </div>
-      
-      {/* Gender */}
-      <div>
-        <label className="text-xs font-medium text-gray-600 mb-1 block">Gender</label>
-        <select
-          name="customerGender"
-          // className={inputClass}
-            className={`${inputClass} cursor-pointer`}
-          onChange={handleChange}
-          value={currentForm.customerGender}
-        >
-          {genderOptions.map(option => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </div>
-    </div>
-  </div>
-  
-  {/* Contact Information */}
-  <div className="grid sm:grid-cols-2 gap-5">
-    <div>
-      <label className={labelClass}>Phone Number *</label>
-      <input
-        name="customerPhone"
-        type="tel"
-        placeholder="Only numbers, spaces, +, -, () allowed (8–20 characters)"
-        className={inputClass}
-        onChange={handleChange}
-        value={currentForm.customerPhone}
-        required
-      />
-    </div>
+              {/* <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h4 className="font-medium text-gray-700 mb-3">Personal Details</h4>
 
-    <div>
-      <label className={labelClass}>Billing Email *</label>
-      <input
-        name="billingEmail"
-        type="email"
-        placeholder="customer@example.com"
-        className={inputClass}
-        onChange={handleChange}
-        value={currentForm.billingEmail}
-        required
-      />
-    </div>
-  </div>
-  
-  {/* Full Name Display (for verification) */}
-  {(currentForm.customerFirstName || currentForm.customerLastName) && (
-    <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
-      <p className="text-sm text-green-700">
-        <span className="font-medium">Full Name:</span> 
-        {/* <span className="ml-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              
+                  <div>
+                    <label className="text-xs font-medium text-gray-600 mb-1 block">Title *</label>
+                    <select
+                      name="customerPrefix"
+                      // className={inputClass}
+                      className={`${inputClass} cursor-pointer`}
+                      onChange={handleChange}
+                      value={currentForm.customerPrefix}
+                      required
+
+                    >
+                      {prefixOptions.map(option => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                
+                  <div>
+                    <label className="text-xs font-medium text-gray-600 mb-1 block">First Name *</label>
+                    <input
+                      name="customerFirstName"
+                      placeholder="First Name"
+                      className={inputClass}
+                      onChange={handleChange}
+                      value={currentForm.customerFirstName}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-medium text-gray-600 mb-1 block">Middle Name</label>
+                    <input
+                      name="customerMiddleName"
+                      placeholder="Middle Name"
+                      className={inputClass}
+                      onChange={handleChange}
+                      value={currentForm.customerMiddleName}
+                    />
+                  </div>
+
+                 
+                  <div>
+                    <label className="text-xs font-medium text-gray-600 mb-1 block">Last Name *</label>
+                    <input
+                      name="customerLastName"
+                      placeholder="Last Name"
+                      className={inputClass}
+                      onChange={handleChange}
+                      value={currentForm.customerLastName}
+                      required
+                    />
+                  </div>
+
+                 
+                  <div>
+                    <label className="text-xs font-medium text-gray-600 mb-1 block">Date of Birth</label>
+                    <input
+                      type="date"
+                      name="customerDOB"
+                      // className={inputClass}
+                      className={`${inputClass} cursor-pointer`}
+                      onChange={handleChange}
+                      value={currentForm.customerDOB}
+                      max={new Date().toISOString().split('T')[0]} // Cannot select future dates
+                    />
+                  </div>
+
+                 
+                  <div>
+                    <label className="text-xs font-medium text-gray-600 mb-1 block">Gender</label>
+                    <select
+                      name="customerGender"
+                      // className={inputClass}
+                      className={`${inputClass} cursor-pointer`}
+                      onChange={handleChange}
+                      value={currentForm.customerGender}
+                    >
+                      {genderOptions.map(option => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div> */}
+
+
+              {/* Passenger Details Section */}
+              <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex justify-between items-center mb-3">
+                  <h4 className="font-medium text-gray-700">Passenger Details</h4>
+                  <button
+                    type="button"
+                    onClick={addPassenger}
+                    className="cursor-pointer text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg flex items-center gap-1"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add Passenger
+                  </button>
+                </div>
+
+                {passengers.map((passenger, index) => (
+                  <div key={passenger.id} className="mb-6 pb-6 border-b border-blue-200 last:border-b-0 last:pb-0 last:mb-0">
+                    <div className="flex justify-between items-center mb-3">
+                      <h5 className="text-sm font-semibold text-gray-700">
+                        Passenger {index + 1}
+                        {index === 0 && <span className="ml-2 text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full">Primary</span>}
+                      </h5>
+                      {passengers.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removePassenger(passenger.id)}
+                          className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Remove
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {/* Title/Prefix */}
+                      <div>
+                        <label className="text-xs font-medium text-gray-600 mb-1 block">Title *</label>
+                        <select
+                          value={passenger.prefix}
+                          onChange={(e) => handlePassengerChange(passenger.id, 'prefix', e.target.value)}
+                          className={`${inputClass} cursor-pointer`}
+                          required
+                        >
+                          {prefixOptions.map(option => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* First Name */}
+                      <div>
+                        <label className="text-xs font-medium text-gray-600 mb-1 block">First Name *</label>
+                        <input
+                          type="text"
+                          placeholder="First Name"
+                          value={passenger.firstName}
+                          onChange={(e) => handlePassengerChange(passenger.id, 'firstName', e.target.value)}
+                          className={inputClass}
+                          required
+                        />
+                      </div>
+
+                      {/* Middle Name */}
+                      <div>
+                        <label className="text-xs font-medium text-gray-600 mb-1 block">Middle Name</label>
+                        <input
+                          type="text"
+                          placeholder="Middle Name"
+                          value={passenger.middleName}
+                          onChange={(e) => handlePassengerChange(passenger.id, 'middleName', e.target.value)}
+                          className={inputClass}
+                        />
+                      </div>
+
+                      {/* Last Name */}
+                      <div>
+                        <label className="text-xs font-medium text-gray-600 mb-1 block">Last Name *</label>
+                        <input
+                          type="text"
+                          placeholder="Last Name"
+                          value={passenger.lastName}
+                          onChange={(e) => handlePassengerChange(passenger.id, 'lastName', e.target.value)}
+                          className={inputClass}
+                          required
+                        />
+                      </div>
+
+                      {/* Date of Birth */}
+                      <div>
+                        <label className="text-xs font-medium text-gray-600 mb-1 block">Date of Birth</label>
+                        <input
+                          type="date"
+                          value={passenger.dob}
+                          onChange={(e) => handlePassengerChange(passenger.id, 'dob', e.target.value)}
+                          className={`${inputClass} cursor-pointer`}
+                          max={new Date().toISOString().split('T')[0]}
+                        />
+                      </div>
+
+                      {/* Gender */}
+                      <div>
+                        <label className="text-xs font-medium text-gray-600 mb-1 block">Gender</label>
+                        <select
+                          value={passenger.gender}
+                          onChange={(e) => handlePassengerChange(passenger.id, 'gender', e.target.value)}
+                          className={`${inputClass} cursor-pointer`}
+                        >
+                          {genderOptions.map(option => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Passenger Summary */}
+                {passengers.length > 0 && (
+                  <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                    <p className="text-sm text-green-700">
+                      <span className="font-medium">Total Passengers:</span> {passengers.length}
+                    </p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      <span className="font-medium">Passenger Names:</span>{' '}
+                      {passengers.map((p, i) => {
+                        const prefix = prefixOptions.find(opt => opt.value === p.prefix)?.label || '';
+                        const name = [prefix, p.firstName, p.middleName, p.lastName].filter(Boolean).join(' ');
+                        return name || `Passenger ${i + 1}`;
+                      }).join(', ')}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Contact Information */}
+              <div className="grid sm:grid-cols-2 gap-5">
+                <div>
+                  <label className={labelClass}>Phone Number *</label>
+                  <input
+                    name="customerPhone"
+                    type="tel"
+                    placeholder="Only numbers, spaces, +, -, () allowed (8–20 characters)"
+                    className={inputClass}
+                    onChange={handleChange}
+                    value={currentForm.customerPhone}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass}>Billing Email *</label>
+                  <input
+                    name="billingEmail"
+                    type="email"
+                    placeholder="customer@example.com"
+                    className={inputClass}
+                    onChange={handleChange}
+                    value={currentForm.billingEmail}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Full Name Display (for verification) */}
+              {(currentForm.customerFirstName || currentForm.customerLastName) && (
+                <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                  <p className="text-sm text-green-700">
+                    <span className="font-medium">Full Name:</span>
+                    {/* <span className="ml-2">
           {currentForm.customerPrefix ? 
             prefixOptions.find(p => p.value === currentForm.customerPrefix)?.label + ' ' : ''}
           {currentForm.customerFirstName} 
@@ -11234,22 +11443,22 @@ TOTAL USD 600.00"
         </span> */}
 
 
-        <span className="ml-2">
-  {[
-    prefixOptions.find(p => p.value === currentForm.customerPrefix)?.label,
-    currentForm.customerFirstName,
-    currentForm.customerMiddleName,
-    currentForm.customerLastName
-  ]
-    .filter(Boolean)
-    .join(" ")
-  }
-</span>
+                    <span className="ml-2">
+                      {[
+                        prefixOptions.find(p => p.value === currentForm.customerPrefix)?.label,
+                        currentForm.customerFirstName,
+                        currentForm.customerMiddleName,
+                        currentForm.customerLastName
+                      ]
+                        .filter(Boolean)
+                        .join(" ")
+                      }
+                    </span>
 
-      </p>
-    </div>
-  )}
-</section>
+                  </p>
+                </div>
+              )}
+            </section>
 
 
 
@@ -11666,21 +11875,21 @@ TOTAL USD 600.00"
                     </div>
 
 
-                     {/* ✅ ADD CONNECTION TIME FIELD HERE */}
-        <div>
-          <label className={labelClass}>Connection/Waiting Time</label>
-          <input
-            name="connectionTime"
-            placeholder="e.g., 2h 30m or 150 minutes"
-            className={inputClass}
-            onChange={handleChange}
-            value={flightForm.connectionTime}
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Time between flights or waiting time
-          </p>
-        </div>
-        
+                    {/* ✅ ADD CONNECTION TIME FIELD HERE */}
+                    <div>
+                      <label className={labelClass}>Connection/Waiting Time</label>
+                      <input
+                        name="connectionTime"
+                        placeholder="e.g., 2h 30m or 150 minutes"
+                        className={inputClass}
+                        onChange={handleChange}
+                        value={flightForm.connectionTime}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Time between flights or waiting time
+                      </p>
+                    </div>
+
 
 
 
@@ -11716,18 +11925,18 @@ TOTAL USD 600.00"
                     </div> */}
 
                     <div>
-          <label className={labelClass}>Ticket Number (Optional)</label>
-          <input
-            name="ticketNumber"
-            placeholder="e.g., 00123456789"
-            className={inputClass}
-            onChange={handleChange}
-            value={flightForm.ticketNumber}
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Leave empty to show "UNTICKETED" on ticket
-          </p>
-        </div>
+                      <label className={labelClass}>Ticket Number (Optional)</label>
+                      <input
+                        name="ticketNumber"
+                        placeholder="e.g., 00123456789"
+                        className={inputClass}
+                        onChange={handleChange}
+                        value={flightForm.ticketNumber}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Leave empty to show "UNTICKETED" on ticket
+                      </p>
+                    </div>
                   </div>
                 </section>
 

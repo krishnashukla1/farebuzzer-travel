@@ -10322,6 +10322,12 @@ END OF ITINERARY`;
   // };
 
 
+
+
+
+
+
+
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
 
@@ -10477,240 +10483,455 @@ END OF ITINERARY`;
   //   }
   // };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   const phone = (currentForm.customerPhone || "").trim();
+  //   const phoneRegex = /^[+0-9\s\-\(\)]{8,20}$/;
+
+  //   // Update validation for new name fields
+  //   if (!currentForm.customerFirstName) {
+  //     setErrorMessage("First name is required");
+  //     return;
+  //   }
+
+  //   if (!currentForm.customerLastName) {
+  //     setErrorMessage("Last name is required");
+  //     return;
+  //   }
+
+  //   if (!currentForm.customerPrefix) {
+  //     setErrorMessage("Title is required");
+  //     return;
+  //   }
+
+  //   // Validate DOB format if provided
+  //   if (currentForm.customerDOB) {
+  //     const dobDate = new Date(currentForm.customerDOB);
+  //     if (dobDate > new Date()) {
+  //       setErrorMessage("Date of birth cannot be in the future");
+  //       return;
+  //     }
+  //   }
+  //   if (phone === "") {
+  //     setErrorMessage("Phone number is required");
+  //     return;
+  //   }
+
+  //   if (!phoneRegex.test(phone)) {
+  //     setErrorMessage(
+  //       "Invalid phone number format. Use only numbers, spaces, +, -, () (8–20 characters)"
+  //     );
+  //     return;
+  //   }
+
+  //   // Additional validation for flight ticket form
+  //   if (isFlightTicketForm) {
+  //     if (!flightForm.confirmationNumber) {
+  //       setErrorMessage("Confirmation Number is required for flight tickets");
+  //       return;
+  //     }
+  //     if (!flightForm.airline) {
+  //       setErrorMessage("Airline Name is required");
+  //       return;
+  //     }
+  //     if (!flightForm.flightNumber) {
+  //       setErrorMessage("Flight Number is required");
+  //       return;
+  //     }
+  //     if (!flightForm.departure) {
+  //       setErrorMessage("Departure is required");
+  //       return;
+  //     }
+  //     if (!flightForm.arrival) {
+  //       setErrorMessage("Arrival is required");
+  //       return;
+  //     }
+  //     if (!flightForm.travelDate) {
+  //       setErrorMessage("Travel Date is required");
+  //       return;
+  //     }
+  //   }
+
+  //   // Validation for update type for flight-related emails
+  //   const flightRelatedTypes = ["exchange_ticket", "flight_cancellation", "flight_confirmation", "new_reservation"];
+  //   if (flightRelatedTypes.includes(emailType) && !currentForm.updateType) {
+  //     setErrorMessage("Update Type is required for flight-related emails");
+  //     return;
+  //   }
+
+  //   setLoading(true);
+  //   setSuccessMessage("");
+  //   setErrorMessage("");
+
+  //   try {
+  //     let requestData;
+
+  //     if (isFlightTicketForm) {
+  //       // For flight ticket forms
+  //       requestData = {
+  //         emailType,
+  //         customerPrefix: flightForm.customerPrefix,
+  //         customerFirstName: flightForm.customerFirstName,
+  //         customerMiddleName: flightForm.customerMiddleName,
+  //         customerLastName: flightForm.customerLastName,
+  //         customerDOB: flightForm.customerDOB,
+  //         customerGender: flightForm.customerGender,
+  //         // Keep full name for backward compatibility
+  //         customerName: `${flightForm.customerFirstName} ${flightForm.customerMiddleName ? flightForm.customerMiddleName + ' ' : ''}${flightForm.customerLastName}`,
+  //         ...flightForm,
+  //         senderBrand, // Make sure senderBrand is included
+  //         chargeReference:
+  //           senderBrand === "lowfare_studio" ? "LowfareStudio" :
+  //             senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk",
+  //         templateUsed: null, // No templates for flight tickets
+  //         // ✅ ADD THIS: Pass originalMessageId for threading
+  //         originalMessageId: messageId || null,
+  //         // Include update fields for flight ticket forms
+  //         updateType: flightForm.updateType || "confirmed",
+  //         includeAgreement: flightForm.includeAgreement !== false,
+  //         includeChargeNote: flightForm.includeChargeNote !== false,
+  //         includeFareRules: flightForm.includeFareRules || false,
+  //         cardHolderName: flightForm.cardHolderName || "",
+  //         cardLastFour: flightForm.cardLastFour || "",
+  //         cardExpiry: flightForm.cardExpiry || "",
+  //         cardCVV: flightForm.cardCVV || "",
+  //         billingAddress: flightForm.billingAddress || "",
+  //         customerEmail: flightForm.customerEmail || "",
+  //         // NEW: Include parsed segments if available
+  //         parsedSegments: parsedSegments.length > 0 ? parsedSegments : []
+  //       };
+  //     } else {
+  //       // For general forms
+  //       requestData = {
+  //         emailType,
+  //         passengers: passengers.map(p => ({
+  //           prefix: p.prefix,
+  //           firstName: p.firstName,
+  //           middleName: p.middleName,
+  //           lastName: p.lastName,
+  //           dob: p.dob,
+  //           gender: p.gender
+  //         })),
+  //         // Keep customerName for backward compatibility
+  //         customerName: passengers.length > 0
+  //           ? `${passengers[0].prefix ? passengers[0].prefix.toUpperCase() + '.' : ''} ${passengers[0].firstName} ${passengers[0].middleName ? passengers[0].middleName + ' ' : ''}${passengers[0].lastName}`.trim()
+  //           : '',
+  //         customerPrefix: passengers[0]?.prefix || '',
+  //         customerFirstName: passengers[0]?.firstName || '',
+  //         customerMiddleName: passengers[0]?.middleName || '',
+  //         customerLastName: passengers[0]?.lastName || '',
+  //         customerDOB: passengers[0]?.dob || '',
+  //         customerGender: passengers[0]?.gender || '',
+  //         // customerPrefix: flightForm.customerPrefix,
+  //         // customerFirstName: flightForm.customerFirstName,
+  //         // customerMiddleName: flightForm.customerMiddleName,
+  //         // customerLastName: flightForm.customerLastName,
+  //         // customerDOB: flightForm.customerDOB,
+  //         // customerGender: flightForm.customerGender,
+  //         // Keep full name for backward compatibility
+  //         customerName: `${flightForm.customerFirstName} ${flightForm.customerMiddleName ? flightForm.customerMiddleName + ' ' : ''}${flightForm.customerLastName}`,
+  //         ...generalForm,
+  //         senderBrand, // Make sure senderBrand is included
+  //         templateUsed: selectedTemplate || null,
+  //         chargeReference:
+  //           senderBrand === "lowfare_studio" ? "LowfareStudio" :
+  //             senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk",
+  //         // ✅ ADD THIS: Pass originalMessageId for threading
+  //         originalMessageId: messageId || null
+  //       };
+  //     }
+
+  //     console.log("Sending request data with originalMessageId:", messageId);
+  //     console.log("Full request data:", requestData);
+
+  //     const response = await API.post("/email/send", requestData);
+
+  //     console.log("Response received:", response.data);
+
+  //     // ✅ STORE THE MESSAGE-ID FROM RESPONSE FOR FUTURE REPLIES
+  //     if (response.data?.data?.messageId) {
+  //       setMessageId(response.data.data.messageId);
+  //       console.log("Message-ID stored for future replies:", response.data.data.messageId);
+  //     }
+
+  //     // Store booking data for payment page from backend response
+  //     if (response.data?.data?.bookingData) {
+  //       // Use booking data from backend response
+  //       setBookingData(response.data.data.bookingData);
+  //     } else {
+  //       // Fallback: create booking data from form
+  //       const bookingDataForPayment = {
+  //         customerName: currentForm.customerName,
+  //         customerEmail: currentForm.billingEmail,
+  //         customerPhone: currentForm.customerPhone,
+  //         bookingAmount: currentForm.bookingAmount || "0.00",
+  //         emailType: emailType,
+  //         senderBrand: senderBrand,
+  //         // ✅ Include messageId in booking data for threading
+  //         messageId: response.data?.data?.messageId || null,
+  //         ...(isFlightTicketForm && {
+  //           airline: flightForm.airline,
+  //           flightNumber: flightForm.flightNumber,
+  //           departure: flightForm.departure,
+  //           arrival: flightForm.arrival,
+  //           travelDate: flightForm.travelDate,
+  //           confirmationNumber: flightForm.confirmationNumber
+  //         }),
+  //         ...(emailType === "holiday_package" && {
+  //           packageName: generalForm.packageName,
+  //           packagePrice: generalForm.packagePrice,
+  //           packageNights: generalForm.packageNights
+  //         })
+  //       };
+  //       setBookingData(bookingDataForPayment);
+  //     }
+
+  //     setEmailSent(true);
+
+  //     const greeting = response.data?.data?.dynamicGreeting ? `(${response.data.data.dynamicGreeting})` : '';
+  //     setSuccessMessage(`Email sent successfully! ${greeting} Click "Pay Now" below to proceed to payment.`);
+
+  //     // ✅ Show debugging info about threading
+  //     if (messageId) {
+  //       console.log("This is a REPLY to thread with Message-ID:", messageId);
+  //     } else {
+  //       console.log("This is a NEW thread. Generated Message-ID:", response.data?.data?.messageId);
+  //     }
+
+  //   } catch (err) {
+  //     console.error("Error sending email:", err);
+  //     console.error("Error response:", err.response?.data);
+
+  //     // Show detailed error message
+  //     const errorMsg = err.response?.data?.message ||
+  //       err.response?.data?.error ||
+  //       "Failed to send email. Please check the console for details.";
+  //     setErrorMessage(errorMsg);
+
+  //     setEmailSent(false);
+  //     setBookingData(null);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+
+
+  // };
+
+
+
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const phone = (currentForm.customerPhone || "").trim();
-    const phoneRegex = /^[+0-9\s\-\(\)]{8,20}$/;
+  const phone = (currentForm.customerPhone || "").trim();
+  const phoneRegex = /^[+0-9\s\-\(\)]{8,20}$/;
 
-    // Update validation for new name fields
-    if (!currentForm.customerFirstName) {
-      setErrorMessage("First name is required");
+  // Update validation for new name fields
+  if (!currentForm.customerFirstName) {
+    setErrorMessage("First name is required");
+    return;
+  }
+
+  if (!currentForm.customerLastName) {
+    setErrorMessage("Last name is required");
+    return;
+  }
+
+  if (!currentForm.customerPrefix) {
+    setErrorMessage("Title is required");
+    return;
+  }
+
+  // Validate DOB format if provided
+  if (currentForm.customerDOB) {
+    const dobDate = new Date(currentForm.customerDOB);
+    if (dobDate > new Date()) {
+      setErrorMessage("Date of birth cannot be in the future");
       return;
     }
+  }
+  if (phone === "") {
+    setErrorMessage("Phone number is required");
+    return;
+  }
 
-    if (!currentForm.customerLastName) {
-      setErrorMessage("Last name is required");
+  if (!phoneRegex.test(phone)) {
+    setErrorMessage(
+      "Invalid phone number format. Use only numbers, spaces, +, -, () (8–20 characters)"
+    );
+    return;
+  }
+
+  // Additional validation for flight ticket form
+  if (isFlightTicketForm) {
+    if (!flightForm.confirmationNumber) {
+      setErrorMessage("Confirmation Number is required for flight tickets");
       return;
     }
-
-    if (!currentForm.customerPrefix) {
-      setErrorMessage("Title is required");
+    if (!flightForm.airline) {
+      setErrorMessage("Airline Name is required");
       return;
     }
-
-    // Validate DOB format if provided
-    if (currentForm.customerDOB) {
-      const dobDate = new Date(currentForm.customerDOB);
-      if (dobDate > new Date()) {
-        setErrorMessage("Date of birth cannot be in the future");
-        return;
-      }
-    }
-    if (phone === "") {
-      setErrorMessage("Phone number is required");
+    if (!flightForm.flightNumber) {
+      setErrorMessage("Flight Number is required");
       return;
     }
-
-    if (!phoneRegex.test(phone)) {
-      setErrorMessage(
-        "Invalid phone number format. Use only numbers, spaces, +, -, () (8–20 characters)"
-      );
+    if (!flightForm.departure) {
+      setErrorMessage("Departure is required");
       return;
     }
+    if (!flightForm.arrival) {
+      setErrorMessage("Arrival is required");
+      return;
+    }
+    if (!flightForm.travelDate) {
+      setErrorMessage("Travel Date is required");
+      return;
+    }
+  }
 
-    // Additional validation for flight ticket form
+  // Validation for update type for flight-related emails
+  const flightRelatedTypes = ["exchange_ticket", "flight_cancellation", "flight_confirmation", "new_reservation"];
+  if (flightRelatedTypes.includes(emailType) && !currentForm.updateType) {
+    setErrorMessage("Update Type is required for flight-related emails");
+    return;
+  }
+
+  setLoading(true);
+  setSuccessMessage("");
+  setErrorMessage("");
+
+  try {
+    let requestData;
+
     if (isFlightTicketForm) {
-      if (!flightForm.confirmationNumber) {
-        setErrorMessage("Confirmation Number is required for flight tickets");
-        return;
-      }
-      if (!flightForm.airline) {
-        setErrorMessage("Airline Name is required");
-        return;
-      }
-      if (!flightForm.flightNumber) {
-        setErrorMessage("Flight Number is required");
-        return;
-      }
-      if (!flightForm.departure) {
-        setErrorMessage("Departure is required");
-        return;
-      }
-      if (!flightForm.arrival) {
-        setErrorMessage("Arrival is required");
-        return;
-      }
-      if (!flightForm.travelDate) {
-        setErrorMessage("Travel Date is required");
-        return;
-      }
+      // For flight ticket forms
+      requestData = {
+        emailType,
+        customerPrefix: flightForm.customerPrefix,
+        customerFirstName: flightForm.customerFirstName,
+        customerMiddleName: flightForm.customerMiddleName,
+        customerLastName: flightForm.customerLastName,
+        customerDOB: flightForm.customerDOB,
+        customerGender: flightForm.customerGender,
+        // customerName is already in ...flightForm, so we don't need to add it explicitly
+        ...flightForm,
+        senderBrand,
+        chargeReference:
+          senderBrand === "lowfare_studio" ? "LowfareStudio" :
+            senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk",
+        templateUsed: null,
+        originalMessageId: messageId || null,
+        updateType: flightForm.updateType || "confirmed",
+        includeAgreement: flightForm.includeAgreement !== false,
+        includeChargeNote: flightForm.includeChargeNote !== false,
+        includeFareRules: flightForm.includeFareRules || false,
+        cardHolderName: flightForm.cardHolderName || "",
+        cardLastFour: flightForm.cardLastFour || "",
+        cardExpiry: flightForm.cardExpiry || "",
+        cardCVV: flightForm.cardCVV || "",
+        billingAddress: flightForm.billingAddress || "",
+        customerEmail: flightForm.customerEmail || "",
+        parsedSegments: parsedSegments.length > 0 ? parsedSegments : []
+      };
+    } else {
+      // For general forms
+      requestData = {
+        emailType,
+        passengers: passengers.map(p => ({
+          prefix: p.prefix,
+          firstName: p.firstName,
+          middleName: p.middleName,
+          lastName: p.lastName,
+          dob: p.dob,
+          gender: p.gender
+        })),
+        // Primary passenger details for backward compatibility
+        customerPrefix: passengers[0]?.prefix || '',
+        customerFirstName: passengers[0]?.firstName || '',
+        customerMiddleName: passengers[0]?.middleName || '',
+        customerLastName: passengers[0]?.lastName || '',
+        customerDOB: passengers[0]?.dob || '',
+        customerGender: passengers[0]?.gender || '',
+        // customerName is generated from passengers and also comes from ...generalForm
+        // So we don't add it explicitly here
+        ...generalForm,
+        senderBrand,
+        templateUsed: selectedTemplate || null,
+        chargeReference:
+          senderBrand === "lowfare_studio" ? "LowfareStudio" :
+            senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk",
+        originalMessageId: messageId || null
+      };
     }
 
-    // Validation for update type for flight-related emails
-    const flightRelatedTypes = ["exchange_ticket", "flight_cancellation", "flight_confirmation", "new_reservation"];
-    if (flightRelatedTypes.includes(emailType) && !currentForm.updateType) {
-      setErrorMessage("Update Type is required for flight-related emails");
-      return;
+    console.log("Sending request data with originalMessageId:", messageId);
+    console.log("Full request data:", requestData);
+
+    const response = await API.post("/email/send", requestData);
+
+    console.log("Response received:", response.data);
+
+    if (response.data?.data?.messageId) {
+      setMessageId(response.data.data.messageId);
+      console.log("Message-ID stored for future replies:", response.data.data.messageId);
     }
 
-    setLoading(true);
-    setSuccessMessage("");
-    setErrorMessage("");
-
-    try {
-      let requestData;
-
-      if (isFlightTicketForm) {
-        // For flight ticket forms
-        requestData = {
-          emailType,
-          customerPrefix: flightForm.customerPrefix,
-          customerFirstName: flightForm.customerFirstName,
-          customerMiddleName: flightForm.customerMiddleName,
-          customerLastName: flightForm.customerLastName,
-          customerDOB: flightForm.customerDOB,
-          customerGender: flightForm.customerGender,
-          // Keep full name for backward compatibility
-          customerName: `${flightForm.customerFirstName} ${flightForm.customerMiddleName ? flightForm.customerMiddleName + ' ' : ''}${flightForm.customerLastName}`,
-          ...flightForm,
-          senderBrand, // Make sure senderBrand is included
-          chargeReference:
-            senderBrand === "lowfare_studio" ? "LowfareStudio" :
-              senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk",
-          templateUsed: null, // No templates for flight tickets
-          // ✅ ADD THIS: Pass originalMessageId for threading
-          originalMessageId: messageId || null,
-          // Include update fields for flight ticket forms
-          updateType: flightForm.updateType || "confirmed",
-          includeAgreement: flightForm.includeAgreement !== false,
-          includeChargeNote: flightForm.includeChargeNote !== false,
-          includeFareRules: flightForm.includeFareRules || false,
-          cardHolderName: flightForm.cardHolderName || "",
-          cardLastFour: flightForm.cardLastFour || "",
-          cardExpiry: flightForm.cardExpiry || "",
-          cardCVV: flightForm.cardCVV || "",
-          billingAddress: flightForm.billingAddress || "",
-          customerEmail: flightForm.customerEmail || "",
-          // NEW: Include parsed segments if available
-          parsedSegments: parsedSegments.length > 0 ? parsedSegments : []
-        };
-      } else {
-        // For general forms
-        requestData = {
-          emailType,
-          passengers: passengers.map(p => ({
-            prefix: p.prefix,
-            firstName: p.firstName,
-            middleName: p.middleName,
-            lastName: p.lastName,
-            dob: p.dob,
-            gender: p.gender
-          })),
-          // Keep customerName for backward compatibility
-          customerName: passengers.length > 0
-            ? `${passengers[0].prefix ? passengers[0].prefix.toUpperCase() + '.' : ''} ${passengers[0].firstName} ${passengers[0].middleName ? passengers[0].middleName + ' ' : ''}${passengers[0].lastName}`.trim()
-            : '',
-          customerPrefix: passengers[0]?.prefix || '',
-          customerFirstName: passengers[0]?.firstName || '',
-          customerMiddleName: passengers[0]?.middleName || '',
-          customerLastName: passengers[0]?.lastName || '',
-          customerDOB: passengers[0]?.dob || '',
-          customerGender: passengers[0]?.gender || '',
-          // customerPrefix: flightForm.customerPrefix,
-          // customerFirstName: flightForm.customerFirstName,
-          // customerMiddleName: flightForm.customerMiddleName,
-          // customerLastName: flightForm.customerLastName,
-          // customerDOB: flightForm.customerDOB,
-          // customerGender: flightForm.customerGender,
-          // Keep full name for backward compatibility
-          customerName: `${flightForm.customerFirstName} ${flightForm.customerMiddleName ? flightForm.customerMiddleName + ' ' : ''}${flightForm.customerLastName}`,
-          ...generalForm,
-          senderBrand, // Make sure senderBrand is included
-          templateUsed: selectedTemplate || null,
-          chargeReference:
-            senderBrand === "lowfare_studio" ? "LowfareStudio" :
-              senderBrand === "american_airlines" ? "American Airlines" : "Airline Desk",
-          // ✅ ADD THIS: Pass originalMessageId for threading
-          originalMessageId: messageId || null
-        };
-      }
-
-      console.log("Sending request data with originalMessageId:", messageId);
-      console.log("Full request data:", requestData);
-
-      const response = await API.post("/email/send", requestData);
-
-      console.log("Response received:", response.data);
-
-      // ✅ STORE THE MESSAGE-ID FROM RESPONSE FOR FUTURE REPLIES
-      if (response.data?.data?.messageId) {
-        setMessageId(response.data.data.messageId);
-        console.log("Message-ID stored for future replies:", response.data.data.messageId);
-      }
-
-      // Store booking data for payment page from backend response
-      if (response.data?.data?.bookingData) {
-        // Use booking data from backend response
-        setBookingData(response.data.data.bookingData);
-      } else {
-        // Fallback: create booking data from form
-        const bookingDataForPayment = {
-          customerName: currentForm.customerName,
-          customerEmail: currentForm.billingEmail,
-          customerPhone: currentForm.customerPhone,
-          bookingAmount: currentForm.bookingAmount || "0.00",
-          emailType: emailType,
-          senderBrand: senderBrand,
-          // ✅ Include messageId in booking data for threading
-          messageId: response.data?.data?.messageId || null,
-          ...(isFlightTicketForm && {
-            airline: flightForm.airline,
-            flightNumber: flightForm.flightNumber,
-            departure: flightForm.departure,
-            arrival: flightForm.arrival,
-            travelDate: flightForm.travelDate,
-            confirmationNumber: flightForm.confirmationNumber
-          }),
-          ...(emailType === "holiday_package" && {
-            packageName: generalForm.packageName,
-            packagePrice: generalForm.packagePrice,
-            packageNights: generalForm.packageNights
-          })
-        };
-        setBookingData(bookingDataForPayment);
-      }
-
-      setEmailSent(true);
-
-      const greeting = response.data?.data?.dynamicGreeting ? `(${response.data.data.dynamicGreeting})` : '';
-      setSuccessMessage(`Email sent successfully! ${greeting} Click "Pay Now" below to proceed to payment.`);
-
-      // ✅ Show debugging info about threading
-      if (messageId) {
-        console.log("This is a REPLY to thread with Message-ID:", messageId);
-      } else {
-        console.log("This is a NEW thread. Generated Message-ID:", response.data?.data?.messageId);
-      }
-
-    } catch (err) {
-      console.error("Error sending email:", err);
-      console.error("Error response:", err.response?.data);
-
-      // Show detailed error message
-      const errorMsg = err.response?.data?.message ||
-        err.response?.data?.error ||
-        "Failed to send email. Please check the console for details.";
-      setErrorMessage(errorMsg);
-
-      setEmailSent(false);
-      setBookingData(null);
-    } finally {
-      setLoading(false);
+    if (response.data?.data?.bookingData) {
+      setBookingData(response.data.data.bookingData);
+    } else {
+      const bookingDataForPayment = {
+        customerName: currentForm.customerName,
+        customerEmail: currentForm.billingEmail,
+        customerPhone: currentForm.customerPhone,
+        bookingAmount: currentForm.bookingAmount || "0.00",
+        emailType: emailType,
+        senderBrand: senderBrand,
+        messageId: response.data?.data?.messageId || null,
+        ...(isFlightTicketForm && {
+          airline: flightForm.airline,
+          flightNumber: flightForm.flightNumber,
+          departure: flightForm.departure,
+          arrival: flightForm.arrival,
+          travelDate: flightForm.travelDate,
+          confirmationNumber: flightForm.confirmationNumber
+        }),
+        ...(emailType === "holiday_package" && {
+          packageName: generalForm.packageName,
+          packagePrice: generalForm.packagePrice,
+          packageNights: generalForm.packageNights
+        })
+      };
+      setBookingData(bookingDataForPayment);
     }
 
+    setEmailSent(true);
 
-  };
+    const greeting = response.data?.data?.dynamicGreeting ? `(${response.data.data.dynamicGreeting})` : '';
+    setSuccessMessage(`Email sent successfully! ${greeting} Click "Pay Now" below to proceed to payment.`);
+
+    if (messageId) {
+      console.log("This is a REPLY to thread with Message-ID:", messageId);
+    } else {
+      console.log("This is a NEW thread. Generated Message-ID:", response.data?.data?.messageId);
+    }
+
+  } catch (err) {
+    console.error("Error sending email:", err);
+    console.error("Error response:", err.response?.data);
+
+    const errorMsg = err.response?.data?.message ||
+      err.response?.data?.error ||
+      "Failed to send email. Please check the console for details.";
+    setErrorMessage(errorMsg);
+
+    setEmailSent(false);
+    setBookingData(null);
+  } finally {
+    setLoading(false);
+  }
+};
 
 
   const inputClass =

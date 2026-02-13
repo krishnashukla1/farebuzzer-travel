@@ -241,7 +241,8 @@
 
 // export default mongoose.model("Email", emailSchema);
 
-//==========12 feb========
+//==========13 feb========
+
 import mongoose from "mongoose";
 
 const passengerSchema = new mongoose.Schema({
@@ -271,7 +272,7 @@ const passengerSchema = new mongoose.Schema({
     enum: ["male", "female", "other", ""],
     default: ""
   }
-}, { _id: false }); // Don't create _id for subdocuments
+}, { _id: false });
 
 const emailSchema = new mongoose.Schema(
   {
@@ -302,8 +303,11 @@ const emailSchema = new mongoose.Schema(
       default: null,
     },
 
+    // ✅ NEW: Multiple passengers array
+    passengers: [passengerSchema],
+
     meta: {
-      // Keep single customer fields for backward compatibility
+      // Keep these for backward compatibility
       customerPrefix: String,
       customerFirstName: String,
       customerMiddleName: String,
@@ -311,9 +315,6 @@ const emailSchema = new mongoose.Schema(
       customerDOB: String,
       customerGender: String,
       customerName: String,
-      
-      // ✅ NEW: Array of passengers for multiple passengers
-      passengers: [passengerSchema],
       
       customerPhone: String,
       billingEmail: String,
@@ -330,6 +331,65 @@ const emailSchema = new mongoose.Schema(
       fareDifference: String,
       cancellationDate: String,
       customMessage: String,
+      
+      // Email threading
+      messageId: String,
+      originalMessageId: String,
+      invoiceNumber: String,
+      
+      // Flight fields
+      chargeReference: String,
+      cabinClass: String,
+      departureTime: String,
+      arrivalTime: String,
+      ticketNumber: String,
+      flightNumber: String,
+      fareType: String,
+      departureTerminal: String,
+      arrivalTerminal: String,
+      connectionTime: String,
+      
+      // Package fields
+      packageName: String,
+      packageNights: String,
+      packageStartDate: String,
+      packageEndDate: String,
+      packagePrice: String,
+      numberOfPersons: String,
+      
+      // Hotel fields
+      hotelName: String,
+      roomType: String,
+      
+      // Car rental fields
+      carType: String,
+      rentalDays: String,
+      
+      // Insurance fields
+      insuranceType: String,
+      insuranceCoverage: String,
+      
+      // Update fields
+      updateType: String,
+      includeAgreement: Boolean,
+      includeChargeNote: Boolean,
+      includeFareRules: Boolean,
+      
+      // Card fields
+      cardHolderName: String,
+      cardLastFour: String,
+      cardExpiry: String,
+      cardCVV: String,
+      billingAddress: String,
+      customerEmail: String,
+      
+      // Search fields
+      searchQuery: String,
+      category: String,
+      destination: String,
+      
+      // Dynamic greeting
+      dynamicGreeting: String
     },
 
     isRead: {
@@ -340,7 +400,9 @@ const emailSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// performance
+// Performance indexes
 emailSchema.index({ type: 1, createdAt: -1 });
+emailSchema.index({ "meta.billingEmail": 1 });
+emailSchema.index({ "meta.confirmationNumber": 1 });
 
 export default mongoose.model("Email", emailSchema);

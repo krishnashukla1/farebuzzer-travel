@@ -30,7 +30,7 @@ router.post("/generate-link", async (req, res) => {
     const invoiceId = "INV" + Date.now();
 
     // const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-    const frontendUrl = process.env.FRONTEND_URL || "https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host/";
+    const frontendUrl = process.env.FRONTEND_URL || "https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host";
 
     
 

@@ -547,7 +547,7 @@ const PayNow = () => {
                 type="button"
                 onClick={generatePaymentLink}
                 disabled={!isFormValid}
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold"
+                className="cursor-pointer w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold"
               >
                 Generate Payment Link
               </button>

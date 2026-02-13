@@ -27,11 +27,7 @@ router.post("/generate-link", async (req, res) => {
       return res.status(400).json({ error: "Valid amount required" });
     }
 
-    // 🔥 Unique Invoice ID
     const invoiceId = "INV" + Date.now();
-
-    // 👉 Later you can save in MongoDB
-    // await Invoice.create({ invoiceId, name, email, phone, amount, remarks })
 
     const paymentLink = `${process.env.FRONTEND_URL}/paynow?invoice=${invoiceId}`;
 

@@ -7737,27 +7737,66 @@ export const sendCustomerEmail = async (req, res) => {
     // }
 
     // ✅ VALIDATION - Update validation for new fields
-if (!customerFirstName || !customerLastName || !billingEmail || !customerPhone) {
-  return res.status(400).json({
-    status: "fail",
-    message: "Customer first name, last name, phone number, and billing email are required"
-  });
-}
-// Validate prefix
-const validPrefixes = ["mr", "miss", "mrs", "master"];
-if (customerPrefix && !validPrefixes.includes(customerPrefix.toLowerCase())) {
-  return res.status(400).json({
-    status: "fail",
-    message: "Invalid prefix. Must be mr, miss, mrs, or master"
-  });
-}
+    // ✅ NEW VALIDATION - Check passengers array
+    const passengers = req.body.passengers || [];
+    
+    if (!passengers || passengers.length === 0) {
+      return res.status(400).json({
+        status: "fail",
+        message: "At least one passenger is required"
+      });
+    }
+
+    // Validate first passenger has required fields
+    const primaryPassenger = passengers[0];
+    if (!primaryPassenger.firstName || !primaryPassenger.lastName) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Passenger first name and last name are required"
+      });
+    }
+
+    // Validate prefix if provided
+    const validPrefixes = ["mr", "miss", "mrs", "master"];
+    if (primaryPassenger.prefix && !validPrefixes.includes(primaryPassenger.prefix.toLowerCase())) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid prefix. Must be mr, miss, mrs, or master"
+      });
+    }
+
+    // Validate phone and email
+    if (!customerPhone) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Customer phone number is required"
+      });
+    }
+
+    if (!billingEmail) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Billing email is required"
+      });
+    }
 // ✅ Create full customer name from parts
-const fullCustomerName = customerFirstName + 
-  (customerMiddleName ? ` ${customerMiddleName}` : '') + 
-  ` ${customerLastName}`;
+// ✅ Create full customer name from passengers array
+// const passengers = req.body.passengers || [];
+let fullCustomerName = "";
+
+if (passengers.length > 0) {
+  const primary = passengers[0];
+  fullCustomerName = [
+    primary.prefix ? primary.prefix.toUpperCase() + '.' : '',
+    primary.firstName,
+    primary.middleName,
+    primary.lastName
+  ].filter(Boolean).join(' ');
+}
 
 // Use the full name in your email
-const customerNameToUse = fullCustomerName;
+const customerNameToUse = fullCustomerName || "Valued Customer";
+console.log(`👤 Primary passenger: ${fullCustomerName}`);
 
 
     
@@ -7775,77 +7814,6 @@ const customerNameToUse = fullCustomerName;
     const messageId = generateMessageId(billingEmail);
     console.log("📧 Generated Message-ID:", messageId);
 
-    // ✅ STEP 2: Create Invoice if booking amount exists
-  //   let invoice = null;
-  //   let invoicePaymentSection = "";
-    
-  //   if (bookingAmount && bookingAmount !== "0" && bookingAmount !== "0.00") {
-  //     try {
-  //       console.log("💰 Creating invoice for amount:", bookingAmount);
-        
-  //       // Generate invoice number
-  //       const invoiceNumber = await Invoice.generateInvoiceNumber();
-  //       console.log("📝 Generated invoice number:", invoiceNumber);
-        
-  //       // Create invoice object
-  //       const invoiceData = {
-  //         invoiceNumber,
-  //         // customerName,
-  //          customerName: fullCustomerName,
-  // customerPrefix,
-  // customerFirstName,
-  // customerMiddleName,
-  // customerLastName,
-  // customerDOB,
-  // customerGender,
-  //         customerEmail: billingEmail,
-  //         customerPhone,
-  //         bookingRef: confirmationNumber,
-  //         emailType,
-  //         senderBrand,
-  //         amount: parseFloat(bookingAmount),
-  //         messageId,
-  //         items: [{
-  //           description: getServiceDescription(emailType, {
-  //             packageName,
-  //             airline,
-  //             departure,
-  //             arrival
-  //           }),
-  //           quantity: 1,
-  //           unitPrice: parseFloat(bookingAmount),
-  //           total: parseFloat(bookingAmount)
-  //         }],
-  //         paymentLink: `${process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host'}/invoice/${invoiceNumber}`
-  //       };
-        
-  //       console.log("📋 Invoice data:", invoiceData);
-        
-  //       // Create invoice in database
-  //       invoice = await Invoice.create(invoiceData);
-        
-  //       console.log("✅ Invoice created:", invoice.invoiceNumber);
-  //       console.log("📊 Invoice ID:", invoice._id);
-        
-  //       // ✅ FIXED: Pass all required parameters to generate invoice section
-  //       invoicePaymentSection = generateInvoicePaymentSection(
-  //         invoice, 
-  //         confirmationNumber, 
-  //         customerName, 
-  //         billingEmail, 
-  //         customerPhone, 
-  //         bookingAmount
-  //       );
-        
-  //     } catch (invoiceError) {
-  //       console.error("❌ Error creating invoice:", invoiceError);
-  //       console.error("❌ Invoice error details:", invoiceError.message);
-  //       console.error("❌ Invoice error stack:", invoiceError.stack);
-  //       // Continue without invoice
-  //     }
-  //   } else {
-  //     console.log("ℹ️ No booking amount or amount is zero:", bookingAmount);
-  //   }
 
 
 
@@ -7862,7 +7830,7 @@ if (bookingAmount && bookingAmount !== "0" && bookingAmount !== "0.00") {
     console.log("📝 Generated invoice number:", invoiceNumber);
     
     // ✅ NEW: Get passengers from request
-    const passengers = req.body.passengers || [];
+    // const passengers = req.body.passengers || [];
     
     // Create invoice object with passengers
     const invoiceData = {
@@ -7996,7 +7964,7 @@ if (bookingAmount && bookingAmount !== "0" && bookingAmount !== "0.00") {
 
     // ✅ BUILD EMAIL SECTIONS
     let greetingMessage = `
-      <p>Dear ${customerName}</p>
+      <p>Dear ${fullCustomerName || 'Valued Customer'}</p>
       <p>Greetings of the day!</p>
       <p>As per our telephonic conversation, we have ${finalUpdateType} your reservation for the following itinerary for your travel. We request you to kindly check the itinerary, name(s), and the price details carefully. Please note that the name(s) of the passenger(s) must match exactly as they appear on the Government issued ID.</p>
       <hr style="margin:20px 0; border-top:1px dashed #ccc;">
@@ -8010,13 +7978,41 @@ if (bookingAmount && bookingAmount !== "0" && bookingAmount !== "0.00") {
     // `;
 
     // ✅ Add customer details to email sections
+// let customerDetails = `
+//   <p><b>Customer Details:</b></p>
+//   <p><b>Name:</b> ${customerPrefix ? customerPrefix.toUpperCase() + '.' : ''} ${fullCustomerName}</p>
+//   ${customerDOB ? `<p><b>Date of Birth:</b> ${customerDOB}</p>` : ''}
+//   ${customerGender ? `<p><b>Gender:</b> ${customerGender}</p>` : ''}
+//   <p><b>Phone:</b> ${customerPhone}</p>
+//   <p><b>Email:</b> ${billingEmail}</p>
+// `;
+
+ // ✅ CUSTOMER DETAILS - Show ALL passengers
+let passengerDetailsHTML = '';
+passengers.forEach((passenger, index) => {
+  const passengerName = [
+    passenger.prefix ? passenger.prefix.toUpperCase() + '.' : '',
+    passenger.firstName,
+    passenger.middleName,
+    passenger.lastName
+  ].filter(Boolean).join(' ');
+  
+  passengerDetailsHTML += `
+    <div style="margin-bottom: 8px; padding: 8px; background: ${index % 2 === 0 ? '#f8fafc' : 'white'}; border-radius: 4px; border-left: 3px solid #10b981;">
+      <strong>Passenger ${index + 1}:</strong> ${passengerName || 'N/A'}
+      ${passenger.dob ? `<br><span style="font-size: 12px; color: #64748b;">DOB: ${passenger.dob}</span>` : ''}
+      ${passenger.gender ? `<span style="font-size: 12px; color: #64748b; margin-left: 10px;">Gender: ${passenger.gender}</span>` : ''}
+    </div>
+  `;
+});
+
 let customerDetails = `
-  <p><b>Customer Details:</b></p>
-  <p><b>Name:</b> ${customerPrefix ? customerPrefix.toUpperCase() + '.' : ''} ${fullCustomerName}</p>
-  ${customerDOB ? `<p><b>Date of Birth:</b> ${customerDOB}</p>` : ''}
-  ${customerGender ? `<p><b>Gender:</b> ${customerGender}</p>` : ''}
+  <p><b>Contact Details:</b></p>
   <p><b>Phone:</b> ${customerPhone}</p>
   <p><b>Email:</b> ${billingEmail}</p>
+  <hr style="margin:15px 0; border-top:1px dashed #ccc;">
+  <p><b>Passenger Information (${passengers.length}):</b></p>
+  ${passengerDetailsHTML}
 `;
     // Add specific details based on email type
     switch(emailType) {
@@ -8119,8 +8115,8 @@ let customerDetails = `
     let agreementSection = "";
     if (includeAgreement && confirmationNumber) {
       const backendUrl = process.env.BACKEND_URL || 'https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host';
-      const agreementLink = `${backendUrl}/api/agreement/submit?email=${encodeURIComponent(billingEmail)}&booking=${encodeURIComponent(confirmationNumber)}&name=${encodeURIComponent(customerName)}`;
-      
+      // const agreementLink = `${backendUrl}/api/agreement/submit?email=${encodeURIComponent(billingEmail)}&booking=${encodeURIComponent(confirmationNumber)}&name=${encodeURIComponent(customerName)}`;
+      const agreementLink = `${backendUrl}/api/agreement/submit?email=${encodeURIComponent(billingEmail)}&booking=${encodeURIComponent(confirmationNumber)}&name=${encodeURIComponent(fullCustomerName || customerName || '')}`;
       agreementSection = `
         <hr style="margin:20px 0; border-top:2px solid #4CAF50;">
         <div style="text-align:center; margin:30px 0; padding:25px; background:#f0f9ff; border-radius:15px;">
@@ -8388,7 +8384,7 @@ if (emailType === "new_reservation" || emailType === "flight_confirmation") {
           <h1 style="color:#10b981; margin:0; font-size:24px;">✈️ FareBuzzer Travel</h1>
         </div>
         <h2 style="color:#1e293b; margin:20px 0 10px 0;">${subject}</h2>
-        <p style="font-size:16px; margin-bottom:10px;"><strong>Dear ${customerName},</strong></p>
+       <p style="font-size:16px; margin-bottom:10px;"><strong>Dear ${fullCustomerName || 'Valued Customer'},</strong></p>
         <p style="margin-bottom:20px;">Thank you for your enquiry ${dynamicGreeting}.</p>
         ${message}
         <br/>
@@ -8606,7 +8602,8 @@ console.log("👥 Passengers saved:", req.body.passengers ? req.body.passengers.
 
     // ✅ PREPARE RESPONSE DATA
     const responseData = {
-      customerName, 
+      // customerName, 
+        customerName: fullCustomerName || customerName || 'Customer', 
       customerPhone, 
       billingEmail, 
       emailType,
@@ -8614,7 +8611,8 @@ console.log("👥 Passengers saved:", req.body.passengers ? req.body.passengers.
       templateUsed: templateUsed || null,
       messageId: messageId,
       bookingData: {
-        customerName,
+        // customerName,
+            customerName: fullCustomerName || customerName || 'Customer', 
         customerEmail: billingEmail,
         customerPhone,
         bookingAmount: bookingAmount || "0.00",
@@ -8642,7 +8640,7 @@ console.log("👥 Passengers saved:", req.body.passengers ? req.body.passengers.
       status: "success",
       message: (emailType === "new_reservation" || emailType === "flight_confirmation") && attachments.length > 0
         ? "Email sent successfully with e-ticket" 
-        : `Email sent to ${customerName} & saved successfully`,
+        : `Email sent to ${fullCustomerName || customerName || 'Customer'} & saved successfully`, 
       data: responseData
     });
 

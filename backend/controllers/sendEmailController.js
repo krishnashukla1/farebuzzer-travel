@@ -7556,10 +7556,105 @@ const getServiceDescription = (emailType, details) => {
   }
 };
 
+// const generateInvoicePaymentSection = (invoice, confirmationNumber, customerName, billingEmail, customerPhone, bookingAmount) => {
+//   const frontendUrl = process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host';
+  
+//   // ✅ FIXED: Create payment link from Code 2
+//   const params = new URLSearchParams({
+//     customerName: customerName || '',
+//     email: billingEmail || '',
+//     phone: customerPhone || '',
+//     amount: bookingAmount,
+//     bookingRef: confirmationNumber || '',
+//     source: 'email',
+//     timestamp: Date.now().toString(),
+//     invoiceNumber: invoice.invoiceNumber || '' // Add invoice number
+//   });
+  
+//   const paymentLink = `${frontendUrl}/payment?${params.toString()}`;
+  
+//   // ✅ FIXED: Invoice view link (backend route)
+//   const invoiceViewLink = `${process.env.BACKEND_URL || 'https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host'}/api/invoices/${invoice.invoiceNumber}/view`;
+  
+//   return `
+//     <hr style="margin:20px 0; border-top:2px solid #10b981;">
+    
+//     <div style="text-align:center; margin:30px 0; padding:25px; background:linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%); border-radius:15px; border:2px solid #10b981;">
+//       <h3 style="color:#065f46; margin-bottom:15px; font-size:22px;">📋 Your Invoice & Payment</h3>
+      
+//       <div style="background:white; padding:15px; border-radius:10px; margin-bottom:20px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+//         <p style="margin:0; color:#374151; font-size:16px;">
+//           <span style="color:#64748b;">Invoice Number:</span> 
+//           <strong style="color:#065f46;">${invoice.invoiceNumber}</strong>
+//         </p>
+//         <p style="margin:10px 0 0; color:#374151; font-size:16px;">
+//           <span style="color:#64748b;">Due Date:</span> 
+//           <strong style="color:#065f46;">${new Date(invoice.dueDate).toLocaleDateString()}</strong>
+//         </p>
+//         <p style="margin:10px 0 0; color:#374151; font-size:16px;">
+//           <span style="color:#64748b;">Amount Due:</span> 
+//           <strong style="color:#065f46; font-size:20px;">USD ${invoice.amount}</strong>
+//         </p>
+//       </div>
+      
+//       <!-- VIEW INVOICE BUTTON -->
+//       <a href="${invoiceViewLink}" 
+//          style="display:inline-block; 
+//                 background: #3b82f6;
+//                 color: white; 
+//                 padding: 12px 30px; 
+//                 text-decoration: none; 
+//                 border-radius: 50px; 
+//                 font-weight: bold; 
+//                 font-size: 16px; 
+//                 margin: 10px 5px;
+//                 border: 2px solid #2563eb;">
+//         📄 View Invoice
+//       </a>
+      
+//       <!-- PAY NOW BUTTON (FIXED: Uses paymentLink from Code 2) -->
+//       <a href="${paymentLink}" 
+//          style="display:inline-block; 
+//                 background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+//                 color: white; 
+//                 padding: 12px 30px; 
+//                 text-decoration: none; 
+//                 border-radius: 50px; 
+//                 font-weight: bold; 
+//                 font-size: 16px; 
+//                 box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+//                 margin: 10px 5px;
+//                 border: 2px solid #059669;">
+//         💳 Pay Now - USD ${invoice.amount}
+//       </a>
+      
+//       <!-- PAYMENT OPTIONS -->
+//       <div style="margin-top:20px;">
+//         <p style="color:#047857; font-size:14px; margin-bottom:10px;">
+//           <strong>Accepted Payment Methods:</strong>
+//         </p>
+//         <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
+//           <span style="font-size:12px; color:#6b7280; background:#f3f4f6; padding:4px 8px; border-radius:4px;">✅ PayPal</span>
+//           <span style="font-size:12px; color:#6b7280; background:#f3f4f6; padding:4px 8px; border-radius:4px;">✅ Credit Card</span>
+//           <span style="font-size:12px; color:#6b7280; background:#f3f4f6; padding:4px 8px; border-radius:4px;">✅ Debit Card</span>
+//         </div>
+//       </div>
+      
+//       <!-- ALTERNATIVE INSTRUCTIONS -->
+//       <div style="margin-top:20px; padding:15px; background:#fef3c7; border-radius:8px;">
+//         <p style="color:#92400e; font-size:14px; margin:0;">
+//           <strong>⚠️ Important:</strong> Please complete payment before ${new Date(invoice.dueDate).toLocaleDateString()} to confirm your booking.
+//         </p>
+//       </div>
+//     </div>
+//   `;
+// };
+
+// ✅ MAIN FUNCTION
+
 const generateInvoicePaymentSection = (invoice, confirmationNumber, customerName, billingEmail, customerPhone, bookingAmount) => {
   const frontendUrl = process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host';
   
-  // ✅ FIXED: Create payment link from Code 2
   const params = new URLSearchParams({
     customerName: customerName || '',
     email: billingEmail || '',
@@ -7568,12 +7663,11 @@ const generateInvoicePaymentSection = (invoice, confirmationNumber, customerName
     bookingRef: confirmationNumber || '',
     source: 'email',
     timestamp: Date.now().toString(),
-    invoiceNumber: invoice.invoiceNumber || '' // Add invoice number
+    invoiceNumber: invoice.invoiceNumber || ''
   });
   
   const paymentLink = `${frontendUrl}/payment?${params.toString()}`;
   
-  // ✅ FIXED: Invoice view link (backend route)
   const invoiceViewLink = `${process.env.BACKEND_URL || 'https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host'}/api/invoices/${invoice.invoiceNumber}/view`;
   
   return `
@@ -7612,7 +7706,7 @@ const generateInvoicePaymentSection = (invoice, confirmationNumber, customerName
         📄 View Invoice
       </a>
       
-      <!-- PAY NOW BUTTON (FIXED: Uses paymentLink from Code 2) -->
+      <!-- PAY NOW BUTTON -->
       <a href="${paymentLink}" 
          style="display:inline-block; 
                 background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -7650,7 +7744,6 @@ const generateInvoicePaymentSection = (invoice, confirmationNumber, customerName
   `;
 };
 
-// ✅ MAIN FUNCTION
 export const sendCustomerEmail = async (req, res) => {
   try {
     console.log("📧 Received email request:", req.body.emailType);

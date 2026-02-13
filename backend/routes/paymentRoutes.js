@@ -19,34 +19,33 @@ router.post("/record", async (req, res) => {
 });
 
 
-router.post("/generate-link", async (req, res) => {
-  try {
-    const { name, email, phone, amount, remarks } = req.body;
+// router.post("/generate-link", async (req, res) => {
+//   try {
+//     const { name, email, phone, amount, remarks } = req.body;
 
-    if (!amount || Number(amount) <= 0) {
-      return res.status(400).json({ error: "Valid amount required" });
-    }
+//     if (!amount || Number(amount) <= 0) {
+//       return res.status(400).json({ error: "Valid amount required" });
+//     }
 
-    const invoiceId = "INV" + Date.now();
+//     const invoiceId = "INV" + Date.now();
 
-    // const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-    const frontendUrl = process.env.FRONTEND_URL || "https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host";
+//     // const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+//     const frontendUrl = process.env.FRONTEND_URL || "https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host";
 
     
+// const paymentLink = `${frontendUrl}/paynow?invoice=${invoiceId}`;
 
-const paymentLink = `${frontendUrl}/paynow?invoice=${invoiceId}`;
+//     // const paymentLink = `${process.env.FRONTEND_URL}/paynow?invoice=${invoiceId}`;
 
-    // const paymentLink = `${process.env.FRONTEND_URL}/paynow?invoice=${invoiceId}`;
-
-    res.status(200).json({
-      success: true,
-      invoiceId,
-      paymentLink,
-    });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to generate link" });
-  }
-});
+//     res.status(200).json({
+//       success: true,
+//       invoiceId,
+//       paymentLink,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ error: "Failed to generate link" });
+//   }
+// });
 
 
 export default router; // ✅ VERY IMPORTANT

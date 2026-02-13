@@ -7743,68 +7743,81 @@ const generateInvoicePaymentSection = (invoice, confirmationNumber, customerName
   //   </div>
   // `;
 
-return `
-  <hr style="margin:25px 0; border:none; border-top:1px solid #10b981;" />
- 
 
-  <div style="max-width:520px; margin:0 auto; font-family:Arial, Helvetica, sans-serif; color:#111827;">
-
-    <h2 style="margin:0 0 15px; font-size:18px; font-weight:600;">
-      Invoice Details
-    </h2>
-
-    <table width="100%" cellpadding="6" cellspacing="0" style="border-collapse:collapse; font-size:14px;">
-      <tr>
-        <td style="color:#6b7280;">Invoice Number</td>
-        <td align="right" style="font-weight:600;">${invoice.invoiceNumber}</td>
-      </tr>
-      <tr>
-        <td style="color:#6b7280;">Due Date</td>
-        <td align="right">${new Date(invoice.dueDate).toLocaleDateString()}</td>
-      </tr>
-      <tr>
-        <td style="color:#6b7280;">Amount Due</td>
-        <td align="right" style="font-weight:700; font-size:16px;">
-          USD ${invoice.amount}
-        </td>
-      </tr>
-    </table>
-
-    <div style="margin:25px 0; text-align:center;">
+  return `
+    <hr style="margin:15px 0; border-top:1px solid #10b981;">
+    
+    <div style="text-align:center; margin:15px 0; padding:15px; background:linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%); border-radius:12px; border:1px solid #10b981;">
+      <h3 style="color:#065f46; margin-bottom:10px; font-size:18px;">📋 Your Invoice</h3>
       
-      <a href="${invoiceViewLink}" 
-         style="display:inline-block;
-                padding:10px 22px;
-                font-size:14px;
-                text-decoration:none;
-                border:1px solid #111827;
-                color:#111827;
-                margin-right:10px;">
-        View Invoice
-      </a>
-
-      <a href="${paymentLink}" 
-         style="display:inline-block;
-                padding:10px 22px;
-                font-size:14px;
-                text-decoration:none;
-                background:#111827;
-                color:#ffffff;">
-        Pay Now - USD ${invoice.amount}
-      </a>
-
+      <div style="background:white; padding:12px; border-radius:8px; margin-bottom:15px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+        <p style="margin:0; color:#374151; font-size:14px;">
+          <span style="color:#64748b;">Invoice:</span> 
+          <strong style="color:#065f46;">${invoice.invoiceNumber}</strong>
+        </p>
+        <p style="margin:8px 0 0; color:#374151; font-size:14px;">
+          <span style="color:#64748b;">Due:</span> 
+          <strong style="color:#065f46;">${new Date(invoice.dueDate).toLocaleDateString()}</strong>
+        </p>
+        <p style="margin:8px 0 0; color:#374151; font-size:14px;">
+          <span style="color:#64748b;">Amount:</span> 
+          <strong style="color:#065f46; font-size:18px;">USD ${invoice.amount}</strong>
+        </p>
+      </div>
+      
+      <!-- BUTTONS -->
+      <div style="margin:5px 0;">
+        <a href="${invoiceViewLink}" 
+           style="display:inline-block; 
+                  background: #3b82f6;
+                  color: white; 
+                  padding: 8px 20px; 
+                  text-decoration: none; 
+                  border-radius: 40px; 
+                  font-weight: bold; 
+                  font-size: 14px; 
+                  margin: 5px 3px;
+                  border: 1px solid #2563eb;">
+          📄 View
+        </a>
+        
+        <a href="${paymentLink}" 
+           style="display:inline-block; 
+                  background: #10b981;
+                  color: white; 
+                  padding: 8px 20px; 
+                  text-decoration: none; 
+                  border-radius: 40px; 
+                  font-weight: bold; 
+                  font-size: 14px; 
+                  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+                  margin: 5px 3px;
+                  border: 1px solid #059669;">
+          💳 Pay $${invoice.amount}
+        </a>
+      </div>
+      
+      <!-- PAYMENT METHODS -->
+      <div style="margin-top:12px;">
+        <p style="color:#047857; font-size:12px; margin-bottom:6px;">
+          <strong>Pay via:</strong>
+        </p>
+        <div>
+          <span style="font-size:11px; color:#6b7280; background:#f3f4f6; padding:3px 6px; border-radius:3px;">PayPal</span>
+          <span style="font-size:11px; color:#6b7280; background:#f3f4f6; padding:3px 6px; border-radius:3px; margin-left:5px;">Credit Card</span>
+          <span style="font-size:11px; color:#6b7280; background:#f3f4f6; padding:3px 6px; border-radius:3px; margin-left:5px;">Debit</span>
+        </div>
+      </div>
+      
+      <!-- DUE DATE NOTE -->
+      <div style="margin-top:12px; padding:8px; background:#fef3c7; border-radius:6px;">
+        <p style="color:#92400e; font-size:12px; margin:0;">
+          <strong>⚠️</strong> Pay by ${new Date(invoice.dueDate).toLocaleDateString()}
+        </p>
+      </div>
     </div>
-
-    <p style="font-size:12px; color:#6b7280; text-align:center; margin-top:10px;">
-      Please complete payment before 
-      <strong>${new Date(invoice.dueDate).toLocaleDateString()}</strong> 
-      to confirm your booking.
-    </p>
-
-  </div>
-`;
-
-
+  `;
+  
 };
 
 export const sendCustomerEmail = async (req, res) => {

@@ -29,7 +29,14 @@ router.post("/generate-link", async (req, res) => {
 
     const invoiceId = "INV" + Date.now();
 
-    const paymentLink = `${process.env.FRONTEND_URL}/paynow?invoice=${invoiceId}`;
+    // const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const frontendUrl = process.env.FRONTEND_URL || "https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host/";
+
+    
+
+const paymentLink = `${frontendUrl}/paynow?invoice=${invoiceId}`;
+
+    // const paymentLink = `${process.env.FRONTEND_URL}/paynow?invoice=${invoiceId}`;
 
     res.status(200).json({
       success: true,

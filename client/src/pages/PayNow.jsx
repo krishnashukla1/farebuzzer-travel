@@ -450,10 +450,12 @@ const PayNow = () => {
   // ✅ Generate Payment Link (INSIDE component)
   const generatePaymentLink = async () => {
     try {
+   
+
       const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/generate-link`,
-        formData
-      );
+  `${import.meta.env.VITE_BASE_URL}/payment/generate-link`,
+  formData
+);
 
       setGeneratedLink(res.data.paymentLink);
 

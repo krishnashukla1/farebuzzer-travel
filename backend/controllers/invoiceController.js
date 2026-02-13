@@ -545,7 +545,8 @@ export const viewStyledInvoice = async (req, res) => {
               </div>
               <div class="status-badge bg-blue-100 text-blue-800">
                 <i class="fas fa-dollar-sign mr-2"></i>
-                ${invoice.currency} ${invoice.amount.toFixed(2)}
+              
+                 USD ${invoice.amount.toFixed(2)}
               </div>
             </div>
           </div>
@@ -599,16 +600,18 @@ export const viewStyledInvoice = async (req, res) => {
                     <tr class="hover:bg-gray-50">
                       <td class="px-6 py-4 text-sm text-gray-800">${item.description}</td>
                       <td class="px-6 py-4 text-sm text-gray-600">${item.quantity}</td>
-                      <td class="px-6 py-4 text-sm text-gray-600">${invoice.currency} ${item.unitPrice.toFixed(2)}</td>
-                      <td class="px-6 py-4 text-sm font-medium text-gray-900">${invoice.currency} ${item.total.toFixed(2)}</td>
-                    </tr>
+                   <td class="px-6 py-4 text-sm text-gray-600">USD ${item.unitPrice.toFixed(2)}</td>
+<td class="px-6 py-4 text-sm font-medium text-gray-900">USD ${item.total.toFixed(2)}</td>
+                  
+                      </tr>
                   `).join('')}
                 </tbody>
                 <tfoot>
                   <tr class="bg-green-50 font-bold">
                     <td colspan="3" class="px-6 py-4 text-right text-sm text-green-700">TOTAL AMOUNT</td>
-                    <td class="px-6 py-4 text-lg text-green-700">${invoice.currency} ${invoice.amount.toFixed(2)}</td>
-                  </tr>
+                  <td class="px-6 py-4 text-lg text-green-700">USD ${invoice.amount.toFixed(2)}</td>
+                 
+                    </tr>
                 </tfoot>
               </table>
             </div>
@@ -626,8 +629,10 @@ export const viewStyledInvoice = async (req, res) => {
               <!-- Amount Display -->
               <div class="inline-block bg-gradient-to-r from-green-100 to-blue-100 px-8 py-4 rounded-2xl mb-6">
                 <p class="text-gray-600 text-sm">Amount Due</p>
-                <p class="text-4xl font-bold text-green-700">${invoice.currency} ${invoice.amount.toFixed(2)}</p>
-              </div>
+             
+                <p class="text-4xl font-bold text-green-700">USD ${invoice.amount.toFixed(2)}</p>
+             
+                </div>
               
               <div class="space-y-4">
                 <!-- Pay Now Button -->

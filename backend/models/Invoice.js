@@ -99,7 +99,14 @@ const invoiceSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+    
+  // ✅ Add currency field
+  currency: {
+    type: String,
+    default: 'USD'
+  },
   
+
   // ✅ NEW: Multiple passengers
   passengers: [passengerSchema],
   

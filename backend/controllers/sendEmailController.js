@@ -7828,9 +7828,7 @@ if (bookingAmount && bookingAmount !== "0" && bookingAmount !== "0.00") {
     // Generate invoice number
     const invoiceNumber = await Invoice.generateInvoiceNumber();
     console.log("📝 Generated invoice number:", invoiceNumber);
-    
-    // ✅ NEW: Get passengers from request
-    // const passengers = req.body.passengers || [];
+  
     
     // Create invoice object with passengers
     const invoiceData = {
@@ -7970,22 +7968,6 @@ if (bookingAmount && bookingAmount !== "0" && bookingAmount !== "0.00") {
       <hr style="margin:20px 0; border-top:1px dashed #ccc;">
     `;
 
-    // ✅ CUSTOMER DETAILS
-    // let customerDetails = `
-    //   <p><b>Customer Details:</b></p>
-    //   <p><b>Customer:</b> ${customerName} (${customerPhone})</p>
-    //   <p><b>Email:</b> ${billingEmail}</p>
-    // `;
-
-    // ✅ Add customer details to email sections
-// let customerDetails = `
-//   <p><b>Customer Details:</b></p>
-//   <p><b>Name:</b> ${customerPrefix ? customerPrefix.toUpperCase() + '.' : ''} ${fullCustomerName}</p>
-//   ${customerDOB ? `<p><b>Date of Birth:</b> ${customerDOB}</p>` : ''}
-//   ${customerGender ? `<p><b>Gender:</b> ${customerGender}</p>` : ''}
-//   <p><b>Phone:</b> ${customerPhone}</p>
-//   <p><b>Email:</b> ${billingEmail}</p>
-// `;
 
  // ✅ CUSTOMER DETAILS - Show ALL passengers
 let passengerDetailsHTML = '';
@@ -8251,55 +8233,6 @@ let customerDetails = `
     // Add other sections
     message += agreementSection + paymentInfoSection + chargeNoteSection + fareRulesSection + customMessageSection;
 
-    // ✅ GENERATE E-TICKET PDF (if flight email)
-    // const attachments = [];
-    // if (emailType === "new_reservation" || emailType === "flight_confirmation") {
-    //   try {
-    //     const ticketPath = await generateETicket({
-    //       confirmationNumber,
-    //        customerPrefix,
-    //   customerFirstName,
-    //   customerMiddleName,
-    //   customerLastName,
-    //   customerDOB,
-    //   customerGender,
-    //   // Also keep the original for backward compatibility
-    //   customerName: fullCustomerName || customerName,
-        
-    //       customerPhone,
-    //       billingEmail,
-    //       checkInBaggage: checkInBaggage || "",
-    //       carryOnBaggage: carryOnBaggage || "",
-    //       airline,
-    //       departure,
-    //       arrival,
-    //       travelDate,
-    //       bookingAmount,
-    //       chargeReference,
-    //       cabinClass,
-    //       departureTime,
-    //       arrivalTime,
-    //       ticketNumber,
-    //       flightNumber,
-    //       fareType,
-    //       departureTerminal,
-    //       arrivalTerminal,
-    //       // Add connection time if available
-    //   connectionTime: req.body.connectionTime || "",
-    //   cardLastFour: cardLastFour || "",
-    //       cardLastFour: cardLastFour || "",
-    //     });
-
-    //     attachments.push({
-    //       filename: `FareBuzzer-Eticket-${confirmationNumber}.pdf`,
-    //       path: ticketPath,
-    //       contentType: "application/pdf"
-    //     });
-    //     console.log("✅ E-ticket generated and attached");
-    //   } catch (error) {
-    //     console.error("❌ Error generating e-ticket:", error);
-    //   }
-    // }
 
 
     // ✅ GENERATE E-TICKET PDF (if flight email)
@@ -8425,86 +8358,6 @@ if (emailType === "new_reservation" || emailType === "flight_confirmation") {
     console.log("✅ Email sent successfully");
 
     // ✅ SAVE TO CRM DATABASE
-    // const emailDoc = await Email.create({
-    //   type: "sent",
-    //   emailType,
-    //   from: process.env.GMAIL_USER,
-    //   to: billingEmail,
-    //   subject,
-    //   html,
-    //   templateUsed: templateUsed || null,
-    //   meta: {
-    //      customerPrefix,
-    // customerFirstName,
-    // customerMiddleName,
-    // customerLastName,
-    // customerDOB,
-    // customerGender,
-    //    // Keep full name for backward compatibility
-    // customerName: fullCustomerName,
-    //     customerPhone,
-    //     billingEmail,
-    //     checkInBaggage,
-    //     carryOnBaggage,
-    //     searchQuery,
-    //     category,
-    //     destination,
-    //     airline,
-    //     confirmationNumber,
-    //     departure,
-    //     arrival,
-    //     travelDate,
-    //     bookingAmount,
-    //     refundAmount,
-    //     oldTravelDate,
-    //     newTravelDate,
-    //     changeFee,
-    //     fareDifference,
-    //     cancellationDate,
-    //     customMessage,
-    //     dynamicGreeting,
-    //     messageId: messageId,
-    //     originalMessageId: originalMessageId || null,
-    //     invoiceNumber: invoice ? invoice.invoiceNumber : null,
-    //     // Package fields
-    //     packageName,
-    //     packageNights,
-    //     packageStartDate,
-    //     packageEndDate,
-    //     packagePrice,
-    //     numberOfPersons,
-    //     // Hotel fields
-    //     hotelName,
-    //     roomType,
-    //     // Car rental fields
-    //     carType,
-    //     rentalDays,
-    //     // Insurance fields
-    //     insuranceType,
-    //     insuranceCoverage,
-    //     // Flight ticket fields
-    //     chargeReference,
-    //     cabinClass,
-    //     departureTime,
-    //     arrivalTime,
-    //     ticketNumber,
-    //     flightNumber,
-    //     fareType,
-    //     departureTerminal,
-    //     arrivalTerminal,
-    //     // Update fields
-    //     updateType: finalUpdateType,
-    //     includeAgreement,
-    //     includeChargeNote,
-    //     includeFareRules,
-    //     cardHolderName,
-    //     cardLastFour,
-    //     cardExpiry,
-    //     cardCVV,
-    //     billingAddress,
-    //     customerEmail: customerEmailAlt
-    //   }
-    // });
 
 
     // ✅ SAVE TO CRM DATABASE

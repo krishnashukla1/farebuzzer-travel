@@ -2300,7 +2300,7 @@ const renderPassengerDetails = (doc, data) => {
   }
   
   doc.moveDown(3);
-  return boxY + boxHeight + 10;
+  return boxY + boxHeight + 20;
 };
 
 const renderFlightDetails = (doc, data) => {
@@ -2310,7 +2310,12 @@ const renderFlightDetails = (doc, data) => {
     doc.addPage();
   }
   
-  const sectionTitleY = doc.y;
+  // const sectionTitleY = doc.y;
+
+const sectionTitleY = doc.y + LAYOUT.SECTION_SPACING;
+doc.y = sectionTitleY;
+
+
   
   // Section title
   doc.fillColor('#1E3A8A')

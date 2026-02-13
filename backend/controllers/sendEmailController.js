@@ -7748,7 +7748,7 @@ const generateInvoicePaymentSection = (invoice, confirmationNumber, customerName
     <hr style="margin:15px 0; border-top:1px solid #10b981;">
     
     <div style="text-align:center; margin:15px 0; padding:15px; background:linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%); border-radius:12px; border:1px solid #10b981;">
-      <h3 style="color:#065f46; margin-bottom:10px; font-size:18px;">📋 Your Invoice</h3>
+      <h3 style="color:#065f46; margin-bottom:10px; font-size:18px;">📋 Your Invoice & Payment</h3>
       
       <div style="background:white; padding:12px; border-radius:8px; margin-bottom:15px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
         <p style="margin:0; color:#374151; font-size:14px;">
@@ -7778,7 +7778,7 @@ const generateInvoicePaymentSection = (invoice, confirmationNumber, customerName
                   font-size: 14px; 
                   margin: 5px 3px;
                   border: 1px solid #2563eb;">
-          📄 View
+          📄 View Invoice
         </a>
         
         <a href="${paymentLink}" 
@@ -7793,14 +7793,16 @@ const generateInvoicePaymentSection = (invoice, confirmationNumber, customerName
                   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
                   margin: 5px 3px;
                   border: 1px solid #059669;">
-          💳 Pay $${invoice.amount}
+        
+           💳 Pay Now - USD ${invoice.amount}
         </a>
       </div>
       
       <!-- PAYMENT METHODS -->
       <div style="margin-top:12px;">
         <p style="color:#047857; font-size:12px; margin-bottom:6px;">
-          <strong>Pay via:</strong>
+          
+              <strong>Accepted Payment Methods:</strong>
         </p>
         <div>
           <span style="font-size:11px; color:#6b7280; background:#f3f4f6; padding:3px 6px; border-radius:3px;">PayPal</span>
@@ -7812,12 +7814,13 @@ const generateInvoicePaymentSection = (invoice, confirmationNumber, customerName
       <!-- DUE DATE NOTE -->
       <div style="margin-top:12px; padding:8px; background:#fef3c7; border-radius:6px;">
         <p style="color:#92400e; font-size:12px; margin:0;">
-          <strong>⚠️</strong> Pay by ${new Date(invoice.dueDate).toLocaleDateString()}
+        <strong>⚠️ Important:</strong> Please complete payment before ${new Date(invoice.dueDate).toLocaleDateString()} to confirm your booking.
+
         </p>
       </div>
     </div>
   `;
-  
+
 };
 
 export const sendCustomerEmail = async (req, res) => {

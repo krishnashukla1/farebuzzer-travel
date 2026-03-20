@@ -4,50 +4,6 @@ import checkoutNodeJssdk from "@paypal/checkout-server-sdk";
 import paypalClient from "../services/paypal.js";
 
 
-
-// export const createOrder = async (req, res) => {
-//   try {
-//     const { amount } = req.body;
-
-//     if (!amount) {
-//       return res.status(400).json({ error: "Amount is required" });
-//     }
-
-//     const request = new checkoutNodeJssdk.orders.OrdersCreateRequest();
-//     request.prefer("return=representation");
-
-//     request.requestBody({
-//       intent: "CAPTURE",
-//       purchase_units: [
-//         {
-//           amount: {
-//             currency_code: "USD",
-//             value: amount.toString(), // must be string
-//           },
-//         },
-//       ],
-//     });
-
-//     const order = await paypalClient.execute(request);
-
-//     console.log("✅ PayPal Order Created:", order.result.id);
-//     res.json({ id: order.result.id });
-//   } catch (err) {
-//     console.error("❌ PayPal Create Order Error:", err);
-//     // Very helpful: show the full PayPal error response
-//     if (err.response) {
-//       console.error("PayPal full error:", JSON.stringify(err.response.data, null, 2));
-//       return res.status(500).json({
-//         error: err.message,
-//         paypalError: err.response.data,
-//       });
-//     }
-//     res.status(500).json({ error: err.message });
-//   }
-// };
-
-//DYANAMIC AMOUNT
-
 export const createOrder = async (req, res) => {
   try {
     let { amount } = req.body;

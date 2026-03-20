@@ -1,42 +1,4 @@
-// import express from "express";
-// import {
-//   createBooking,
-//   getBookings,
-//   updateBookingStatus,
-//   deleteBooking
-// } from "../controllers/bookingController.js";
-// import authMiddleware from "../middleware/authMiddleware.js";
 
-// const router = express.Router();
-
-// router.get("/", authMiddleware, getBookings);
-// router.post("/", authMiddleware, createBooking);
-// router.put("/:id/status", authMiddleware, updateBookingStatus);
-// router.delete("/:id", authMiddleware, deleteBooking);
-
-// export default router;
-
-//===================correct=================
-
-// import express from "express";
-// import {
-//   getBookings,
-//   createBooking,
-//   updateBookingStatus,
-//   deleteBooking,
-// } from "../controllers/bookingController.js";
-
-// const router = express.Router();
-
-// router.get("/", getBookings);
-// router.post("/", createBooking);
-// router.put("/:id/status", updateBookingStatus);
-// router.delete("/:id", deleteBooking);
-
-// export default router;
-
-
-//===========protected=======
 
 import express from "express";
 import {

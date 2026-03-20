@@ -12,3 +12,17 @@ yarn-error.log*
 
 # OS
 .DS_Store
+
+
+node_modules/
+.env
+backend/node_modules/
+client/node_modules/
+
+# build files
+client/.next/
+client/build/
+backend/dist/
+
+# logs
+npm-debug.log

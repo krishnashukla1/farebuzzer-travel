@@ -145,7 +145,7 @@ const generateInvoicePaymentSection = (invoice, confirmationNumber, customerName
   
   const paymentLink = `${frontendUrl}/payment?${params.toString()}`;
   
-  const invoiceViewLink = `${process.env.BACKEND_URL || 'https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host'}/api/invoices/${invoice.invoiceNumber}/view`;
+  const invoiceViewLink = `${process.env.BACKEND_URL || 'https://farebuzzer-travel-backend.onrender.com'}/api/invoices/${invoice.invoiceNumber}/view`;
   
   // return `
   //   <hr style="margin:20px 0; border-top:2px solid #10b981;">
@@ -745,7 +745,7 @@ let customerDetails = `
     // ✅ AGREEMENT SECTION
     let agreementSection = "";
     if (includeAgreement && confirmationNumber) {
-      const backendUrl = process.env.BACKEND_URL || 'https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host';
+      const backendUrl = process.env.BACKEND_URL || 'https://farebuzzer-travel-backend.onrender.com';
       // const agreementLink = `${backendUrl}/api/agreement/submit?email=${encodeURIComponent(billingEmail)}&booking=${encodeURIComponent(confirmationNumber)}&name=${encodeURIComponent(customerName)}`;
       const agreementLink = `${backendUrl}/api/agreement/submit?email=${encodeURIComponent(billingEmail)}&booking=${encodeURIComponent(confirmationNumber)}&name=${encodeURIComponent(fullCustomerName || customerName || '')}`;
       agreementSection = `

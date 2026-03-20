@@ -21,11 +21,13 @@ export default defineConfig({
     host: true, // allow access from network
   },
   preview: {
-    host: 'learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host',
+    // host: 'learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host',
+    host:'https://farebuzzer-travel-frontend.onrender.com',
     port: 5173, // or any allowed port
     strictPort: true,
     allowedHosts: [
-      'learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host'
+      // 'learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host'
+      'https://farebuzzer-travel-frontend.onrender.com'
     ]
   }
 })

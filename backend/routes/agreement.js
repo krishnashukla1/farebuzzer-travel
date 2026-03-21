@@ -1,5 +1,5 @@
 
-//=================11 feb=====with ip adress and location name=====
+// //=================11 feb=====with ip adress and location name=====
 
 
 // import express from "express";
@@ -802,201 +802,157 @@
 
 
 
+
+
 import express from "express";
 import nodemailer from "nodemailer";
-import axios from "axios";
-import crypto from "crypto";
 import Email from "../models/Email.js";
+import axios from "axios";
+import crypto from "crypto"; // ✅ FIXED
 
 const router = express.Router();
 
-/* ======================
-   TRUST PROXY
-====================== */
 router.use((req, res, next) => {
   req.app.set("trust proxy", true);
   next();
 });
 
-/* ======================
-   MAIL TRANSPORT (FIXED)
-====================== */
+// ✅ transporter with safety
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
+    user: process.env.GMAIL_USER || "",
+    pass: process.env.GMAIL_APP_PASSWORD || "",
   },
 });
 
-// ✅ Verify transporter (VERY IMPORTANT)
-transporter.verify((err, success) => {
-  if (err) {
-    console.error("❌ Email transporter error:", err);
-  } else {
-    console.log("✅ Email server is ready");
-  }
-});
-
-/* ======================
-   HELPERS
-====================== */
+// ✅ safer IP
 const getClientIP = (req) => {
   const xff = req.headers["x-forwarded-for"];
   if (xff) return xff.split(",")[0].trim();
-  return req.ip || req.socket.remoteAddress || "Unknown";
+  return req.ip || req.socket?.remoteAddress || "Unknown";
 };
 
-const generateMessageId = (email) => {
-  const domain = email.split("@")[1] || "farebuzzertravel.com";
-  return `<${Date.now()}.${crypto.randomBytes(6).toString("hex")}@${domain}>`;
-};
-
-/* ======================
-   GET LOCATION (SAFE)
-====================== */
+// ✅ SAFE LOCATION FUNCTION
 const getLocationFromIP = async (ip) => {
   try {
-    // Skip local IP
-    if (
-      ip === "::1" ||
-      ip === "127.0.0.1" ||
-      ip.startsWith("192.168") ||
-      ip.startsWith("10.") ||
-      ip.startsWith("172.")
-    ) {
-      return {
-        formatted: "Local Development",
-        success: true,
-      };
+    if (!ip || ip === "Unknown") {
+      return { formatted: "Unknown", success: false };
     }
 
     const res = await axios.get(`http://ip-api.com/json/${ip}`, {
-      timeout: 5000,
+      timeout: 4000,
     });
 
-    if (res.data && res.data.status === "success") {
+    if (res.data?.status === "success") {
       return {
-        formatted: `${res.data.city}, ${res.data.regionName}, ${res.data.country}`,
+        formatted: `${res.data.city || ""}, ${res.data.regionName || ""}, ${res.data.country || ""}`,
         success: true,
       };
     }
-  } catch (err) {
-    console.log("⚠️ Location fetch failed:", err.message);
+  } catch (e) {
+    console.log("Location error:", e.message);
   }
 
-  return {
-    formatted: "Unknown Location",
-    success: false,
-  };
+  return { formatted: "Unavailable", success: false };
 };
 
-/* ======================
-   AGREEMENT ROUTE
-====================== */
+const generateMessageId = (email) => {
+  const domain = email?.split("@")[1] || "local";
+  return `<${Date.now()}.${Math.random().toString(36).slice(2)}@${domain}>`;
+};
+
 router.get("/submit", async (req, res) => {
   try {
-    const { email, booking, name, amount, company = "Lowfarestudio" } =
-      req.query;
+    const { email, booking, name, messageId, amount, company } = req.query;
 
     if (!email || !booking) {
       return res.status(400).send("Missing email or booking");
     }
 
-    const ip = getClientIP(req);
-    const location = await getLocationFromIP(ip);
+    const ipAddress = getClientIP(req);
+    const locationData = await getLocationFromIP(ipAddress);
+
     const customerName = name || email.split("@")[0];
+    const formattedAmount = amount ? `$${amount}` : "N/A";
 
-    const time = new Date().toLocaleString("en-IN", {
-      timeZone: "Asia/Kolkata",
-    });
+    // ✅ DB fetch safe
+    let originalEmail = null;
+    try {
+      originalEmail = await Email.findOne({
+        "meta.confirmationNumber": booking,
+      }).sort({ createdAt: -1 });
+    } catch (e) {
+      console.log("DB read error:", e.message);
+    }
 
-    const formattedAmount = amount ? `$${amount}` : "";
+    const originalSubject =
+      originalEmail?.subject || `Flight Reservation ${booking}`;
+
+    const newMessageId = generateMessageId(email);
 
     const agreementText = amount
-      ? `Yes, I agree to pay ${formattedAmount} to ${company}.`
-      : `Yes, I agree.`;
+      ? `Yes, I agree to pay ${formattedAmount} (${company || "company"}).`
+      : "Yes, I agree.";
 
-    /* ======================
-       MESSAGE ID
-    ====================== */
-    const messageId = generateMessageId(email);
+    // ✅ SAFE SUBJECT
+    const safeSubject = `Re: ${originalSubject || "Flight Reservation"}`;
 
-    /* ======================
-       EMAIL HTML
-    ====================== */
     const html = `
-    <h2>Agreement Confirmation</h2>
-    <p><b>${agreementText}</b></p>
-
-    <hr/>
-
-    <p><b>Customer:</b> ${customerName}</p>
-    <p><b>Email:</b> ${email}</p>
-    <p><b>Booking:</b> ${booking}</p>
-
-    <hr/>
-
-    <p><b>IP Address:</b> ${ip}</p>
-    <p><b>Location:</b> ${location.formatted}</p>
-    <p><b>Time:</b> ${time}</p>
+      <h2>Agreement Received</h2>
+      <p><b>Name:</b> ${customerName}</p>
+      <p><b>Email:</b> ${email}</p>
+      <p><b>Booking:</b> ${booking}</p>
+      <p><b>Agreement:</b> ${agreementText}</p>
+      <p><b>IP:</b> ${ipAddress}</p>
+      <p><b>Location:</b> ${locationData.formatted}</p>
     `;
 
-    /* ======================
-       SEND EMAIL (FIXED)
-    ====================== */
-    await transporter.sendMail({
-      from: `"FareBuzzer" <${process.env.GMAIL_USER}>`,
-      to: process.env.ADMIN_EMAIL,
-      replyTo: email,
-      subject: `Agreement Accepted - ${booking}`,
-      text: agreementText,
-      html,
-      headers: {
-        "Message-ID": messageId,
-        "X-Customer-IP": ip,
-        "X-Customer-Location": location.formatted,
-      },
-    });
+    // ✅ SEND MAIL SAFE
+    try {
+      await transporter.sendMail({
+        from: process.env.GMAIL_USER,
+        to: process.env.ADMIN_EMAIL || process.env.GMAIL_USER,
+        subject: safeSubject,
+        html,
+        headers: {
+          "Message-ID": newMessageId,
+        },
+      });
+    } catch (mailErr) {
+      console.error("MAIL ERROR:", mailErr.message);
+    }
 
-    console.log("✅ Email sent successfully");
+    // ✅ SAVE DB SAFE
+    try {
+      await Email.create({
+        type: "received",
+        from: email,
+        subject: safeSubject,
+        html,
+        meta: {
+          booking,
+          ipAddress,
+          location: locationData.formatted,
+          hash: crypto
+            .createHash("md5")
+            .update(email + booking + ipAddress)
+            .digest("hex"),
+        },
+      });
+    } catch (dbErr) {
+      console.error("DB ERROR:", dbErr.message);
+    }
 
-    /* ======================
-       SAVE TO DB
-    ====================== */
-    await Email.create({
-      type: "received",
-      emailType: "agreement",
-      from: email,
-      to: process.env.ADMIN_EMAIL,
-      subject: `Agreement Accepted - ${booking}`,
-      html,
-      meta: {
-        booking,
-        email,
-        ip,
-        location: location.formatted,
-        messageId,
-        time,
-        agreementHash: crypto
-          .createHash("md5")
-          .update(email + booking + ip)
-          .digest("hex"),
-      },
-    });
-
-    /* ======================
-       RESPONSE
-    ====================== */
     return res.send(`
-      <h2>✅ Agreement Submitted</h2>
+      <h2>✅ Agreement Success</h2>
       <p>${agreementText}</p>
-      <p><b>IP:</b> ${ip}</p>
-      <p><b>Location:</b> ${location.formatted}</p>
+      <p>IP: ${ipAddress}</p>
+      <p>Location: ${locationData.formatted}</p>
     `);
   } catch (err) {
-    console.error("❌ ERROR:", err);
-    res.status(500).send("Failed to process agreement");
+    console.error("FINAL ERROR:", err);
+    return res.status(500).send("Failed to process agreement");
   }
 });
 

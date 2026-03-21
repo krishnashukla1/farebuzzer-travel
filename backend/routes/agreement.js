@@ -802,13 +802,169 @@
 
 
 
+//===============================================
+
+// import express from "express";
+// import nodemailer from "nodemailer";
+// import Email from "../models/Email.js";
+// import axios from "axios";
+// import crypto from "crypto"; // ✅ FIXED
+
+// const router = express.Router();
+
+// router.use((req, res, next) => {
+//   req.app.set("trust proxy", true);
+//   next();
+// });
+
+// // ✅ transporter with safety
+// const transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: process.env.GMAIL_USER || "",
+//     pass: process.env.GMAIL_APP_PASSWORD || "",
+//   },
+// });
+
+// // ✅ safer IP
+// const getClientIP = (req) => {
+//   const xff = req.headers["x-forwarded-for"];
+//   if (xff) return xff.split(",")[0].trim();
+//   return req.ip || req.socket?.remoteAddress || "Unknown";
+// };
+
+// // ✅ SAFE LOCATION FUNCTION
+// const getLocationFromIP = async (ip) => {
+//   try {
+//     if (!ip || ip === "Unknown") {
+//       return { formatted: "Unknown", success: false };
+//     }
+
+//     const res = await axios.get(`http://ip-api.com/json/${ip}`, {
+//       timeout: 4000,
+//     });
+
+//     if (res.data?.status === "success") {
+//       return {
+//         formatted: `${res.data.city || ""}, ${res.data.regionName || ""}, ${res.data.country || ""}`,
+//         success: true,
+//       };
+//     }
+//   } catch (e) {
+//     console.log("Location error:", e.message);
+//   }
+
+//   return { formatted: "Unavailable", success: false };
+// };
+
+// const generateMessageId = (email) => {
+//   const domain = email?.split("@")[1] || "local";
+//   return `<${Date.now()}.${Math.random().toString(36).slice(2)}@${domain}>`;
+// };
+
+// router.get("/submit", async (req, res) => {
+//   try {
+//     const { email, booking, name, messageId, amount, company } = req.query;
+
+//     if (!email || !booking) {
+//       return res.status(400).send("Missing email or booking");
+//     }
+
+//     const ipAddress = getClientIP(req);
+//     const locationData = await getLocationFromIP(ipAddress);
+
+//     const customerName = name || email.split("@")[0];
+//     const formattedAmount = amount ? `$${amount}` : "N/A";
+
+//     // ✅ DB fetch safe
+//     let originalEmail = null;
+//     try {
+//       originalEmail = await Email.findOne({
+//         "meta.confirmationNumber": booking,
+//       }).sort({ createdAt: -1 });
+//     } catch (e) {
+//       console.log("DB read error:", e.message);
+//     }
+
+//     const originalSubject =
+//       originalEmail?.subject || `Flight Reservation ${booking}`;
+
+//     const newMessageId = generateMessageId(email);
+
+//     const agreementText = amount
+//       ? `Yes, I agree to pay ${formattedAmount} (${company || "company"}).`
+//       : "Yes, I agree.";
+
+//     // ✅ SAFE SUBJECT
+//     const safeSubject = `Re: ${originalSubject || "Flight Reservation"}`;
+
+//     const html = `
+//       <h2>Agreement Received</h2>
+//       <p><b>Name:</b> ${customerName}</p>
+//       <p><b>Email:</b> ${email}</p>
+//       <p><b>Booking:</b> ${booking}</p>
+//       <p><b>Agreement:</b> ${agreementText}</p>
+//       <p><b>IP:</b> ${ipAddress}</p>
+//       <p><b>Location:</b> ${locationData.formatted}</p>
+//     `;
+
+//     // ✅ SEND MAIL SAFE
+//     try {
+//       await transporter.sendMail({
+//         from: process.env.GMAIL_USER,
+//         to: process.env.ADMIN_EMAIL || process.env.GMAIL_USER,
+//         subject: safeSubject,
+//         html,
+//         headers: {
+//           "Message-ID": newMessageId,
+//         },
+//       });
+//     } catch (mailErr) {
+//       console.error("MAIL ERROR:", mailErr.message);
+//     }
+
+//     // ✅ SAVE DB SAFE
+//     try {
+//       await Email.create({
+//         type: "received",
+//         from: email,
+//         subject: safeSubject,
+//         html,
+//         meta: {
+//           booking,
+//           ipAddress,
+//           location: locationData.formatted,
+//           hash: crypto
+//             .createHash("md5")
+//             .update(email + booking + ipAddress)
+//             .digest("hex"),
+//         },
+//       });
+//     } catch (dbErr) {
+//       console.error("DB ERROR:", dbErr.message);
+//     }
+
+//     return res.send(`
+//       <h2>✅ Agreement Success</h2>
+//       <p>${agreementText}</p>
+//       <p>IP: ${ipAddress}</p>
+//       <p>Location: ${locationData.formatted}</p>
+//     `);
+//   } catch (err) {
+//     console.error("FINAL ERROR:", err);
+//     return res.status(500).send("Failed to process agreement");
+//   }
+// });
+
+// export default router;
 
 
+//======================
 import express from "express";
 import nodemailer from "nodemailer";
 import Email from "../models/Email.js";
 import axios from "axios";
-import crypto from "crypto"; // ✅ FIXED
+import crypto from "crypto";
 
 const router = express.Router();
 
@@ -862,17 +1018,32 @@ const generateMessageId = (email) => {
   return `<${Date.now()}.${Math.random().toString(36).slice(2)}@${domain}>`;
 };
 
+/* =========================
+   GET — Agreement Link (WITH IP ADDRESS & LOCATION)
+========================= */
 router.get("/submit", async (req, res) => {
   try {
-    const { email, booking, name, messageId, amount, company } = req.query;
+    const { 
+      email, 
+      booking, 
+      name, 
+      messageId, 
+      amount, 
+      company 
+    } = req.query;
 
     if (!email || !booking) {
       return res.status(400).send("Missing email or booking");
     }
 
     const ipAddress = getClientIP(req);
+    const time = new Date().toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      dateStyle: 'full',
+      timeStyle: 'long'
+    });
+    
     const locationData = await getLocationFromIP(ipAddress);
-
     const customerName = name || email.split("@")[0];
     const formattedAmount = amount ? `$${amount}` : "N/A";
 
@@ -886,11 +1057,8 @@ router.get("/submit", async (req, res) => {
       console.log("DB read error:", e.message);
     }
 
-    const originalSubject =
-      originalEmail?.subject || `Flight Reservation ${booking}`;
-
+    const originalSubject = originalEmail?.subject || `Flight Reservation ${booking}`;
     const newMessageId = generateMessageId(email);
-
     const agreementText = amount
       ? `Yes, I agree to pay ${formattedAmount} (${company || "company"}).`
       : "Yes, I agree.";
@@ -899,13 +1067,141 @@ router.get("/submit", async (req, res) => {
     const safeSubject = `Re: ${originalSubject || "Flight Reservation"}`;
 
     const html = `
-      <h2>Agreement Received</h2>
-      <p><b>Name:</b> ${customerName}</p>
-      <p><b>Email:</b> ${email}</p>
-      <p><b>Booking:</b> ${booking}</p>
-      <p><b>Agreement:</b> ${agreementText}</p>
-      <p><b>IP:</b> ${ipAddress}</p>
-      <p><b>Location:</b> ${locationData.formatted}</p>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${safeSubject}</title>
+    <style>
+        .ip-section {
+            background: #f8f9fa;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin: 15px 0;
+            font-family: 'Roboto Mono', monospace, Courier, sans-serif;
+            font-size: 13px;
+            color: #3c4043;
+        }
+        .ip-label {
+            color: #5f6368;
+            font-weight: 500;
+        }
+        .ip-value {
+            color: #202124;
+            font-weight: 600;
+        }
+        .location-details {
+            background: #e8f0fe;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-top: 8px;
+            border-left: 3px solid #1a73e8;
+        }
+        .payment-agreement {
+            background: #f0f7ff;
+            border: 1px solid #c2dfff;
+            border-radius: 6px;
+            padding: 12px 15px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        .payment-amount {
+            color: #0d652d;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .security-note {
+            background: #e8f0fe;
+            border-left: 4px solid #1a73e8;
+            padding: 10px 15px;
+            margin: 20px 0;
+            font-size: 12px;
+            color: #3c4043;
+            border-radius: 0 4px 4px 0;
+        }
+    </style>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #202124; margin: 0; padding: 20px;">
+    
+    <!-- Customer's reply (TOP - नया message) -->
+    <div style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #dadce0;">
+        <div style="font-size: 14px; color: #202124; margin-bottom: 10px;">
+            <strong>From:</strong> ${customerName} &lt;${email}&gt;<br>
+            <strong>Date:</strong> ${time}<br>
+            <strong>To:</strong> Admin Support<br>
+            <strong>Subject:</strong> ${safeSubject}
+        </div>
+        
+        <!-- ✅ CUSTOMER'S AGREEMENT WITH PAYMENT INFO -->
+        <div class="payment-agreement">
+            <div style="font-size: 15px; color: #202124; margin-bottom: 8px;">
+                <strong>Agreement Terms:</strong>
+            </div>
+            <div style="white-space: pre-wrap; font-size: 14.5px;">
+${agreementText}
+            </div>
+        </div>
+        
+        <!-- ✅ IP ADDRESS & LOCATION SECTION -->
+        <div class="ip-section">
+            <div style="margin-bottom: 8px;">
+                <span class="ip-label">📡 Agreement Submitted From:</span><br>
+                <span class="ip-value">IP Address: ${ipAddress}</span>
+            </div>
+            
+            <!-- ✅ LOCATION INFORMATION -->
+            <div style="margin-bottom: 10px;">
+                <span class="ip-label">📍 Geolocation Data:</span><br>
+                <div class="location-details">
+                    ${locationData.formatted}<br>
+                    <span style="font-size: 11px; color: #5f6368;">
+                        Based on IP geolocation (approx. location)
+                    </span>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 5px;">
+                <span class="ip-label">🕒 Submission Details:</span><br>
+                <span style="color: #5f6368; font-size: 12px;">
+                    Timestamp: ${time}<br>
+                    User Agent: ${req.headers['user-agent']?.substring(0, 80) || 'Not available'}...
+                </span>
+            </div>
+            
+            <div style="font-size: 11px; color: #80868b; margin-top: 8px;">
+                🔐 IP and location recorded for security and verification purposes.
+            </div>
+        </div>
+        
+        <div class="security-note">
+            <strong>✓ Secure Digital Agreement:</strong> This agreement has been digitally signed and recorded.<br>
+            <strong>✓ IP Verification:</strong> Submitted from verified IP: ${ipAddress}<br>
+            <strong>✓ Location Verified:</strong> ${locationData.formatted}
+        </div>
+    </div>
+    
+    <!-- Hidden system info (for backend) -->
+    <div style="display: none; font-size: 0px; color: transparent;">
+        <!-- SYSTEM DATA FOR THREADING & TRACKING -->
+        AgreementID: ${Date.now()}
+        MessageID: ${newMessageId}
+        BookingRef: ${booking}
+        CustomerIP: ${ipAddress}
+        IPDetails: ${ipAddress} | ${req.headers['x-forwarded-for'] || 'Direct'}
+        Location: ${locationData.formatted}
+        PaymentAmount: ${amount || 'Not specified'}
+        ChargeCompany: ${company || 'Not specified'}
+        UserAgent: ${req.headers['user-agent'] || 'Unknown'}
+        Timestamp: ${new Date().toISOString()}
+        GeoLocation: ${JSON.stringify(locationData.raw)}
+        SecurityLevel: HIGH
+        <!-- END SYSTEM DATA -->
+    </div>
+    
+</body>
+</html>
     `;
 
     // ✅ SEND MAIL SAFE
@@ -917,6 +1213,12 @@ router.get("/submit", async (req, res) => {
         html,
         headers: {
           "Message-ID": newMessageId,
+          'X-Booking-Reference': booking,
+          'X-Customer-Email': email,
+          'X-Customer-IP': ipAddress,
+          'X-Customer-Location': locationData.formatted,
+          'X-Payment-Amount': amount || 'Not specified',
+          'X-Charge-Company': company || 'Not specified',
         },
       });
     } catch (mailErr) {
@@ -927,29 +1229,237 @@ router.get("/submit", async (req, res) => {
     try {
       await Email.create({
         type: "received",
+        emailType: "agreement_accepted",
         from: email,
+        to: process.env.ADMIN_EMAIL || process.env.GMAIL_USER,
         subject: safeSubject,
+        text: `${agreementText}\n\nIP Address: ${ipAddress}\nLocation: ${locationData.formatted}`,
         html,
         meta: {
-          booking,
+          customerName,
+          billingEmail: email,
+          confirmationNumber: booking,
+          paymentDetails: {
+            amount: amount,
+            formattedAmount: formattedAmount,
+            company: company,
+            agreementText: agreementText
+          },
           ipAddress,
-          location: locationData.formatted,
-          hash: crypto
-            .createHash("md5")
-            .update(email + booking + ipAddress)
-            .digest("hex"),
+          ipDetails: {
+            ip: ipAddress,
+            location: locationData.formatted,
+            locationData: locationData.raw,
+            xForwardedFor: req.headers['x-forwarded-for'] || null,
+            userAgent: req.headers['user-agent'] || null,
+            acceptLanguage: req.headers['accept-language'] || null,
+            referer: req.headers['referer'] || null
+          },
+          timestamp: time,
+          messageId: newMessageId,
+          originalMessageId: originalEmail?.meta?.messageId,
+          originalSubject: originalSubject,
+          source: "agreement_link",
+          agreementTime: new Date().toISOString(),
+          emailStyle: "gmail_chain_reply_with_ip_location",
+          security: {
+            ipVerified: true,
+            locationVerified: locationData.success,
+            timestampVerified: true,
+            agreementHash: crypto.createHash('md5').update(`${email}${booking}${ipAddress}${amount || ''}`).digest('hex')
+          },
+          hash: crypto.createHash('md5').update(email + booking + ipAddress).digest('hex')
         },
       });
     } catch (dbErr) {
       console.error("DB ERROR:", dbErr.message);
     }
 
+    /* =========================
+       SUCCESS PAGE (WITH IP & LOCATION DISPLAY)
+    ========================= */
     return res.send(`
-      <h2>✅ Agreement Success</h2>
-      <p>${agreementText}</p>
-      <p>IP: ${ipAddress}</p>
-      <p>Location: ${locationData.formatted}</p>
-    `);
+<html>
+  <body style="
+    margin:0;
+    padding:0;
+    background:#f4f7fb;
+    font-family: 'Segoe UI', Arial, sans-serif;
+  ">
+    <div style="
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    ">
+      <div style="
+        background:#ffffff;
+        max-width:520px;
+        width:100%;
+        border-radius:12px;
+        box-shadow:0 15px 35px rgba(0,0,0,0.12);
+        padding:30px;
+        text-align:center;
+      ">
+        
+        <div style="font-size:56px; color:#22c55e;">✅</div>
+
+        <h1 style="
+          margin:10px 0;
+          font-size:24px;
+          color:#15803d;
+        ">
+          Agreement Submitted Successfully
+        </h1>
+
+        <p style="
+          font-size:14px;
+          color:#555;
+          margin-bottom:25px;
+        ">
+          Your digital agreement has been recorded with IP verification and location tracking.
+        </p>
+
+        <!-- ✅ PAYMENT AGREEMENT DISPLAY -->
+        <div style="
+          background:#f0f9ff;
+          border:2px solid #0ea5e9;
+          border-radius:8px;
+          padding:16px;
+          text-align:left;
+          margin-bottom:20px;
+        ">
+          <div style="display:flex; align-items:center; margin-bottom:10px;">
+            <div style="background:#0ea5e9; width:8px; height:8px; border-radius:50%; margin-right:10px;"></div>
+            <span style="color:#0369a1;font-size:12px;font-weight:bold;">PAYMENT AGREEMENT</span>
+          </div>
+          <div style="font-size:15px; color:#0f172a; margin-bottom:8px;">
+            ${agreementText}
+          </div>
+          ${amount ? `
+          <div style="background:#fff; padding:10px; border-radius:4px; margin-top:10px;">
+            <span style="color:#64748b;font-size:12px;">Amount:</span>
+            <span style="font-size:18px; font-weight:bold; color:#059669; margin-left:10px;">${formattedAmount}</span>
+          </div>
+          ` : ''}
+        </div>
+
+        <!-- ✅ IP & LOCATION DISPLAY -->
+        <div style="
+          background:#0f172a;
+          border-radius:8px;
+          padding:16px;
+          text-align:left;
+          margin-bottom:24px;
+          color:white;
+          font-family: 'Courier New', monospace;
+        ">
+          <div style="display:flex; align-items:center; margin-bottom:10px;">
+            <div style="background:#3b82f6; width:8px; height:8px; border-radius:50%; margin-right:10px;"></div>
+            <span style="color:#94a3b8;font-size:12px;">IP ADDRESS & LOCATION</span>
+          </div>
+          <div style="font-size:18px; font-weight:bold; color:#60a5fa; margin-bottom:5px;">
+            ${ipAddress}
+          </div>
+          <div style="font-size:14px; color:#cbd5e1; margin-bottom:10px; padding:8px; background:#1e293b; border-radius:4px;">
+            📍 ${locationData.formatted}
+          </div>
+          <div style="font-size:11px; color:#94a3b8;">
+            🕒 ${time}
+          </div>
+        </div>
+
+        <div style="
+          background:#f9fafb;
+          border-radius:8px;
+          padding:16px;
+          text-align:left;
+          margin-bottom:24px;
+        ">
+          <div style="margin-bottom:10px;">
+            <span style="color:#6b7280;font-size:13px;">Booking Reference</span><br/>
+            <strong style="color:#111827;">${booking}</strong>
+          </div>
+
+          <div style="margin-bottom:10px;">
+            <span style="color:#6b7280;font-size:13px;">Email Address</span><br/>
+            <strong style="color:#111827;">${email}</strong>
+          </div>
+
+          <div style="margin-bottom:10px;">
+            <span style="color:#6b7280;font-size:13px;">IP Address</span><br/>
+            <strong style="color:#111827; font-family: 'Courier New', monospace;">${ipAddress}</strong>
+          </div>
+
+          <div style="margin-bottom:10px;">
+            <span style="color:#6b7280;font-size:13px;">Geolocation</span><br/>
+            <strong style="color:#111827;">${locationData.formatted}</strong>
+          </div>
+
+          <div>
+            <span style="color:#6b7280;font-size:13px;">Submission Time</span><br/>
+            <strong style="color:#111827;">${time}</strong>
+          </div>
+          
+          ${amount ? `
+          <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #d1d5db;">
+            <span style="color:#6b7280;font-size:13px;">Payment Agreement</span><br/>
+            <span style="color:#059669; font-size:13px;">
+              💳 Amount: ${formattedAmount}<br/>
+              <small style="color:#5f6368;">Charge Company: ${company || 'Not specified'}</small>
+            </span>
+          </div>
+          ` : ''}
+        </div>
+
+        <div style="
+          background:#f0fdf4;
+          border:1px solid #bbf7d0;
+          border-radius:6px;
+          padding:12px;
+          margin-bottom:20px;
+          text-align:left;
+        ">
+          <div style="display:flex; align-items:center; margin-bottom:8px;">
+            <div style="color:#16a34a; margin-right:8px;">✓</div>
+            <span style="font-size:13px; color:#166534;"><strong>Verification Complete</strong></span>
+          </div>
+          <div style="font-size:12px; color:#4b5563;">
+            • Agreement digitally signed from IP: ${ipAddress}<br>
+            • Location verified: ${locationData.formatted}<br>
+            • Payment terms accepted: ${amount ? formattedAmount : 'Not specified'}<br>
+            • Secure connection established
+          </div>
+        </div>
+
+        <button onclick="window.close()" style="
+          background:#2563eb;
+          color:#fff;
+          border:none;
+          padding:12px 22px;
+          border-radius:6px;
+          font-size:14px;
+          font-weight:600;
+          cursor:pointer;
+        ">
+          Close Window
+        </button>
+
+        <div style="
+          margin-top:20px;
+          font-size:12px;
+          color:#9ca3af;
+        ">
+          🔐 IP-Verified Agreement System • ${new Date().getFullYear()}
+        </div>
+
+      </div>
+    </div>
+  </body>
+</html>
+`);
+
   } catch (err) {
     console.error("FINAL ERROR:", err);
     return res.status(500).send("Failed to process agreement");

@@ -70,7 +70,7 @@ function Payment() {
       };
 
       await fetch(
-        "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/record",
+        "https://farebuzzer-travel-backend.onrender.com/api/payment/record",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -222,7 +222,7 @@ return (
           }}
           createOrder={async () => {
             const res = await fetch(
-              "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/create-order",
+              "https://farebuzzer-travel-backend.onrender.com/api/payment/create-order",
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -239,7 +239,7 @@ return (
           }}
           onApprove={async (data) => {
             const res = await fetch(
-              "https://learn-step-farebuzzertravel-backend.skxdwz.easypanel.host/api/payment/capture-order",
+              "https://farebuzzer-travel-backend.onrender.com/api/payment/capture-order",
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

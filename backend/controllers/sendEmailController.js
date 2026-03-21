@@ -130,7 +130,7 @@ const getServiceDescription = (emailType, details) => {
 // ✅ MAIN FUNCTION
 
 const generateInvoicePaymentSection = (invoice, confirmationNumber, customerName, billingEmail, customerPhone, bookingAmount) => {
-  const frontendUrl = process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host';
+  const frontendUrl = process.env.FRONTEND_URL || 'https://farebuzzer-travel-frontend.onrender.com';
   
   const params = new URLSearchParams({
     customerName: customerName || '',
@@ -509,7 +509,7 @@ if (bookingAmount && bookingAmount !== "0" && bookingAmount !== "0.00") {
         unitPrice: parseFloat(bookingAmount) / (passengers.length || 1),
         total: parseFloat(bookingAmount)
       }],
-      paymentLink: `${process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host'}/invoice/${invoiceNumber}`
+      paymentLink: `${process.env.FRONTEND_URL || 'https://farebuzzer-travel-frontend.onrender.com'}/invoice/${invoiceNumber}`
     };
     
     console.log("📋 Invoice data:", invoiceData);
@@ -841,7 +841,7 @@ let customerDetails = `
     // ✅ FALLBACK PAYMENT BUTTON (if invoice creation failed)
     let fallbackPaymentSection = "";
     if (!invoicePaymentSection && bookingAmount && bookingAmount !== "0" && bookingAmount !== "0.00") {
-      const frontendUrl = process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host';
+      const frontendUrl = process.env.FRONTEND_URL || 'https://farebuzzer-travel-frontend.onrender.com';
       const params = new URLSearchParams({
         customerName: customerName || '',
         email: billingEmail || '',

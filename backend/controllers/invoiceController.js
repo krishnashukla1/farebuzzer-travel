@@ -16,7 +16,7 @@ const generateMessageId = (email) => {
 
 // ✅ Generate payment link
 const generatePaymentLink = (invoiceNumber) => {
-    const frontendUrl = process.env.FRONTEND_URL || 'https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host';
+    const frontendUrl = process.env.FRONTEND_URL || 'https://farebuzzer-travel-frontend.onrender.com';
     return `${frontendUrl}/invoice/${invoiceNumber}`;
 };
 
@@ -481,7 +481,7 @@ export const viewStyledInvoice = async (req, res) => {
 
         const frontendUrl =
             process.env.FRONTEND_URL ||
-            "https://learn-step-farebuzzertravel-frontend.skxdwz.easypanel.host";
+            "https://farebuzzer-travel-frontend.onrender.com";
 
         const params = new URLSearchParams({
             invoice: invoice.invoiceNumber,

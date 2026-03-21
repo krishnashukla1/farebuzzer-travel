@@ -1,3 +1,4 @@
+//============old======================
 
 // import nodemailer from "nodemailer";
 // import dotenv from "dotenv";
@@ -22,7 +23,7 @@
 
 // export default transporter;
 
-
+//======================new==========
 
 import { Resend } from "resend";
 import dotenv from "dotenv";

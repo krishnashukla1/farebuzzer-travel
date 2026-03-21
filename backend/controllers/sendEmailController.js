@@ -4,7 +4,8 @@
 
 
 
-import transporter from "../utils/email.js";
+// import transporter from "../utils/email.js";
+import { sendEmail } from "../utils/email.js";
 import Email from "../models/Email.js";
 import { generateETicket } from "../utils/generateETicket.js";
 import Invoice from "../models/Invoice.js";
@@ -987,23 +988,30 @@ if (emailType === "new_reservation" || emailType === "flight_confirmation") {
 
     // ✅ SEND EMAIL
     console.log("📤 Sending email...");
-    const mailOptions = {
-      from: `"FareBuzzer Support" <${process.env.GMAIL_USER}>`,
-      to: billingEmail,
-      replyTo: "besttripmakers@gmail.com",
-      subject: subject,
-      html: html,
-      attachments: attachments,
-      headers: {
-        'Message-ID': messageId,
-        ...(originalMessageId && {
-          'In-Reply-To': originalMessageId,
-          'References': originalMessageId
-        })
-      }
-    };
+    // const mailOptions = {
+    //   from: `"FareBuzzer Support" <${process.env.GMAIL_USER}>`,
+    //   to: billingEmail,
+    //   replyTo: "besttripmakers@gmail.com",
+    //   subject: subject,
+    //   html: html,
+    //   attachments: attachments,
+    //   headers: {
+    //     'Message-ID': messageId,
+    //     ...(originalMessageId && {
+    //       'In-Reply-To': originalMessageId,
+    //       'References': originalMessageId
+    //     })
+    //   }
+    // };
 
-    await transporter.sendMail(mailOptions);
+    // await transporter.sendMail(mailOptions);
+
+await sendEmail({
+  to: billingEmail,
+  subject: subject,
+  html: html,
+  attachments: attachments
+});
     console.log("✅ Email sent successfully");
 
     // ✅ SAVE TO CRM DATABASE
